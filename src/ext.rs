@@ -3,7 +3,7 @@
 //! - SVG: resvg で直接ラスタライズ（外部ツール不要）
 //! - 動画・PDF・HEIC/AVIF:
 //!   - Windows: エクスプローラーと同じサムネイル（シェルのサムネイルプロバイダ）を使う
-//!   - macOS: Quick Look（qlmanage）を使う
+//!   - macOS: Quick Look（QuickLookThumbnailing フレームワーク）を使う
 //!   - どの OS でも、外部ツール（ffmpeg / mutool / pdftoppm / ImageMagick）があれば使う
 
 use std::io::Read;
@@ -382,26 +382,64 @@ fn os_thumbnail(path: &Path, longest: u32) -> Option<RgbImage> {
 }
 
 /// macOS: Quick Look のサムネイル
+///
+/// qlmanage を起動するとファイルごとにプロセスが増え、Dock にアイコンが出入りするので、
+/// QuickLookThumbnailing フレームワークをプロセス内から直接呼ぶ。
 #[cfg(target_os = "macos")]
 fn os_thumbnail(path: &Path, longest: u32) -> Option<RgbImage> {
-    let dir = unique_temp("ql");
-    std::fs::create_dir_all(&dir).ok()?;
-    let status = Command::new("qlmanage")
-        .args(["-t", "-s", &longest.clamp(32, 1024).to_string(), "-o"])
-        .arg(&dir)
-        .arg(path)
-        .stdin(Stdio::null())
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .status()
-        .ok()?;
-    let out = dir.join(format!("{}.png", path.file_name()?.to_string_lossy()));
-    let img = status
-        .success()
+    use std::sync::mpsc;
+    use std::time::Duration;
+
+    use block2::RcBlock;
+    use objc2::AnyThread;
+    use objc2_core_foundation::CGSize;
+    use objc2_foundation::{NSError, NSString, NSURL};
+    use objc2_quick_look_thumbnailing::{
+        QLThumbnailGenerationRequest, QLThumbnailGenerationRequestRepresentationTypes,
+        QLThumbnailGenerator,
+    };
+    use objc2_uniform_type_identifiers::UTTypePNG;
+
+    let abs = std::fs::canonicalize(path).ok()?;
+    let out = unique_temp("ql.png");
+    let side = longest.clamp(32, 1024) as f64;
+    let (tx, rx) = mpsc::channel::<bool>();
+
+    // SAFETY: Objective-C の呼び出し。完了ハンドラは別スレッドから1回だけ呼ばれる。
+    let generator = unsafe { QLThumbnailGenerator::sharedGenerator() };
+    let request = unsafe {
+        QLThumbnailGenerationRequest::initWithFileAtURL_size_scale_representationTypes(
+            QLThumbnailGenerationRequest::alloc(),
+            &NSURL::fileURLWithPath(&NSString::from_str(&abs.to_string_lossy())),
+            CGSize::new(side, side),
+            1.0,
+            // 汎用アイコンではなく、中身のサムネイルだけを受け取る
+            QLThumbnailGenerationRequestRepresentationTypes::Thumbnail,
+        )
+    };
+    let done = RcBlock::new(move |err: *mut NSError| {
+        let _ = tx.send(err.is_null());
+    });
+    unsafe {
+        generator.saveBestRepresentationForRequest_toFileAtURL_asContentType_completionHandler(
+            &request,
+            &NSURL::fileURLWithPath(&NSString::from_str(&out.to_string_lossy())),
+            UTTypePNG,
+            &done,
+        );
+    }
+    let ok = match rx.recv_timeout(Duration::from_secs(10)) {
+        Ok(ok) => ok,
+        Err(_) => {
+            unsafe { generator.cancelRequest(&request) };
+            false
+        }
+    };
+    let img = ok
         .then(|| image::open(&out).ok())
         .flatten()
         .map(|i| i.to_rgb8());
-    let _ = std::fs::remove_dir_all(&dir);
+    let _ = std::fs::remove_file(&out);
     img
 }
 
