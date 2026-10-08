@@ -1,0 +1,34 @@
+[package]
+name = "gls"
+version = "0.1.0"
+edition = "2021"
+description = "ls for images: list and view images in the terminal as thumbnails (Sixel / Kitty / iTerm2, half-block, ASCII art)"
+license = "MIT"
+repository = "https://github.com/equinox79/gls"
+readme = "README.md"
+keywords = ["cli", "image", "terminal", "thumbnail", "sixel"]
+categories = ["command-line-utilities", "multimedia::images"]
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+image = "0.25"
+glob = "0.3"
+crossterm = "0.28"
+rayon = "1"
+resvg = { version = "0.45", default-features = false }
+regex = "1"
+kamadak-exif = "0.6"
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+base64 = "0.22"
+color_quant = "1.1"
+jpeg-decoder = "0.3"
+unicode-width = "0.2"
+terminal_size = "0.4"
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.58", features = ["Win32_Foundation", "Win32_Graphics_Gdi", "Win32_System_Com", "Win32_UI_Shell"] }
+windows-sys = { version = "0.59", features = ["Win32_System_Console", "Win32_Foundation"] }
+
+[profile.release]
+opt-level = 3
+lto = true
