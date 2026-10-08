@@ -698,8 +698,11 @@ fn sort_files(files: &mut Vec<PathBuf>, key: SortKey, reverse: bool) {
 }
 
 fn terminal_width() -> u32 {
+    // 端末から取れないとき（パイプなど）は、環境変数 COLUMNS（多くのコマンドが参照する）を使い、なければ 80
     terminal_size::terminal_size()
         .map(|(w, _)| w.0 as u32)
+        .or_else(|| std::env::var("COLUMNS").ok()?.parse().ok())
+        .filter(|&w| w > 0)
         .unwrap_or(80)
 }
 

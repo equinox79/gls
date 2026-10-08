@@ -11,6 +11,10 @@
 - Parallel decoding, read-ahead and a cache keep it fast even with thousands of images
 - Windows, macOS and Linux (including WSL)
 
+![gls listing six public-domain pictures as thumbnails with file names and sizes](docs/images/demo-image.jpg)
+
+<sub>`gls -s m -v` in a terminal that supports an image protocol (real images, not characters). The six sample pictures are in the public domain, see [docs/CREDITS.md](docs/CREDITS.md). This image was rendered from the real output of `gls`; it is not a photograph of a terminal window.</sub>
+
 ## Install
 
 Requires [Rust](https://rustup.rs/).
@@ -100,6 +104,12 @@ The switch is silent by default; you get a warning only when you ask for `-m ima
 3. **`half` (256 colors)**: terminals whose `TERM` is `*256color`
 4. **`text` (monochrome)**: ASCII art that uses character density. For everything else
 
+The same folder, on a terminal without an image protocol (`half`, left) and with `-m text` (right, ASCII art):
+
+| `half` (TrueColor) | `-m text` |
+| --- | --- |
+| ![half-block rendering](docs/images/demo-half.jpg) | ![ASCII art rendering](docs/images/demo-text.jpg) |
+
 With an explicit `-m half` or `-m text`, no detection is done and that mode is used.
 
 The image protocol is detected from environment variables:
@@ -143,6 +153,7 @@ In WSL, `/mnt/c/...` is converted to `C:/...` and other paths to `\\wsl.localhos
 - When you redirect with `> file.txt`, Windows PowerShell 5 writes UTF-16. Use PowerShell 7 for UTF-8.
 - The legacy Windows console (conhost) also gets ANSI output enabled automatically, but it has no image protocol, so `half` is used.
 - On slow file systems such as `/mnt/c` in WSL, `-m half` or `-s xs` is faster (the EXIF thumbnail can be used).
+- When the output is not a terminal (piped), the width is taken from the `COLUMNS` environment variable (default 80).
 - Messages in the program itself (help, warnings, errors) are currently in Japanese.
 
 ## Development
