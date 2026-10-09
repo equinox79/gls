@@ -78,7 +78,7 @@ pub fn render_svg(path: &Path, longest: u32) -> Result<RgbImage, String> {
         ((size.width() * scale).round() as u32).max(1),
         ((size.height() * scale).round() as u32).max(1),
     );
-    let mut pixmap = resvg::tiny_skia::Pixmap::new(w, h).ok_or("SVG のサイズが不正です")?;
+    let mut pixmap = resvg::tiny_skia::Pixmap::new(w, h).ok_or(t!("svg.bad_size"))?;
     pixmap.fill(resvg::tiny_skia::Color::WHITE);
     resvg::render(
         &tree,
@@ -91,7 +91,7 @@ pub fn render_svg(path: &Path, longest: u32) -> Result<RgbImage, String> {
         .chunks(4)
         .flat_map(|p| [p[0], p[1], p[2]])
         .collect();
-    RgbImage::from_raw(w, h, rgb).ok_or_else(|| "SVG の変換に失敗しました".to_string())
+    RgbImage::from_raw(w, h, rgb).ok_or_else(|| t!("svg.convert_failed").to_string())
 }
 
 // ---------------------------------------------------------------- 外部ツール
@@ -244,7 +244,7 @@ fn via_tools(path: &Path, kind: Kind, longest: u32) -> Result<RgbImage, String> 
     if missing.len() >= all_missing {
         Err(format!("{MISSING_PREFIX}{}", tool_hint(kind)))
     } else {
-        Err("サムネイルを作れませんでした".to_string())
+        Err(t!("thumb.failed").to_string())
     }
 }
 
@@ -283,9 +283,9 @@ fn pdftoppm(p: &str, n: &str, missing: &mut Vec<&str>) -> Option<RgbImage> {
 
 fn tool_hint(kind: Kind) -> &'static str {
     match kind {
-        Kind::Video => "動画のサムネイルを作るには ffmpeg が必要です（インストールして PATH に通してください）",
-        Kind::Pdf => "PDF のサムネイルを作るには mutool（MuPDF）か pdftoppm（poppler）か ImageMagick が必要です",
-        Kind::Heif => "HEIC/AVIF のサムネイルを作るには ImageMagick（magick）か ffmpeg が必要です",
+        Kind::Video => t!("tool.video"),
+        Kind::Pdf => t!("tool.pdf"),
+        Kind::Heif => t!("tool.heif"),
         Kind::Svg => "",
     }
 }

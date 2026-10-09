@@ -1,6 +1,8 @@
 //! gls - Image viewer / thumbnail lister for the terminal
 //! Supports 24-bit TrueColor and custom character palettes.
 
+#[macro_use]
+mod i18n;
 mod ext;
 mod gfx;
 mod info;
@@ -15,7 +17,7 @@ use std::process::exit;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::mpsc;
 
-use clap::{Parser, ValueEnum};
+use clap::{CommandFactory, FromArgMatches, Parser, ValueEnum};
 use image::imageops::FilterType;
 use rayon::prelude::*;
 
@@ -90,33 +92,33 @@ impl Size {
 /// 並び替えの基準
 #[derive(Clone, Copy, Debug, ValueEnum)]
 enum SortKey {
-    /// 指定された順（ワイルドカードの展開順）のまま
+    /// keep the given order (wildcard expansion order)
     None,
-    /// ファイル名（数字は数値として比較: img2 < img10）。昇順
+    /// file name, ascending (digits compared as numbers: img2 < img10)
     Name,
-    /// 更新日時。新しい順
+    /// modified time, newest first
     Date,
-    /// ファイルサイズ。大きい順
+    /// file size, largest first
     Size,
-    /// EXIF の撮影日時（なければ更新日時）。新しい順
+    /// EXIF capture time (modified time if absent), newest first
     ExifDate,
 }
 
 /// 描画モード
 #[derive(Clone, Copy, Debug, ValueEnum)]
 enum Mode {
-    /// 文字の濃淡で表現（パレット使用）
+    /// density of characters (uses the palette)
     Text,
-    /// ハーフブロック `▀` で上下2ピクセルを1文字に描画（縦解像度2倍・要カラー）
+    /// half block `▀`: two pixels per character (double vertical resolution, needs color)
     Half,
-    /// 端末の画像プロトコル（Sixel / Kitty / iTerm2）で本物の画像を表示。非対応なら half
+    /// real images with the terminal's image protocol (Sixel / Kitty / iTerm2); half if unsupported
     Image,
 }
 
 /// 画像プロトコルの指定（--mode image 用）
 #[derive(Clone, Copy, Debug, ValueEnum)]
 enum ProtoArg {
-    /// 環境変数から自動判定
+    /// detect from environment variables
     Auto,
     Sixel,
     Kitty,
@@ -124,7 +126,7 @@ enum ProtoArg {
 }
 
 fn parse_cell_size(s: &str) -> Result<(u32, u32), String> {
-    let err = || format!("`{s}` は WxH の形式（例: 10x20）で指定してください");
+    let err = || t!("err.cell_size", s = s);
     let (w, h) = s.split_once(['x', 'X']).ok_or_else(err)?;
     let (w, h): (u32, u32) = (w.parse().map_err(|_| err())?, h.parse().map_err(|_| err())?);
     if w == 0 || h == 0 {
@@ -214,7 +216,7 @@ struct Grid {
 }
 
 fn parse_grid(s: &str) -> Result<Grid, String> {
-    let err = || format!("`{s}` は COLSxROWS の形式（例: 3x2）で指定してください");
+    let err = || t!("err.grid", s = s);
     let (c, r) = s.split_once(['x', 'X']).ok_or_else(err)?;
     let cols: u32 = c.parse().map_err(|_| err())?;
     let rows: u32 = r.parse().map_err(|_| err())?;
@@ -327,10 +329,14 @@ struct Args {
     #[arg(short, long, value_parser = parse_grid)]
     grid: Option<Grid>,
 
-    /// ファイル名の下に画像情報を表示する。-v: ピクセルの縦横とファイルサイズ、
-    /// -vv: 形式・色・画素数・縦横比・更新日時・EXIF（カメラや撮影設定）も
+    /// Show image info under each name. -v: pixel size and file size;
+    /// -vv: also format, color, megapixels, aspect ratio, modified date and EXIF
     #[arg(short, long, action = clap::ArgAction::Count)]
     verbose: u8,
+
+    /// Message language (e.g. en, ja). Default: detected from the environment
+    #[arg(long, value_name = "LANG")]
+    lang: Option<String>,
 }
 
 /// ITU-R BT.601 に基づく輝度計算 (0 - 255)
@@ -592,11 +598,11 @@ fn collect_inputs(inputs: &[String], depth: usize) -> Vec<PathBuf> {
                         }
                     }
                 }
-                Err(e) => die(&format!("ワイルドカードが不正です `{arg}`: {e}")),
+                Err(e) => die(&t!("err.glob", arg = arg, err = e)),
             }
         } else if path.is_dir() {
             if let Err(e) = walk_dir(path, depth, &mut out) {
-                die(&format!("ディレクトリを読めません `{arg}`: {e}"));
+                die(&t!("err.read_dir", arg = arg, err = e));
             }
         } else {
             out.push(path.to_path_buf());
@@ -1114,10 +1120,7 @@ fn wait_key(out: &mut impl io::Write, term_rows: Option<usize>) -> PagerKey {
     if let Some(rows) = term_rows {
         let _ = write!(out, "\x1b7\x1b[{rows};1H\x1b[2K"); // 保存して、最下行へ
     }
-    let _ = write!(
-        out,
-        "\x1b[7m--More-- (Space: 次の画面 / Enter: 1行 / q: 終了)\x1b[0m"
-    );
+    let _ = write!(out, "\x1b[7m{}\x1b[0m", t!("pager.prompt"));
     let _ = out.flush();
     if enable_raw_mode().is_err() {
         return PagerKey::Screen;
@@ -1201,7 +1204,7 @@ fn emit(lines: impl Iterator<Item = String>, pager: bool) {
     let mut out = stdout.lock();
     if let Err(e) = page_out(lines, &mut out, pager, screen, |o| wait_key(o, term_rows)) {
         if e.kind() != io::ErrorKind::BrokenPipe {
-            die(&format!("出力に失敗しました: {e}"));
+            die(&t!("err.write", err = e));
         }
     }
 }
@@ -1329,7 +1332,7 @@ fn touch_cache(p: &Path) {
 /// キャッシュを削除して、消した件数と容量を表示する
 fn clear_cache() {
     let Some(dir) = cache_dir() else {
-        println!("キャッシュはありません。");
+        println!("{}", t!("cache.none"));
         return;
     };
     let (mut count, mut bytes) = (0u64, 0u64);
@@ -1352,9 +1355,13 @@ fn clear_cache() {
         }
     }
     println!(
-        "キャッシュを削除しました: {count} 件 ({:.1} MB) [{}]",
-        bytes as f64 / 1_048_576.0,
-        dir.display()
+        "{}",
+        t!(
+            "cache.cleared",
+            count = count,
+            mb = format!("{:.1}", bytes as f64 / 1_048_576.0),
+            dir = dir.display()
+        )
     );
 }
 
@@ -1418,7 +1425,7 @@ fn render_cell(path: &Path, o: &Opts, cell_w: u32, cell_h: u32) -> Vec<String> {
             }
             Err(e) => {
                 warn_load(path, &e);
-                vec![center_fit("(読み込み失敗)", cell_w as usize)]
+                vec![center_fit(t!("cell.failed"), cell_w as usize)]
             }
         },
     };
@@ -1454,7 +1461,7 @@ fn single_lines(path: &Path, o: &Opts, width: u32) -> Vec<String> {
     let mut lines = if let Some(g) = o.gfx {
         let img = match load_box(path, o.filter, width * g.px_w, 100_000, false) {
             Ok(i) => i,
-            Err(e) => die(&format!("画像の読み込みに失敗しました: {e}")),
+            Err(e) => die(&t!("err.load_image", err = e)),
         };
         let (cols, rows) = (img.width().div_ceil(g.px_w), img.height().div_ceil(g.px_h));
         let mut canvas = image::RgbaImage::new(cols * g.px_w, rows * g.px_h);
@@ -1464,7 +1471,7 @@ fn single_lines(path: &Path, o: &Opts, width: u32) -> Vec<String> {
     } else {
         let (img, w, h) = match load_fit(path, o, width, None) {
             Ok(r) => r,
-            Err(e) => die(&format!("画像の読み込みに失敗しました: {e}")),
+            Err(e) => die(&t!("err.load_image", err = e)),
         };
         render_lines(&img, o, w, h)
     };
@@ -1493,10 +1500,13 @@ fn warn_load(path: &Path, err: &str) {
                 .lock()
                 .is_ok_and(|mut s| s.insert(hint.to_string()));
             if first {
-                warn(&format!("警告: {hint}"));
+                warn(&t!("warn.prefix", msg = hint));
             }
         }
-        None => warn(&format!("警告: {} を読み込めません: {err}", path.display())),
+        None => warn(&t!(
+            "warn.prefix",
+            msg = t!("warn.load", path = path.display(), err = err)
+        )),
     }
 }
 
@@ -1561,9 +1571,10 @@ impl Iterator for Progress {
                         self.frame += 1;
                         if self.total > 0 {
                             let done = DONE.load(Ordering::Relaxed).min(self.total);
-                            eprint!("\r\x1b[2K{f} 読み込み中 {done}/{}", self.total);
+                            let msg = t!("progress.counted", done = done, total = self.total);
+                            eprint!("\r\x1b[2K{f} {msg}");
                         } else {
-                            eprint!("\r\x1b[2K{f} 読み込み中...");
+                            eprint!("\r\x1b[2K{f} {}", t!("progress.plain"));
                         }
                         let _ = io::stderr().flush();
                         self.shown = true;
@@ -1605,22 +1616,71 @@ fn die(msg: &str) -> ! {
     if stderr_is_tty() {
         eprint!("\r\x1b[2K"); // 読み込み中インジケータの行を消す
     }
-    eprintln!("エラー: {msg}");
+    eprintln!("{}", t!("err.prefix", msg = msg));
     exit(1);
 }
 
+/// `--lang` is needed before clap parses (the help text depends on it), so look for it by hand.
+fn lang_arg() -> Option<String> {
+    let mut it = std::env::args().skip(1);
+    while let Some(a) = it.next() {
+        if a == "--" {
+            break;
+        }
+        if let Some(v) = a.strip_prefix("--lang=") {
+            return Some(v.to_string());
+        }
+        if a == "--lang" {
+            return it.next();
+        }
+    }
+    None
+}
+
+/// The command line definition with the `--help` texts in the chosen language.
+fn localized_command() -> clap::Command {
+    let mut cmd = Args::command();
+    if let Some(about) = i18n::find("help.about") {
+        cmd = cmd.about(about);
+    }
+    let ids: Vec<String> = cmd
+        .get_arguments()
+        .map(|a| a.get_id().to_string())
+        .collect();
+    for id in ids {
+        if let Some(text) = i18n::find(&format!("help.{id}")) {
+            cmd = cmd.mut_arg(id, |a| a.help(text));
+        }
+    }
+    cmd
+}
+
 fn main() {
-    let args = Args::parse();
+    let lang = lang_arg();
+    i18n::init(lang.as_deref());
+    let matches = localized_command().get_matches();
+    let args = Args::from_arg_matches(&matches).unwrap_or_else(|e| e.exit());
+    if let Some(l) = args.lang.as_deref().filter(|l| !i18n::is_available(l)) {
+        warn(&t!(
+            "warn.prefix",
+            msg = t!(
+                "warn.unknown_lang",
+                lang = l,
+                list = i18n::available().join(", "),
+                used = i18n::current()
+            )
+        ));
+    }
 
     if args.clear_cache {
         clear_cache();
         return;
     }
     if args.gamma <= 0.0 || args.contrast < 0.0 {
-        die("--gamma は0より大きく、--contrast は0以上で指定してください。");
+        die(t!("err.gamma_contrast"));
     }
     if args.width == Some(0) {
-        die("横幅は1以上を指定してください。");
+        die(t!("err.width"));
     }
 
     let palette_src = args
@@ -1629,7 +1689,7 @@ fn main() {
         .unwrap_or_else(|| args.palette.chars());
     let mut palette: Vec<char> = palette_src.chars().collect();
     if palette.len() < 2 {
-        die("パレットには少なくとも2文字以上指定してください。");
+        die(t!("err.palette"));
     }
     if args.invert {
         palette.reverse();
@@ -1648,19 +1708,19 @@ fn main() {
     };
     let mut files = collect_inputs(&inputs, depth);
     if files.is_empty() {
-        die("画像ファイルが見つかりませんでした。");
+        die(t!("err.no_images"));
     }
     if !args.regexp.is_empty() {
         let set = match regex::RegexSet::new(&args.regexp) {
             Ok(s) => s,
-            Err(e) => die(&format!("正規表現が不正です: {e}")),
+            Err(e) => die(&t!("err.regex", err = e)),
         };
         files.retain(|p| {
             p.file_name()
                 .is_some_and(|n| set.is_match(&n.to_string_lossy()))
         });
         if files.is_empty() {
-            die("正規表現に一致する画像がありません。");
+            die(t!("err.no_match"));
         }
     }
 
@@ -1685,7 +1745,7 @@ fn main() {
         };
         // 明示的に -m image を指定したのに使えないときだけ知らせる（デフォルト時は黙ってフォールバック）
         if proto.is_none() && args.mode.is_some() {
-            eprintln!("警告: 画像プロトコル対応の端末を判定できませんでした。文字で表示します（--protocol sixel|kitty|iterm2 で指定可）。");
+            eprintln!("{}", t!("warn.prefix", msg = t!("warn.no_protocol")));
         }
         proto.map(|proto| {
             let (px_w, px_h) = args

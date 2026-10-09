@@ -1,0 +1,70 @@
+# English (reference catalog). Format: key = message
+# `\n` is a line break; {name} is a placeholder that must appear in every language.
+
+# ---- --help text (help.<option name>)
+help.about = `ls` for images: shows images in the terminal with an image protocol (Sixel / Kitty / iTerm2), half-block characters or ASCII art.\nGive several images (wildcards and directories work) to get a thumbnail list with file names.
+help.images = Image files, directories or wildcards (e.g. ./*). Defaults to the current directory
+help.regexp = Filter by file name (without the directory part) with a regular expression. Repeat to match any of several patterns. Example: -e "\.png$" -e "(?i)^img_\d+" ((?i) ignores case)
+help.recursive = Also search subdirectories (hidden directories are skipped). The parent directory name is shown before the file name
+help.max_depth = How deep to descend (0: only the given directory, 1: one level down). Implies -R
+help.sort = Sort key. name is ascending; date, size and exif-date are newest / largest first (-r reverses)
+help.reverse = Reverse the order
+help.head = After sorting, show only the first N images (e.g. --sort date -n 20 for the newest 20)
+help.width = Output width in columns: the image width for a single image, the whole output width for a list. Cannot be combined with --size
+help.size = Size preset (default: s). Single image: 24/40/80/120/160 columns; list: each thumbnail 12/20/40/60/80 columns (xs/s/m/l/xl)
+help.palette = Character set preset for text mode
+help.custom_palette = Any character set, from dark to light (takes precedence over --palette)
+help.invert = Invert brightness
+help.no_color = Disable ANSI colors (monochrome)
+help.no_links = Do not add hyperlinks (Ctrl+click to open) to file names
+help.no_pager = Do not pause (like more) when the output does not fit the screen
+help.no_cache = Do not use the render cache
+help.clear_cache =Delete the whole render cache and exit
+help.contrast = Contrast (1.0: unchanged; larger is punchier)
+help.gamma = Gamma (1.0: unchanged; above 1 is brighter, below 1 is darker)
+help.mode = Rendering mode. Default: image (terminal image protocol), falling back to half (TrueColor, then 256 colors) and then text (monochrome) depending on the terminal. half cannot be combined with --no-color (text is used then). -p/--palette applies to text only
+help.protocol = Image protocol for --mode image. auto detects it from environment variables
+help.cell_size = Pixel size of one character cell (e.g. 10x20). Adjust it when images and text are misaligned with Sixel
+help.grid = Grid of a list (COLSxROWS per page); long lists are split into pages. By default as many columns as fit the terminal width (2 rows); 3x2 when only --width is given
+help.verbose = Show image info under each name. -v: pixel size and file size; -vv: also format, color, megapixels, aspect ratio, modified date and EXIF (camera and shooting settings)
+help.lang = Message language (e.g. en, ja). Default: detected from the environment
+
+# ---- errors and warnings
+err.prefix = Error: {msg}
+warn.prefix = Warning: {msg}
+err.cell_size = `{s}` must be in WxH format (e.g. 10x20)
+err.grid = `{s}` must be in COLSxROWS format (e.g. 3x2)
+err.glob = Invalid wildcard `{arg}`: {err}
+err.read_dir = Cannot read directory `{arg}`: {err}
+err.write = Failed to write output: {err}
+err.load_image = Failed to load image: {err}
+err.gamma_contrast = --gamma must be greater than 0 and --contrast must be 0 or more.
+err.width = The width must be at least 1.
+err.palette = The palette needs at least 2 characters.
+err.no_images = No image files found.
+err.regex = Invalid regular expression: {err}
+err.no_match = No images match the regular expression.
+warn.load = Cannot load {path}: {err}
+warn.no_protocol = Could not detect a terminal with an image protocol; showing characters instead (use --protocol sixel|kitty|iterm2 to choose one).
+warn.unknown_lang = Language `{lang}` is not available (available: {list}); using {used}.
+
+# ---- progress, pager, cache
+progress.counted = loading {done}/{total}
+progress.plain = loading...
+pager.prompt = --More-- (Space: next page / Enter: one line / q: quit)
+cell.failed = (load failed)
+cache.none = No cache.
+cache.cleared =Cache cleared: {count} entries ({mb} MB) [{dir}]
+
+# ---- image info (-v / -vv)
+info.modified = Modified {date}
+info.taken = Taken {date}
+info.gps = GPS
+
+# ---- thumbnails of SVG / video / PDF / HEIC
+svg.bad_size = Invalid SVG size
+svg.convert_failed = Failed to convert the SVG
+thumb.failed = Could not create a thumbnail
+tool.video = Making video thumbnails requires ffmpeg (install it and add it to PATH)
+tool.pdf = Making PDF thumbnails requires mutool (MuPDF), pdftoppm (poppler) or ImageMagick
+tool.heif = Making HEIC/AVIF thumbnails requires ImageMagick (magick) or ffmpeg

@@ -106,7 +106,7 @@ pub fn lines(path: &Path, level: u8) -> Vec<String> {
     }
     if let Some(t) = meta.and_then(|m| m.modified().ok()) {
         let t: chrono::DateTime<chrono::Local> = t.into();
-        v.push(format!("更新 {}", t.format("%Y-%m-%d")));
+        v.push(t!("info.modified", date = t.format("%Y-%m-%d")));
     }
     v.extend(exif_lines(path));
     v
@@ -178,7 +178,7 @@ fn exif_lines(path: &Path) -> Vec<String> {
     }
 
     if let Some(d) = get(exif::Tag::DateTimeOriginal) {
-        v.push(format!("撮影 {}", d.get(..10).unwrap_or(&d)));
+        v.push(t!("info.taken", date = d.get(..10).unwrap_or(&d)));
     }
 
     let mut flags = Vec::new();
@@ -186,7 +186,7 @@ fn exif_lines(path: &Path) -> Vec<String> {
         .get_field(exif::Tag::GPSLatitude, exif::In::PRIMARY)
         .is_some()
     {
-        flags.push("GPSあり".to_string());
+        flags.push(t!("info.gps").to_string());
     }
     if !flags.is_empty() {
         v.push(flags.join(" "));

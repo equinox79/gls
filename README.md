@@ -48,7 +48,7 @@ gls ./* -vv                              # also show format, EXIF and other deta
 - When the output is taller than the screen, it pauses one screen at a time like `more` (`Space`/`f`/`PageDown`: next screen, `Enter`/`j`/`↓`: one line, `q`/`Esc`/`Ctrl+C`: quit). It does not pause when piped or redirected.
 - Long file names wrap to at most 3 lines within the thumbnail width. If they still do not fit, the last line is shortened but keeps the extension, like `...png`.
 - Thumbnails are laid out side by side as far as the terminal width allows (set the columns with `-g COLSxROWS`).
-- If the next output takes longer than 0.15 s, a progress indicator such as `⠋ 読み込み中 12/86` ("loading 12/86") appears on stderr (not when redirected).
+- If the next output takes longer than 0.15 s, a progress indicator such as `⠋ loading 12/86` appears on stderr (not when redirected).
 
 ## Options
 
@@ -86,6 +86,7 @@ gls ./* -vv                              # also show format, EXIF and other deta
 | `--no-color` | No color (monochrome `text` mode) |
 | `--no-links` | Do not add hyperlinks to file names |
 | `--no-pager` | Do not pause even when the output does not fit the screen |
+| `--lang <CODE>` | Language of messages (`en`, `ja`). Default: detected from the environment, see [Languages](#languages) |
 
 ### Cache
 
@@ -130,7 +131,7 @@ If your terminal is not detected, choose a protocol with `--protocol sixel` and 
   1. **The OS thumbnail:** on Windows, the same as Explorer (video and PDF work out of the box; for HEIC install "HEIF Image Extensions" from the Microsoft Store); on macOS, Quick Look
   2. **External tools** (used if they are on `PATH`): `ffmpeg` for video; `mutool`, then `pdftoppm`, then ImageMagick for PDF; ImageMagick (`magick`), then `ffmpeg` for HEIC/AVIF
 
-  If none works, the cell shows "(読み込み失敗)" ("failed to load") and a warning that names the missing tool is printed once.
+  If none works, the cell shows "(load failed)" and a warning that names the missing tool is printed once.
 
 ## File name links
 
@@ -154,7 +155,6 @@ In WSL, `/mnt/c/...` is converted to `C:/...` and other paths to `\\wsl.localhos
 - The legacy Windows console (conhost) also gets ANSI output enabled automatically, but it has no image protocol, so `half` is used.
 - On slow file systems such as `/mnt/c` in WSL, `-m half` or `-s xs` is faster (the EXIF thumbnail can be used).
 - When the output is not a terminal (piped), the width is taken from the `COLUMNS` environment variable (default 80).
-- Messages in the program itself (help, warnings, errors) are currently in Japanese.
 
 ## Development
 
@@ -175,6 +175,25 @@ Source layout:
 | `src/info.rs` | Image info for `-v` / `-vv` |
 | `src/orient.rs`, `src/thumb.rs` | EXIF orientation and EXIF thumbnails |
 | `src/link.rs` | File name hyperlinks (OSC 8) |
+| `src/i18n.rs`, `locales/*.txt` | Language selection and message catalogs |
+
+## Languages
+
+Help, warnings, errors and the info labels are available in **English** (default) and **日本語**.
+The language is chosen in this order:
+
+1. `--lang <code>` (e.g. `--lang ja`)
+2. the environment variables `GLS_LANG`, `LC_ALL`, `LC_MESSAGES`, `LANG` (e.g. `ja_JP.UTF-8`)
+3. the display language of Windows
+4. English
+
+Anything not translated falls back to English. (`--help` also keeps clap's own words, such as `Usage:`, in English.)
+
+**Adding a language:**
+
+1. Copy `locales/en.txt` to `locales/<code>.txt` (lower case, e.g. `fr`, `zh-cn`) and translate the messages. Keep every `{placeholder}` as it is.
+2. Add one line to `CATALOGS` in `src/i18n.rs`: `("fr", include_str!("../locales/fr.txt")),`
+3. Run `cargo test`. It checks that every key and placeholder matches `en.txt`.
 
 ## License
 

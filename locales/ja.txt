@@ -1,0 +1,70 @@
+# 日本語。書式: key = メッセージ
+# `\n` は改行、{name} は置き換えられる部分（英語と同じものを含めること）。
+
+# ---- --help の説明（help.<オプション名>）
+help.about = 画像をターミナルに表示する `ls`。画像プロトコル（Sixel / Kitty / iTerm2）・ハーフブロック・アスキーアートで描画します。\n複数の画像（ワイルドカード・ディレクトリ可）を指定すると、ファイル名つきのサムネイル一覧で表示します。
+help.images = 入力画像ファイル・ディレクトリ・ワイルドカード（例: ./*）。省略時はカレントディレクトリ
+help.regexp = ファイル名（ディレクトリ部分を除く）を正規表現で絞り込む。複数指定すると、どれかに一致すれば表示する。例: -e "\.png$"  -e "(?i)^img_\d+"（(?i) で大文字小文字を無視）
+help.recursive = サブディレクトリの中の画像も探す（隠しディレクトリは除く）。ファイル名の前に、親ディレクトリ名も表示する
+help.max_depth = サブディレクトリに入る深さ（0: 直下のみ、1: 1階層下まで）。指定すると -R がなくても再帰する
+help.sort = 並び替えの基準。name は昇順、date / size / exif-date は新しい順・大きい順（-r で逆順）
+help.reverse = 並び順を逆にする
+help.head = 並び替えのあと、先頭から N 枚だけ表示する（例: --sort date -n 20 で新しい順に20枚）
+help.width = 出力の横幅（文字数）。単体表示ではその画像の幅、一覧表示では全体の幅。--size と同時には指定できない
+help.size = 出力サイズのプリセット。デフォルトは s（単体: 24/40/80/120/160文字幅、一覧: サムネイル1枚が12/20/40/60/80文字幅。xs/s/m/l/xl の順）
+help.palette = text モードの文字セットプリセット
+help.custom_palette = 任意の文字セットを暗い順に指定（--palette より優先）
+help.invert = 文字の明暗を反転
+help.no_color = ANSIカラー出力を無効化（モノクロ表示）
+help.no_links = ファイル名にハイパーリンク（Ctrl+クリックで開ける）を付けない
+help.no_pager = 画面に収まらない出力でも一時停止（more 風）しない
+help.no_cache = 描画キャッシュを使わない
+help.clear_cache =描画キャッシュをすべて削除して終了
+help.contrast = コントラスト（1.0 で変化なし、大きいほどメリハリが強く）
+help.gamma = ガンマ（1.0 で変化なし、1より大きいと明るく、小さいと暗く）
+help.mode = 描画モード。デフォルトは image（端末の画像プロトコル）で、使えなければ端末の対応に合わせて half（TrueColor → 256色）、さらに text（モノクロ）へ自動でフォールバックする。half は --no-color と併用不可（併用時は text）。-p/--palette は text 時のみ有効
+help.protocol = 画像プロトコルの指定（--mode image のとき）。auto は環境変数から判定
+help.cell_size = 文字セル1つのピクセルサイズ（例: 10x20）。Sixel で画像と文字の位置がずれるときに調整する
+help.grid = 一覧表示のグリッド（COLSxROWS、1ページあたり）。画像が多い場合は複数ページに分けて出力。未指定なら、端末の横幅に収まるだけ列数を増やす（行数は2）。--width だけを指定したときは 3x2
+help.verbose = ファイル名の下に画像情報を表示する。-v: ピクセルの縦横とファイルサイズ、-vv: 形式・色・画素数・縦横比・更新日時・EXIF（カメラや撮影設定）も
+help.lang = メッセージの言語（例: en, ja）。省略時は環境から判定
+
+# ---- エラーと警告
+err.prefix = エラー: {msg}
+warn.prefix = 警告: {msg}
+err.cell_size = `{s}` は WxH の形式（例: 10x20）で指定してください
+err.grid = `{s}` は COLSxROWS の形式（例: 3x2）で指定してください
+err.glob = ワイルドカードが不正です `{arg}`: {err}
+err.read_dir = ディレクトリを読めません `{arg}`: {err}
+err.write = 出力に失敗しました: {err}
+err.load_image = 画像の読み込みに失敗しました: {err}
+err.gamma_contrast = --gamma は0より大きく、--contrast は0以上で指定してください。
+err.width = 横幅は1以上を指定してください。
+err.palette = パレットには少なくとも2文字以上指定してください。
+err.no_images = 画像ファイルが見つかりませんでした。
+err.regex = 正規表現が不正です: {err}
+err.no_match = 正規表現に一致する画像がありません。
+warn.load = {path} を読み込めません: {err}
+warn.no_protocol = 画像プロトコル対応の端末を判定できませんでした。文字で表示します（--protocol sixel|kitty|iterm2 で指定可）。
+warn.unknown_lang = 言語 `{lang}` は使えません（使える言語: {list}）。{used} を使います。
+
+# ---- 進捗・ページャ・キャッシュ
+progress.counted = 読み込み中 {done}/{total}
+progress.plain = 読み込み中...
+pager.prompt = --More-- (Space: 次の画面 / Enter: 1行 / q: 終了)
+cell.failed = (読み込み失敗)
+cache.none = キャッシュはありません。
+cache.cleared =キャッシュを削除しました: {count} 件 ({mb} MB) [{dir}]
+
+# ---- 画像の情報（-v / -vv）
+info.modified = 更新 {date}
+info.taken = 撮影 {date}
+info.gps = GPSあり
+
+# ---- SVG・動画・PDF・HEIC のサムネイル
+svg.bad_size = SVG のサイズが不正です
+svg.convert_failed = SVG の変換に失敗しました
+thumb.failed = サムネイルを作れませんでした
+tool.video = 動画のサムネイルを作るには ffmpeg が必要です（インストールして PATH に通してください）
+tool.pdf = PDF のサムネイルを作るには mutool（MuPDF）か pdftoppm（poppler）か ImageMagick が必要です
+tool.heif = HEIC/AVIF のサムネイルを作るには ImageMagick（magick）か ffmpeg が必要です

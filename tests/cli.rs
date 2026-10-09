@@ -13,10 +13,56 @@ fn data_dir() -> PathBuf {
 /// キャッシュは使わず、文字描画（モノクロ）にして、出力を固定する。
 fn gls(args: &[&str]) -> Output {
     Command::new(env!("CARGO_BIN_EXE_gls"))
+        .env("GLS_LANG", "en")
         .args(["--no-cache", "--no-color", "-m", "text"])
         .args(args)
         .output()
         .expect("gls を起動できる")
+}
+
+/// 言語の指定だけを変えて実行する（環境の言語設定に左右されないよう、他の指定は外す）
+fn gls_lang(env_lang: Option<&str>, args: &[&str]) -> Output {
+    let mut c = Command::new(env!("CARGO_BIN_EXE_gls"));
+    for k in ["GLS_LANG", "LC_ALL", "LC_MESSAGES", "LANG"] {
+        c.env_remove(k);
+    }
+    if let Some(l) = env_lang {
+        c.env("GLS_LANG", l);
+    }
+    c.args(args).output().expect("gls を起動できる")
+}
+
+#[test]
+fn help_follows_the_language() {
+    let en = stdout(&gls_lang(None, &["--lang", "en", "--help"]));
+    assert!(en.contains("Filter by file name"), "{en}");
+    let ja = stdout(&gls_lang(None, &["--lang=ja", "--help"]));
+    assert!(ja.contains("ファイル名"), "{ja}");
+    // 環境変数でも切り替わる。--lang が優先
+    let ja = stdout(&gls_lang(Some("ja_JP.UTF-8"), &["--help"]));
+    assert!(ja.contains("ファイル名"), "{ja}");
+    let en = stdout(&gls_lang(Some("ja"), &["--lang", "en", "--help"]));
+    assert!(en.contains("Filter by file name"), "{en}");
+}
+
+#[test]
+fn messages_follow_the_language() {
+    let none = data_dir().join("no-such-dir-*.png");
+    let none = none.to_str().unwrap();
+    let err = |o: &Output| String::from_utf8_lossy(&o.stderr).into_owned();
+    let en = err(&gls_lang(Some("en"), &[none]));
+    assert!(en.contains("No image files found"), "{en}");
+    let ja = err(&gls_lang(Some("ja"), &[none]));
+    assert!(ja.contains("画像ファイルが見つかりません"), "{ja}");
+}
+
+#[test]
+fn unknown_language_warns_and_falls_back() {
+    let none = data_dir().join("no-such-dir-*.png");
+    let o = gls_lang(Some("en"), &["--lang", "xx", none.to_str().unwrap()]);
+    let e = String::from_utf8_lossy(&o.stderr).into_owned();
+    assert!(e.contains("`xx` is not available"), "{e}");
+    assert!(e.contains("No image files found"), "{e}");
 }
 
 fn stdout(o: &Output) -> String {
@@ -50,7 +96,7 @@ fn no_match_and_bad_regexp_fail() {
     assert!(!o.status.success());
     let o = gls(&[dir.to_str().unwrap(), "-e", "("]);
     assert!(!o.status.success());
-    assert!(String::from_utf8_lossy(&o.stderr).contains("正規表現"));
+    assert!(String::from_utf8_lossy(&o.stderr).contains("regular expression"));
 }
 
 #[test]
