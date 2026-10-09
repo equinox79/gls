@@ -19,6 +19,7 @@ help.no_color = Disable ANSI colors (monochrome)
 help.no_links = Do not add hyperlinks (Ctrl+click to open) to file names
 help.no_pager = Do not pause (like more) when the output does not fit the screen
 help.no_cache = Do not use the render cache
+help.cache_info = Show where the cache is, how big it is and its limits, then exit
 help.clear_cache =Delete the whole render cache and exit
 help.contrast = Contrast (1.0: unchanged; larger is punchier)
 help.gamma = Gamma (1.0: unchanged; above 1 is brighter, below 1 is darker)
@@ -54,6 +55,12 @@ progress.plain = loading...
 pager.prompt = --More-- (Space: next page / Enter: one line / q: quit)
 cell.failed = (load failed)
 cache.none = No cache.
+cache.info.dir = Cache directory: {dir}
+cache.info.render = Rendered cells (text / half): {count} files, {size}
+cache.info.thumbs = Thumbnails (image mode: video, PDF, HEIC/AVIF, SVG): {count} files, {size}
+cache.info.tmp = Unfinished temporary files: {count} files, {size}
+cache.info.total = Total: {count} files, {size} (limit {limit})
+cache.info.age = Last used: oldest {oldest} days ago, newest {newest} days ago (entries unused for {days} days are removed)
 cache.cleared =Cache cleared: {count} entries ({mb} MB) [{dir}]
 
 # ---- image info (-v / -vv)

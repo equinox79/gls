@@ -194,6 +194,41 @@ fn image_mode_caches_svg_thumbnails() {
 }
 
 #[test]
+fn cache_info_reports_without_creating_the_directory() {
+    let cache = std::env::temp_dir().join(format!("gls-cli-info-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&cache);
+    let run = |args: &[&str]| {
+        let o = Command::new(env!("CARGO_BIN_EXE_gls"))
+            .env("GLS_LANG", "en")
+            .env("XDG_CACHE_HOME", &cache)
+            .env("LOCALAPPDATA", &cache)
+            .args(args)
+            .output()
+            .expect("gls を起動できる");
+        assert!(o.status.success());
+        stdout(&o)
+    };
+    let empty = run(&["--cache-info"]);
+    assert!(empty.contains("Cache directory:"), "{empty}");
+    assert!(empty.contains("Total: 0 files"), "{empty}");
+    assert!(!cache.exists(), "情報の表示でディレクトリは作らない");
+
+    run(&[
+        "-m",
+        "half",
+        data_dir().join("gradient.png").to_str().unwrap(),
+        data_dir().join("portrait.png").to_str().unwrap(),
+    ]); // 2枚以上なら一覧表示になり、キャッシュされる（1枚だけの単体表示はされない）
+    let after = run(&["--cache-info"]);
+    assert!(
+        after.contains("Rendered cells (text / half): 2 files"),
+        "{after}"
+    );
+    assert!(after.contains("Last used:"), "{after}");
+    let _ = std::fs::remove_dir_all(&cache);
+}
+
+#[test]
 fn missing_file_is_an_error() {
     let o = gls(&["no-such-file.png"]);
     assert!(!o.status.success());

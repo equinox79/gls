@@ -298,6 +298,10 @@ struct Args {
     #[arg(long)]
     no_cache: bool,
 
+    /// Show where the cache is, how big it is and its limits, then exit
+    #[arg(long)]
+    cache_info: bool,
+
     /// 描画キャッシュをすべて削除して終了
     #[arg(long)]
     clear_cache: bool,
@@ -1231,8 +1235,8 @@ fn emit(lines: impl Iterator<Item = String>, pager: bool) {
     }
 }
 
-/// 描画キャッシュの保存先ディレクトリ（OS 標準のキャッシュ置き場）
-fn cache_dir() -> Option<PathBuf> {
+/// 描画キャッシュの保存先ディレクトリのパス（OS 標準のキャッシュ置き場。作成はしない）
+fn cache_dir_path() -> Option<PathBuf> {
     let base = if cfg!(windows) {
         std::env::var_os("LOCALAPPDATA").map(PathBuf::from)
     } else {
@@ -1240,9 +1244,84 @@ fn cache_dir() -> Option<PathBuf> {
             .map(PathBuf::from)
             .or_else(|| std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".cache")))
     }?;
-    let dir = base.join("gls").join("cache");
+    Some(base.join("gls").join("cache"))
+}
+
+/// 描画キャッシュの保存先ディレクトリ（なければ作る）
+fn cache_dir() -> Option<PathBuf> {
+    let dir = cache_dir_path()?;
     std::fs::create_dir_all(&dir).ok()?;
     Some(dir)
+}
+
+/// キャッシュの場所・件数・容量・上限を表示する（--cache-info）。ディレクトリは作らない
+fn cache_info() {
+    use std::time::SystemTime;
+    let Some(dir) = cache_dir_path() else {
+        println!("{}", t!("cache.none"));
+        return;
+    };
+    println!("{}", t!("cache.info.dir", dir = dir.display()));
+    // (件数, バイト数) を 描画結果 / 縮小画像 / 一時ファイル の順に数える
+    let mut kinds = [(0u64, 0u64); 3];
+    let now = SystemTime::now();
+    let (mut oldest, mut newest) = (0f64, f64::MAX);
+    for e in std::fs::read_dir(&dir).into_iter().flatten().flatten() {
+        let p = e.path();
+        let (Some(ext), Ok(m)) = (p.extension().and_then(|x| x.to_str()), e.metadata()) else {
+            continue;
+        };
+        let i = match ext {
+            "txt" => 0,
+            "img" => 1,
+            x if x.starts_with("tmp") => 2,
+            _ => continue,
+        };
+        kinds[i].0 += 1;
+        kinds[i].1 += m.len();
+        let days = m
+            .modified()
+            .ok()
+            .and_then(|t| now.duration_since(t).ok())
+            .map_or(0.0, |d| d.as_secs_f64() / 86400.0);
+        oldest = oldest.max(days);
+        newest = newest.min(days);
+    }
+    let (max_bytes, max_age) = cache_limits();
+    let count: u64 = kinds.iter().map(|k| k.0).sum();
+    let bytes: u64 = kinds.iter().map(|k| k.1).sum();
+    let line = |key: &'static str, (n, b): (u64, u64)| {
+        println!(
+            "{}",
+            crate::i18n::fmt(
+                key,
+                &[("count", n.to_string()), ("size", info::human_size(b))]
+            )
+        );
+    };
+    line("cache.info.render", kinds[0]);
+    line("cache.info.thumbs", kinds[1]);
+    line("cache.info.tmp", kinds[2]);
+    println!(
+        "{}",
+        t!(
+            "cache.info.total",
+            count = count,
+            size = info::human_size(bytes),
+            limit = info::human_size(max_bytes)
+        )
+    );
+    if count > 0 {
+        println!(
+            "{}",
+            t!(
+                "cache.info.age",
+                oldest = format!("{oldest:.1}"),
+                newest = format!("{newest:.1}"),
+                days = max_age.as_secs() / 86400
+            )
+        );
+    }
 }
 
 /// キャッシュの保存件数・期間の上限。環境変数 GLS_CACHE_MAX_MB（既定 256）、GLS_CACHE_DAYS（既定 30）で変えられる
@@ -1713,6 +1792,12 @@ fn main() {
         ));
     }
 
+    if args.cache_info {
+        cache_info();
+        if !args.clear_cache {
+            return;
+        }
+    }
     if args.clear_cache {
         clear_cache();
         return;

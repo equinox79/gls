@@ -19,6 +19,7 @@ help.no_color = ANSIカラー出力を無効化（モノクロ表示）
 help.no_links = ファイル名にハイパーリンク（Ctrl+クリックで開ける）を付けない
 help.no_pager = 画面に収まらない出力でも一時停止（more 風）しない
 help.no_cache = 描画キャッシュを使わない
+help.cache_info = キャッシュの場所・件数・容量・上限を表示して終了
 help.clear_cache =描画キャッシュをすべて削除して終了
 help.contrast = コントラスト（1.0 で変化なし、大きいほどメリハリが強く）
 help.gamma = ガンマ（1.0 で変化なし、1より大きいと明るく、小さいと暗く）
@@ -54,6 +55,12 @@ progress.plain = 読み込み中...
 pager.prompt = --More-- (Space: 次の画面 / Enter: 1行 / q: 終了)
 cell.failed = (読み込み失敗)
 cache.none = キャッシュはありません。
+cache.info.dir = キャッシュの場所: {dir}
+cache.info.render = 描画結果（text / half）: {count} 件, {size}
+cache.info.thumbs = 縮小サムネイル（image モードの動画・PDF・HEIC/AVIF・SVG）: {count} 件, {size}
+cache.info.tmp = 書き込み途中の一時ファイル: {count} 件, {size}
+cache.info.total = 合計: {count} 件, {size}（上限 {limit}）
+cache.info.age = 最後に使った日: 最も古いもの {oldest} 日前, 最も新しいもの {newest} 日前（{days} 日使われなかったものは削除されます）
 cache.cleared =キャッシュを削除しました: {count} 件 ({mb} MB) [{dir}]
 
 # ---- 画像の情報（-v / -vv）

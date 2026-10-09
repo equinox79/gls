@@ -93,6 +93,7 @@ gls ./* -vv                              # also show format, EXIF and other deta
 | Option | Description |
 | --- | --- |
 | `--no-cache` | Do not use the render cache |
+| `--cache-info` | Show where the cache is, how many files and how much space it uses (by kind), the oldest / newest last-used age, and the limits, then exit |
 | `--clear-cache` | Delete the whole render cache and exit |
 
 ## Rendering modes and fallback
