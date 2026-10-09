@@ -19,7 +19,35 @@
 
 ## インストール
 
-[Rust](https://rustup.rs/) が必要です。
+### 1. Rust とリンカを用意する
+
+gls は [Rust](https://rustup.rs/) でビルドします。Rust は OS のリンカを使うので、先にそれを入れます。
+
+**macOS**
+
+```bash
+xcode-select --install                                          # Xcode コマンドラインツール（リンカ）
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh  # Rust
+```
+
+**Linux / WSL**（Debian / Ubuntu の場合。ほかのディストリビューションでは `build-essential` に当たるものを入れてください）
+
+```bash
+sudo apt install build-essential curl                           # C コンパイラとリンカ
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh  # Rust
+```
+
+**Windows**
+
+```powershell
+winget install Rustlang.Rustup
+```
+
+Windows の Rust には Visual Studio の C++ ビルドツールが必要です。入っていなければ `rustup` がインストールを案内するので、「C++ によるデスクトップ開発」を選んでください。
+
+終わったら、`cargo` を PATH に通すためにターミナルを開き直してください。
+
+### 2. gls をインストールする
 
 ```bash
 cargo install --git https://github.com/equinox79/gls
@@ -32,6 +60,18 @@ git clone https://github.com/equinox79/gls
 cd gls
 cargo install --path .
 ```
+
+### 3. 必要なら: 動画・PDF・HEIC 用のツール
+
+画像と SVG は追加のツールなしで表示できます。動画・PDF・HEIC/AVIF にはサムネイルを作る手段が必要です（[対応形式](#対応形式)を参照）。
+
+| OS | 標準で使えるもの | 必要に応じて入れるもの |
+| --- | --- | --- |
+| macOS | Quick Look が動画・PDF・HEIC に対応 | `brew install ffmpeg`（`-vv` で動画の詳細を出す場合） |
+| Windows | エクスプローラーのサムネイルが動画・PDF に対応 | HEIC: Microsoft Store の「HEIF 画像拡張機能」。`winget install Gyan.FFmpeg`（`-vv` で動画の詳細を出す場合） |
+| Linux / WSL | なし | `sudo apt install ffmpeg mupdf-tools`（動画と PDF）。HEIC/AVIF には ImageMagick 7（`magick` コマンド）か、HEIF を読める `ffmpeg` |
+
+> Ubuntu の `imagemagick` パッケージはバージョン 6 で `magick` コマンドが無いため、gls からは使われません。
 
 > **名前について:** macOS で Homebrew の `coreutils` を入れていると、GNU の `ls` が `gls` という名前で入っています。
 > 衝突する場合は、`cargo install` のあとに実行ファイルの名前を変えるか、シェルでエイリアスを使ってください。
