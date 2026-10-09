@@ -21,8 +21,8 @@ help.no_pager = 画面に収まらない出力でも一時停止（more 風）�
 help.no_cache = 描画キャッシュを使わない
 help.cache_max_mb = キャッシュ容量の上限（MB、既定 256、または環境変数 GLS_CACHE_MAX_MB）。超えた分の古いものはすぐ削除する
 help.cache_days = この日数を使われなかったキャッシュを削除する（既定 30、または環境変数 GLS_CACHE_DAYS）
-help.cache_info =キャッシュの場所・件数・容量・上限を表示して終了
-help.clear_cache =描画キャッシュをすべて削除して終了
+help.cache_info = キャッシュの場所・件数・容量・上限を表示して終了
+help.clear_cache = 描画キャッシュをすべて削除して終了
 help.contrast = コントラスト（1.0 で変化なし、大きいほどメリハリが強く）
 help.gamma = ガンマ（1.0 で変化なし、1より大きいと明るく、小さいと暗く）
 help.mode = 描画モード。デフォルトは image（端末の画像プロトコル）で、使えなければ端末の対応に合わせて half（TrueColor → 256色）、さらに text（モノクロ）へ自動でフォールバックする。half は --no-color と併用不可（併用時は text）。-p/--palette は text 時のみ有効
@@ -31,7 +31,7 @@ help.cell_size = 文字セル1つのピクセルサイズ（例: 10x20）。Sixe
 help.grid = 一覧表示のグリッド（COLSxROWS、1ページあたり）。画像が多い場合は複数ページに分けて出力。未指定なら、端末の横幅に収まるだけ列数を増やす（行数は2）。--width だけを指定したときは 3x2
 help.verbose = ファイル名の下に画像情報を表示する。-v: ピクセルの縦横とファイルサイズ、-vv: 形式・色・画素数・縦横比・更新日時・EXIF（カメラや撮影設定）も
 help.long = ls -l のような詳細表示。1ファイル1行で、サイズ・縦横・形式・日時・カメラや撮影設定（EXIF）などを並べる。表示するものがない列は省く
-help.lang =メッセージの言語（例: en, ja）。省略時は環境から判定
+help.lang = メッセージの言語（例: en, ja）。省略時は環境から判定
 
 # ---- エラーと警告
 err.prefix = エラー: {msg}
@@ -64,7 +64,7 @@ cache.info.thumbs = 縮小サムネイル（image モードの動画・PDF・HEI
 cache.info.tmp = 書き込み途中の一時ファイル: {count} 件, {size}
 cache.info.total = 合計: {count} 件, {size}（上限 {limit}）
 cache.info.age = 最後に使った日: 最も古いもの {oldest} 日前, 最も新しいもの {newest} 日前（{days} 日使われなかったものは削除されます）
-cache.cleared =キャッシュを削除しました: {count} 件 ({mb} MB) [{dir}]
+cache.cleared = キャッシュを削除しました: {count} 件 ({mb} MB) [{dir}]
 
 # ---- 画像の情報（-v / -vv）
 info.modified = 更新 {date}

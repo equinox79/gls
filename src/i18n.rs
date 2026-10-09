@@ -11,6 +11,25 @@ use std::sync::OnceLock;
 const CATALOGS: &[(&str, &str)] = &[
     ("en", include_str!("../locales/en.txt")),
     ("ja", include_str!("../locales/ja.txt")),
+    ("zh-cn", include_str!("../locales/zh-cn.txt")),
+    ("zh-tw", include_str!("../locales/zh-tw.txt")),
+    ("ko", include_str!("../locales/ko.txt")),
+    ("es", include_str!("../locales/es.txt")),
+    ("fr", include_str!("../locales/fr.txt")),
+    ("de", include_str!("../locales/de.txt")),
+    ("pt-br", include_str!("../locales/pt-br.txt")),
+    ("ru", include_str!("../locales/ru.txt")),
+];
+/// Other names for a language that has a catalog (lower case): script and region variants.
+const ALIASES: &[(&str, &str)] = &[
+    ("zh", "zh-cn"),
+    ("zh-sg", "zh-cn"),
+    ("zh-hans", "zh-cn"),
+    ("zh-hk", "zh-tw"),
+    ("zh-mo", "zh-tw"),
+    ("zh-hant", "zh-tw"),
+    ("pt", "pt-br"),
+    ("pt-pt", "pt-br"),
 ];
 const DEFAULT: &str = "en";
 
@@ -66,7 +85,11 @@ fn resolve(tag: &str) -> Option<&'static str> {
         .to_ascii_lowercase();
     let mut cur = t.as_str();
     loop {
-        if let Some((code, _)) = CATALOGS.iter().find(|(c, _)| *c == cur) {
+        let name = ALIASES
+            .iter()
+            .find(|(a, _)| *a == cur)
+            .map_or(cur, |(_, c)| *c);
+        if let Some((code, _)) = CATALOGS.iter().find(|(c, _)| *c == name) {
             return Some(code);
         }
         cur = cur.rsplit_once('-')?.0;
@@ -203,7 +226,17 @@ mod tests {
         assert_eq!(resolve("ja-JP"), Some("ja"));
         assert_eq!(resolve("JA"), Some("ja"));
         assert_eq!(resolve("en_US.UTF-8"), Some("en"));
-        assert_eq!(resolve("fr_FR"), None);
+        assert_eq!(resolve("fr_FR"), Some("fr"));
+        assert_eq!(resolve("pt_BR.UTF-8"), Some("pt-br"));
+        assert_eq!(resolve("pt-PT"), Some("pt-br"));
+        assert_eq!(resolve("zh_CN.UTF-8"), Some("zh-cn"));
+        assert_eq!(resolve("zh-Hans-CN"), Some("zh-cn"));
+        assert_eq!(resolve("zh_TW"), Some("zh-tw"));
+        assert_eq!(resolve("zh-Hant-TW"), Some("zh-tw"));
+        assert_eq!(resolve("zh-HK"), Some("zh-tw"));
+        assert_eq!(resolve("zh"), Some("zh-cn"));
+        assert_eq!(resolve("ru_RU@euro"), Some("ru"));
+        assert_eq!(resolve("sv_SE"), None);
         assert_eq!(resolve(""), None);
     }
 

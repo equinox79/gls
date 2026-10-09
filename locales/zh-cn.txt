@@ -1,0 +1,93 @@
+# 简体中文。机器翻译，欢迎提出修改建议（见 README）。格式：key = 消息
+# `\n` 表示换行；{name} 是占位符，必须与 en.txt 中的一致。
+
+# ---- --help 文本 (help.<选项名>)
+help.about = 图片版 `ls`：通过终端的图像协议（Sixel / Kitty / iTerm2）、半块字符或 ASCII 艺术在终端中显示图片。\n指定多张图片（支持通配符和目录），即可得到带文件名的缩略图列表。
+help.images = 图片文件、目录或通配符（例如 ./*）。省略时为当前目录
+help.regexp = 用正则表达式按文件名（不含目录部分）筛选。重复指定时，匹配其中任意一个即可。例如：-e "\.png$" -e "(?i)^img_\d+"（(?i) 表示忽略大小写）
+help.recursive = 同时搜索子目录中的图片（跳过隐藏目录）。在文件名前显示上级目录名
+help.max_depth = 进入子目录的深度（0：仅指定的目录，1：再往下一层）。指定后无需 -R 也会递归
+help.sort = 排序依据。name 为升序；date、size、exif-date 为最新优先、最大优先（-r 反向）
+help.reverse = 反转顺序
+help.head = 排序后只显示前 N 张（例如 --sort date -n 20 表示最新的 20 张）
+help.width = 输出宽度（列数）。单张图片时是该图片的宽度，列表时是整体宽度。不能与 --size 同时指定
+help.size = 尺寸预设（默认：s）。单张：24/40/80/120/160 列；列表：每张缩略图 12/20/40/60/80 列（xs/s/m/l/xl）
+help.palette = text 模式的字符集预设
+help.custom_palette = 按从暗到亮的顺序指定任意字符集（优先于 --palette）
+help.invert = 反转亮度
+help.no_color = 关闭 ANSI 颜色（单色显示）
+help.no_links = 不给文件名添加超链接（Ctrl+点击打开）
+help.no_pager = 输出超出屏幕时也不暂停（不使用 more 方式）
+help.no_cache = 不使用渲染缓存
+help.cache_max_mb = 缓存容量上限（MB，默认 256，或环境变量 GLS_CACHE_MAX_MB）。超出部分的旧条目会立即删除
+help.cache_days = 删除这么多天未使用的缓存条目（默认 30，或环境变量 GLS_CACHE_DAYS）
+help.cache_info = 显示缓存的位置、大小和上限，然后退出
+help.clear_cache = 删除全部渲染缓存，然后退出
+help.contrast = 对比度（1.0 为不变，越大越鲜明）
+help.gamma = 伽马（1.0 为不变，大于 1 变亮，小于 1 变暗）
+help.mode = 渲染模式。默认是 image（终端的图像协议），不可用时按终端支持情况依次回退到 half（TrueColor → 256 色）和 text（单色）。half 不能与 --no-color 同时使用（同时使用时为 text）。-p/--palette 仅在 text 时有效
+help.protocol = --mode image 使用的图像协议。auto 根据环境变量判断
+help.cell_size = 一个字符单元的像素大小（例如 10x20）。在 Sixel 下图片与文字位置错位时用于调整
+help.grid = 列表的网格（每页 COLSxROWS）。图片较多时分页输出。省略时按终端宽度尽量多排列（行数为 2）。只指定 --width 时为 3x2
+help.verbose = 在每个名称下显示图片信息。-v：像素尺寸和文件大小；-vv：还显示格式、颜色、像素数、宽高比、修改日期和 EXIF（相机和拍摄参数）
+help.long = 类似 ls -l 的详细列表。每个文件一行，列出大小、尺寸、格式、日期、相机和拍摄参数（EXIF）等。没有内容可显示的列会省略
+help.lang = 消息语言（例如 en、ja）。省略时根据环境判断
+
+# ---- 错误和警告
+err.prefix = 错误：{msg}
+warn.prefix = 警告：{msg}
+err.cell_size = `{s}` 必须使用 WxH 格式（例如 10x20）
+err.grid = `{s}` 必须使用 COLSxROWS 格式（例如 3x2）
+err.glob = 通配符无效 `{arg}`：{err}
+err.read_dir = 无法读取目录 `{arg}`：{err}
+err.write = 输出失败：{err}
+err.load_image = 加载图片失败：{err}
+err.gamma_contrast = --gamma 必须大于 0，--contrast 必须大于等于 0。
+err.width = 宽度必须至少为 1。
+err.palette = 字符集至少需要 2 个字符。
+err.no_images = 没有找到图片文件。
+err.regex = 正则表达式无效：{err}
+err.no_match = 没有与正则表达式匹配的图片。
+warn.load = 无法加载 {path}：{err}
+warn.no_protocol = 无法判断终端是否支持图像协议，改用字符显示（可用 --protocol sixel|kitty|iterm2 指定）。
+warn.unknown_lang = 语言 `{lang}` 不可用（可用语言：{list}）。改用 {used}。
+
+# ---- 进度、分页、缓存
+progress.counted = 加载中 {done}/{total}
+progress.plain = 加载中...
+pager.prompt = --More-- (Space：下一屏 / Enter：一行 / q：退出)
+cell.failed = (加载失败)
+cache.none = 没有缓存。
+cache.info.dir = 缓存位置：{dir}
+cache.info.render = 渲染结果（text / half）：{count} 个文件，{size}
+cache.info.thumbs = 缩略图（image 模式下的视频、PDF、HEIC/AVIF、SVG）：{count} 个文件，{size}
+cache.info.tmp = 未写完的临时文件：{count} 个文件，{size}
+cache.info.total = 合计：{count} 个文件，{size}（上限 {limit}）
+cache.info.age = 最后使用：最旧的是 {oldest} 天前，最新的是 {newest} 天前（{days} 天未使用的条目会被删除）
+cache.cleared = 已删除缓存：{count} 个条目（{mb} MB）[{dir}]
+
+# ---- 图片信息 (-v / -vv)
+info.modified = 修改 {date}
+info.taken = 拍摄 {date}
+info.gps = 含 GPS
+
+# ---- SVG / 视频 / PDF / HEIC 缩略图
+svg.bad_size = SVG 尺寸无效
+svg.convert_failed = SVG 转换失败
+thumb.failed = 无法生成缩略图
+tool.video = 生成视频缩略图需要 ffmpeg（请安装并加入 PATH）
+tool.pdf = 生成 PDF 缩略图需要 mutool（MuPDF）、pdftoppm（poppler）或 ImageMagick
+tool.heif = 生成 HEIC/AVIF 缩略图需要 ImageMagick（magick）或 ffmpeg
+
+# ---- 详细列表 (-l) 的列标题
+long.size = 大小
+long.dims = 尺寸
+long.mp = 像素数
+long.aspect = 宽高比
+long.format = 格式
+long.modified = 修改时间
+long.taken = 拍摄时间
+long.camera = 相机
+long.details = 详情
+long.gps = GPS
+long.name = 名称

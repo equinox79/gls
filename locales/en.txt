@@ -21,8 +21,8 @@ help.no_pager = Do not pause (like more) when the output does not fit the screen
 help.no_cache = Do not use the render cache
 help.cache_max_mb = Cache size limit in MB (default: 256, or the environment variable GLS_CACHE_MAX_MB). Old entries beyond it are removed right away
 help.cache_days = Delete cache entries unused for this many days (default: 30, or the environment variable GLS_CACHE_DAYS)
-help.cache_info =Show where the cache is, how big it is and its limits, then exit
-help.clear_cache =Delete the whole render cache and exit
+help.cache_info = Show where the cache is, how big it is and its limits, then exit
+help.clear_cache = Delete the whole render cache and exit
 help.contrast = Contrast (1.0: unchanged; larger is punchier)
 help.gamma = Gamma (1.0: unchanged; above 1 is brighter, below 1 is darker)
 help.mode = Rendering mode. Default: image (terminal image protocol), falling back to half (TrueColor, then 256 colors) and then text (monochrome) depending on the terminal. half cannot be combined with --no-color (text is used then). -p/--palette applies to text only
@@ -31,7 +31,7 @@ help.cell_size = Pixel size of one character cell (e.g. 10x20). Adjust it when i
 help.grid = Grid of a list (COLSxROWS per page); long lists are split into pages. By default as many columns as fit the terminal width (2 rows); 3x2 when only --width is given
 help.verbose = Show image info under each name. -v: pixel size and file size; -vv: also format, color, megapixels, aspect ratio, modified date and EXIF (camera and shooting settings)
 help.long = Long listing, like ls -l: one line per file with size, dimensions, format, dates, camera and shooting settings (EXIF) and more. Columns with nothing to show are left out
-help.lang =Message language (e.g. en, ja). Default: detected from the environment
+help.lang = Message language (e.g. en, ja). Default: detected from the environment
 
 # ---- errors and warnings
 err.prefix = Error: {msg}
@@ -64,7 +64,7 @@ cache.info.thumbs = Thumbnails (image mode: video, PDF, HEIC/AVIF, SVG): {count}
 cache.info.tmp = Unfinished temporary files: {count} files, {size}
 cache.info.total = Total: {count} files, {size} (limit {limit})
 cache.info.age = Last used: oldest {oldest} days ago, newest {newest} days ago (entries unused for {days} days are removed)
-cache.cleared =Cache cleared: {count} entries ({mb} MB) [{dir}]
+cache.cleared = Cache cleared: {count} entries ({mb} MB) [{dir}]
 
 # ---- image info (-v / -vv)
 info.modified = Modified {date}

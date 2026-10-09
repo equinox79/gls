@@ -1,0 +1,93 @@
+# Português (Brasil). Tradução automática; correções são bem-vindas (veja o README). Formato: key = mensagem
+# `\n` é uma quebra de linha; {name} é um marcador que deve aparecer igual ao de en.txt.
+
+# ---- texto de --help (help.<nome da opção>)
+help.about = `ls` para imagens: mostra imagens no terminal com um protocolo de imagem (Sixel / Kitty / iTerm2), com caracteres de meio bloco ou como arte ASCII.\nInforme várias imagens (curingas e diretórios são aceitos) para obter uma lista de miniaturas com os nomes dos arquivos.
+help.images = Arquivos de imagem, diretórios ou curingas (ex.: ./*). Padrão: o diretório atual
+help.regexp = Filtra pelo nome do arquivo (sem a parte do diretório) com uma expressão regular. Repita para aceitar qualquer um de vários padrões. Exemplo: -e "\.png$" -e "(?i)^img_\d+" ((?i) ignora maiúsculas e minúsculas)
+help.recursive = Procura também nos subdiretórios (diretórios ocultos são ignorados). O nome do diretório pai é mostrado antes do nome do arquivo
+help.max_depth = Até que profundidade descer (0: só o diretório informado, 1: um nível abaixo). Implica -R
+help.sort = Critério de ordenação. name é crescente; date, size e exif-date vão do mais recente / maior para o menor (-r inverte)
+help.reverse = Inverte a ordem
+help.head = Após ordenar, mostra só as primeiras N imagens (ex.: --sort date -n 20 para as 20 mais recentes)
+help.width = Largura da saída em colunas: a largura da imagem, se for uma só, ou a largura total, se for uma lista. Não pode ser combinada com --size
+help.size = Tamanho predefinido (padrão: s). Uma imagem: 24/40/80/120/160 colunas; lista: cada miniatura com 12/20/40/60/80 colunas (xs/s/m/l/xl)
+help.palette = Conjunto de caracteres predefinido para o modo text
+help.custom_palette = Qualquer conjunto de caracteres, do escuro ao claro (tem prioridade sobre --palette)
+help.invert = Inverte o brilho
+help.no_color = Desativa as cores ANSI (monocromático)
+help.no_links = Não adiciona hiperlinks (Ctrl+clique para abrir) aos nomes dos arquivos
+help.no_pager = Não faz pausas (como o more) quando a saída não cabe na tela
+help.no_cache = Não usa o cache de renderização
+help.cache_max_mb = Limite de tamanho do cache em MB (padrão: 256, ou a variável de ambiente GLS_CACHE_MAX_MB). As entradas mais antigas além do limite são removidas imediatamente
+help.cache_days = Apaga as entradas do cache sem uso há este número de dias (padrão: 30, ou a variável de ambiente GLS_CACHE_DAYS)
+help.cache_info = Mostra onde está o cache, qual o seu tamanho e os seus limites, e termina
+help.clear_cache = Apaga todo o cache de renderização e termina
+help.contrast = Contraste (1.0: sem alteração; maior deixa mais marcante)
+help.gamma = Gama (1.0: sem alteração; acima de 1 clareia, abaixo de 1 escurece)
+help.mode = Modo de renderização. Padrão: image (protocolo de imagem do terminal), recorrendo a half (TrueColor, depois 256 cores) e depois a text (monocromático) conforme o terminal. half não pode ser combinado com --no-color (nesse caso usa-se text). -p/--palette vale só para text
+help.protocol = Protocolo de imagem para --mode image. auto o detecta a partir de variáveis de ambiente
+help.cell_size = Tamanho em pixels de uma célula de caractere (ex.: 10x20). Ajuste se imagens e texto ficarem desalinhados com Sixel
+help.grid = Grade de uma lista (COLSxROWS por página); listas longas são divididas em páginas. Por padrão, tantas colunas quantas couberem na largura do terminal (2 linhas); 3x2 se só --width for informado
+help.verbose = Mostra informações da imagem sob cada nome. -v: tamanho em pixels e tamanho do arquivo; -vv: também formato, cor, megapixels, proporção, data de modificação e EXIF (câmera e configurações da foto)
+help.long = Listagem longa, como ls -l: uma linha por arquivo com tamanho, dimensões, formato, datas, câmera e configurações da foto (EXIF) e mais. Colunas sem nada a mostrar são omitidas
+help.lang = Idioma das mensagens (ex.: en, ja). Padrão: detectado a partir do ambiente
+
+# ---- erros e avisos
+err.prefix = Erro: {msg}
+warn.prefix = Aviso: {msg}
+err.cell_size = `{s}` deve estar no formato WxH (ex.: 10x20)
+err.grid = `{s}` deve estar no formato COLSxROWS (ex.: 3x2)
+err.glob = Curinga inválido `{arg}`: {err}
+err.read_dir = Não foi possível ler o diretório `{arg}`: {err}
+err.write = Falha ao escrever a saída: {err}
+err.load_image = Falha ao carregar a imagem: {err}
+err.gamma_contrast = --gamma deve ser maior que 0 e --contrast deve ser 0 ou mais.
+err.width = A largura deve ser pelo menos 1.
+err.palette = A paleta precisa de pelo menos 2 caracteres.
+err.no_images = Nenhum arquivo de imagem encontrado.
+err.regex = Expressão regular inválida: {err}
+err.no_match = Nenhuma imagem corresponde à expressão regular.
+warn.load = Não foi possível carregar {path}: {err}
+warn.no_protocol = Não foi detectado um terminal com protocolo de imagem; mostrando caracteres no lugar (use --protocol sixel|kitty|iterm2 para escolher um).
+warn.unknown_lang = O idioma `{lang}` não está disponível (disponíveis: {list}); usando {used}.
+
+# ---- progresso, paginador, cache
+progress.counted = carregando {done}/{total}
+progress.plain = carregando...
+pager.prompt = --More-- (Espaço: próxima página / Enter: uma linha / q: sair)
+cell.failed = (falha ao carregar)
+cache.none = Não há cache.
+cache.info.dir = Diretório do cache: {dir}
+cache.info.render = Células renderizadas (text / half): {count} arquivos, {size}
+cache.info.thumbs = Miniaturas (modo image: vídeo, PDF, HEIC/AVIF, SVG): {count} arquivos, {size}
+cache.info.tmp = Arquivos temporários inacabados: {count} arquivos, {size}
+cache.info.total = Total: {count} arquivos, {size} (limite {limit})
+cache.info.age = Último uso: o mais antigo há {oldest} dias, o mais recente há {newest} dias (entradas sem uso há {days} dias são removidas)
+cache.cleared = Cache apagado: {count} entradas ({mb} MB) [{dir}]
+
+# ---- informações da imagem (-v / -vv)
+info.modified = Modificado {date}
+info.taken = Tirada {date}
+info.gps = GPS
+
+# ---- miniaturas de SVG / vídeo / PDF / HEIC
+svg.bad_size = Tamanho de SVG inválido
+svg.convert_failed = Falha ao converter o SVG
+thumb.failed = Não foi possível criar a miniatura
+tool.video = Criar miniaturas de vídeo exige o ffmpeg (instale-o e adicione-o ao PATH)
+tool.pdf = Criar miniaturas de PDF exige o mutool (MuPDF), o pdftoppm (poppler) ou o ImageMagick
+tool.heif = Criar miniaturas de HEIC/AVIF exige o ImageMagick (magick) ou o ffmpeg
+
+# ---- títulos das colunas da listagem longa (-l)
+long.size = Tamanho
+long.dims = Dimensões
+long.mp = MP
+long.aspect = Proporção
+long.format = Formato
+long.modified = Modificado
+long.taken = Tirada
+long.camera = Câmera
+long.details = Detalhes
+long.gps = GPS
+long.name = Nome

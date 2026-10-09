@@ -10,7 +10,7 @@
 - File names are hyperlinks: `Ctrl+click` opens the file in its default app (OSC 8)
 - Parallel decoding, read-ahead and a cache keep it fast even with thousands of images
 - Windows, macOS and Linux (including WSL)
-- Messages in English and Japanese, chosen from your environment; more languages are easy to add (see [Languages](#languages))
+- Messages in 10 languages (English, 日本語, 简体中文, 繁體中文, 한국어, Español, Français, Deutsch, Português (Brasil), Русский), chosen from your environment; more languages are easy to add (see [Languages](#languages))
 
 ![Animated demo of gls: a thumbnail list of six public-domain pictures appears row by row, then -vv details, half-block and ASCII art modes](docs/images/demo.gif)
 
@@ -106,7 +106,7 @@ Photos with EXIF also get the capture time, camera, and shooting settings (e.g. 
 | `--no-color` | No color (monochrome `text` mode) |
 | `--no-links` | Do not add hyperlinks to file names |
 | `--no-pager` | Do not pause even when the output does not fit the screen |
-| `--lang <CODE>` | Language of messages (`en`, `ja`). Default: detected from the environment, see [Languages](#languages) |
+| `--lang <CODE>` | Language of messages (`en`, `ja`, `zh-cn`, `zh-tw`, `ko`, `es`, `fr`, `de`, `pt-br`, `ru`). Default: detected from the environment, see [Languages](#languages) |
 
 ### Cache
 
@@ -202,7 +202,17 @@ Source layout:
 
 ## Languages
 
-Help, warnings, errors and the info labels are available in **English** (default) and **日本語**.
+Help, warnings, errors and the info labels are available in these languages. English is the default and the reference; the others were machine-translated, so corrections are very welcome (pull requests that fix a `locales/<code>.txt` file are the easiest).
+
+| Code | Language | Code | Language |
+| --- | --- | --- | --- |
+| `en` | English | `es` | Español |
+| `ja` | 日本語 | `fr` | Français |
+| `zh-cn` | 简体中文 | `de` | Deutsch |
+| `zh-tw` | 繁體中文 | `pt-br` | Português (Brasil) |
+| `ko` | 한국어 | `ru` | Русский |
+
+Regional names are understood: `pt_BR.UTF-8`, `zh-Hant-TW` or `zh_HK` pick the closest catalog (`pt` gives `pt-br`, `zh` and `zh-Hans` give `zh-cn`, `zh-HK` and `zh-Hant` give `zh-tw`).
 The language is chosen in this order:
 
 1. `--lang <code>` (e.g. `--lang ja`)

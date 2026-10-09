@@ -1,0 +1,93 @@
+# 한국어. 기계 번역이므로 수정 제안을 환영합니다(README 참조). 형식: key = 메시지
+# `\n`은 줄바꿈이고, {name}은 en.txt와 똑같이 들어가야 하는 자리 표시자입니다.
+
+# ---- --help 문구 (help.<옵션 이름>)
+help.about = 이미지용 `ls`: 터미널의 이미지 프로토콜(Sixel / Kitty / iTerm2), 반블록 문자 또는 ASCII 아트로 이미지를 표시합니다.\n이미지를 여러 개 지정하면(와일드카드와 디렉터리 가능) 파일 이름이 붙은 썸네일 목록을 보여 줍니다.
+help.images = 이미지 파일, 디렉터리 또는 와일드카드(예: ./*). 생략하면 현재 디렉터리
+help.regexp = 파일 이름(디렉터리 부분 제외)을 정규 표현식으로 필터링합니다. 여러 번 지정하면 그중 하나라도 일치하는 파일을 표시합니다. 예: -e "\.png$" -e "(?i)^img_\d+" ((?i)는 대소문자 무시)
+help.recursive = 하위 디렉터리의 이미지도 찾습니다(숨김 디렉터리는 제외). 파일 이름 앞에 상위 디렉터리 이름을 함께 표시합니다
+help.max_depth = 내려갈 깊이(0: 지정한 디렉터리만, 1: 한 단계 아래까지). 지정하면 -R 없이도 하위를 탐색합니다
+help.sort = 정렬 기준. name은 오름차순, date / size / exif-date는 최신순·큰 순서(-r로 반대)
+help.reverse = 정렬 순서를 반대로
+help.head = 정렬한 뒤 앞에서부터 N개만 표시(예: --sort date -n 20 은 최신 20개)
+help.width = 출력 너비(문자 수). 이미지 하나일 때는 그 이미지의 너비, 목록일 때는 전체 너비. --size와 함께 쓸 수 없음
+help.size = 크기 프리셋(기본값: s). 이미지 하나: 24/40/80/120/160칸, 목록: 썸네일 하나가 12/20/40/60/80칸(xs/s/m/l/xl)
+help.palette = text 모드에서 쓸 문자 세트 프리셋
+help.custom_palette = 어두운 것부터 밝은 순서로 임의의 문자 세트를 지정(--palette보다 우선)
+help.invert = 밝기를 반전
+help.no_color = ANSI 색을 끄기(흑백 표시)
+help.no_links = 파일 이름에 하이퍼링크(Ctrl+클릭으로 열기)를 붙이지 않음
+help.no_pager = 출력이 화면에 다 들어가지 않아도 멈추지 않음(more 방식 해제)
+help.no_cache = 렌더링 캐시를 사용하지 않음
+help.cache_max_mb = 캐시 용량 한도(MB, 기본값 256 또는 환경 변수 GLS_CACHE_MAX_MB). 한도를 넘은 오래된 항목은 즉시 삭제
+help.cache_days = 이 일수 동안 쓰이지 않은 캐시 항목을 삭제(기본값 30 또는 환경 변수 GLS_CACHE_DAYS)
+help.cache_info = 캐시의 위치, 크기, 한도를 표시하고 종료
+help.clear_cache = 렌더링 캐시를 모두 삭제하고 종료
+help.contrast = 대비(1.0이면 변화 없음, 클수록 선명)
+help.gamma = 감마(1.0이면 변화 없음, 1보다 크면 밝게, 작으면 어둡게)
+help.mode = 렌더링 모드. 기본값은 image(터미널의 이미지 프로토콜)이며, 쓸 수 없으면 터미널에 맞춰 half(TrueColor → 256색), 그다음 text(흑백)로 자동 전환. half는 --no-color와 함께 쓸 수 없음(함께 쓰면 text). -p/--palette는 text에서만 유효
+help.protocol = --mode image에서 쓸 이미지 프로토콜. auto는 환경 변수로 판별
+help.cell_size = 문자 칸 하나의 픽셀 크기(예: 10x20). Sixel에서 이미지와 글자 위치가 어긋날 때 조정
+help.grid = 목록의 격자(페이지당 COLSxROWS). 이미지가 많으면 여러 페이지로 나눠 출력. 생략하면 터미널 너비에 들어가는 만큼 열을 늘림(행은 2). --width만 지정하면 3x2
+help.verbose = 각 이름 아래에 이미지 정보를 표시. -v: 픽셀 크기와 파일 크기, -vv: 형식·색·화소 수·가로세로 비율·수정 날짜·EXIF(카메라와 촬영 설정)도 표시
+help.long = ls -l 같은 자세한 목록. 파일마다 한 줄로 크기·치수·형식·날짜·카메라와 촬영 설정(EXIF) 등을 표시. 보여 줄 내용이 없는 열은 생략
+help.lang = 메시지 언어(예: en, ja). 생략하면 환경에서 판별
+
+# ---- 오류와 경고
+err.prefix = 오류: {msg}
+warn.prefix = 경고: {msg}
+err.cell_size = `{s}`은(는) WxH 형식(예: 10x20)으로 지정하세요
+err.grid = `{s}`은(는) COLSxROWS 형식(예: 3x2)으로 지정하세요
+err.glob = 잘못된 와일드카드입니다 `{arg}`: {err}
+err.read_dir = 디렉터리를 읽을 수 없습니다 `{arg}`: {err}
+err.write = 출력에 실패했습니다: {err}
+err.load_image = 이미지를 불러오지 못했습니다: {err}
+err.gamma_contrast = --gamma는 0보다 커야 하고 --contrast는 0 이상이어야 합니다.
+err.width = 너비는 1 이상이어야 합니다.
+err.palette = 팔레트에는 문자가 2개 이상 필요합니다.
+err.no_images = 이미지 파일을 찾을 수 없습니다.
+err.regex = 정규 표현식이 올바르지 않습니다: {err}
+err.no_match = 정규 표현식과 일치하는 이미지가 없습니다.
+warn.load = {path}을(를) 불러올 수 없습니다: {err}
+warn.no_protocol = 이미지 프로토콜을 지원하는 터미널을 판별하지 못했습니다. 문자로 표시합니다(--protocol sixel|kitty|iterm2 로 지정 가능).
+warn.unknown_lang = `{lang}` 언어는 사용할 수 없습니다(사용 가능: {list}). {used}을(를) 사용합니다.
+
+# ---- 진행 표시, 페이지 넘김, 캐시
+progress.counted = 불러오는 중 {done}/{total}
+progress.plain = 불러오는 중...
+pager.prompt = --More-- (Space: 다음 화면 / Enter: 한 줄 / q: 종료)
+cell.failed = (불러오기 실패)
+cache.none = 캐시가 없습니다.
+cache.info.dir = 캐시 위치: {dir}
+cache.info.render = 렌더링 결과(text / half): {count}개, {size}
+cache.info.thumbs = 썸네일(image 모드의 동영상·PDF·HEIC/AVIF·SVG): {count}개, {size}
+cache.info.tmp = 쓰다 만 임시 파일: {count}개, {size}
+cache.info.total = 합계: {count}개, {size} (한도 {limit})
+cache.info.age = 마지막 사용: 가장 오래된 항목 {oldest}일 전, 가장 최근 항목 {newest}일 전 ({days}일 동안 쓰이지 않은 항목은 삭제됨)
+cache.cleared = 캐시를 삭제했습니다: {count}개 ({mb} MB) [{dir}]
+
+# ---- 이미지 정보 (-v / -vv)
+info.modified = 수정 {date}
+info.taken = 촬영 {date}
+info.gps = GPS 있음
+
+# ---- SVG / 동영상 / PDF / HEIC 썸네일
+svg.bad_size = SVG 크기가 올바르지 않습니다
+svg.convert_failed = SVG 변환에 실패했습니다
+thumb.failed = 썸네일을 만들 수 없습니다
+tool.video = 동영상 썸네일을 만들려면 ffmpeg가 필요합니다(설치한 뒤 PATH에 추가하세요)
+tool.pdf = PDF 썸네일을 만들려면 mutool(MuPDF), pdftoppm(poppler) 또는 ImageMagick이 필요합니다
+tool.heif = HEIC/AVIF 썸네일을 만들려면 ImageMagick(magick) 또는 ffmpeg가 필요합니다
+
+# ---- 자세한 목록(-l)의 열 제목
+long.size = 크기
+long.dims = 가로세로
+long.mp = 화소 수
+long.aspect = 비율
+long.format = 형식
+long.modified = 수정 일시
+long.taken = 촬영 일시
+long.camera = 카메라
+long.details = 상세
+long.gps = GPS
+long.name = 이름

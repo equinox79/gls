@@ -1,0 +1,93 @@
+# 繁體中文。機器翻譯，歡迎提出修改建議（見 README）。格式：key = 訊息
+# `\n` 代表換行；{name} 是預留位置，必須與 en.txt 中的相同。
+
+# ---- --help 文字 (help.<選項名稱>)
+help.about = 圖片版 `ls`：透過終端機的影像協定（Sixel / Kitty / iTerm2）、半塊字元或 ASCII 藝術在終端機中顯示圖片。\n指定多張圖片（支援萬用字元與目錄），即可得到附有檔名的縮圖清單。
+help.images = 圖片檔案、目錄或萬用字元（例如 ./*）。省略時為目前的目錄
+help.regexp = 以正規表示式依檔名（不含目錄部分）篩選。重複指定時，符合其中任一個即可。例如：-e "\.png$" -e "(?i)^img_\d+"（(?i) 表示忽略大小寫）
+help.recursive = 同時搜尋子目錄中的圖片（略過隱藏目錄）。在檔名前顯示上層目錄名稱
+help.max_depth = 進入子目錄的深度（0：僅指定的目錄，1：再往下一層）。指定後不需要 -R 也會遞迴
+help.sort = 排序依據。name 為遞增；date、size、exif-date 為最新優先、最大優先（-r 反向）
+help.reverse = 反轉順序
+help.head = 排序後只顯示前 N 張（例如 --sort date -n 20 表示最新的 20 張）
+help.width = 輸出寬度（字元數）。單張圖片時為該圖片的寬度，清單時為整體寬度。不能與 --size 同時指定
+help.size = 尺寸預設值（預設：s）。單張：24/40/80/120/160 欄；清單：每張縮圖 12/20/40/60/80 欄（xs/s/m/l/xl）
+help.palette = text 模式的字元集預設值
+help.custom_palette = 依由暗到亮的順序指定任意字元集（優先於 --palette）
+help.invert = 反轉亮度
+help.no_color = 關閉 ANSI 色彩（單色顯示）
+help.no_links = 不為檔名加上超連結（Ctrl+點擊開啟）
+help.no_pager = 輸出超出畫面時也不暫停（不使用 more 方式）
+help.no_cache = 不使用繪製快取
+help.cache_max_mb = 快取容量上限（MB，預設 256，或環境變數 GLS_CACHE_MAX_MB）。超出部分的舊項目會立即刪除
+help.cache_days = 刪除這麼多天未使用的快取項目（預設 30，或環境變數 GLS_CACHE_DAYS）
+help.cache_info = 顯示快取的位置、大小與上限，然後結束
+help.clear_cache = 刪除全部繪製快取，然後結束
+help.contrast = 對比度（1.0 為不變，越大越鮮明）
+help.gamma = 伽瑪（1.0 為不變，大於 1 變亮，小於 1 變暗）
+help.mode = 繪製模式。預設為 image（終端機的影像協定），無法使用時依終端機支援情況依序退回 half（TrueColor → 256 色）與 text（單色）。half 不能與 --no-color 同時使用（同時使用時為 text）。-p/--palette 僅在 text 時有效
+help.protocol = --mode image 使用的影像協定。auto 依環境變數判斷
+help.cell_size = 一個字元儲存格的像素大小（例如 10x20）。在 Sixel 下圖片與文字位置錯開時用來調整
+help.grid = 清單的格線（每頁 COLSxROWS）。圖片較多時分頁輸出。省略時依終端機寬度盡量多排（列數為 2）。只指定 --width 時為 3x2
+help.verbose = 在每個名稱下顯示圖片資訊。-v：像素尺寸與檔案大小；-vv：還顯示格式、色彩、像素數、長寬比、修改日期與 EXIF（相機與拍攝設定）
+help.long = 類似 ls -l 的詳細清單。每個檔案一行，列出大小、尺寸、格式、日期、相機與拍攝設定（EXIF）等。沒有內容可顯示的欄位會省略
+help.lang = 訊息語言（例如 en、ja）。省略時依環境判斷
+
+# ---- 錯誤與警告
+err.prefix = 錯誤：{msg}
+warn.prefix = 警告：{msg}
+err.cell_size = `{s}` 必須使用 WxH 格式（例如 10x20）
+err.grid = `{s}` 必須使用 COLSxROWS 格式（例如 3x2）
+err.glob = 萬用字元無效 `{arg}`：{err}
+err.read_dir = 無法讀取目錄 `{arg}`：{err}
+err.write = 輸出失敗：{err}
+err.load_image = 載入圖片失敗：{err}
+err.gamma_contrast = --gamma 必須大於 0，--contrast 必須大於或等於 0。
+err.width = 寬度必須至少為 1。
+err.palette = 字元集至少需要 2 個字元。
+err.no_images = 找不到圖片檔案。
+err.regex = 正規表示式無效：{err}
+err.no_match = 沒有符合正規表示式的圖片。
+warn.load = 無法載入 {path}：{err}
+warn.no_protocol = 無法判斷終端機是否支援影像協定，改以字元顯示（可用 --protocol sixel|kitty|iterm2 指定）。
+warn.unknown_lang = 語言 `{lang}` 無法使用（可用語言：{list}）。改用 {used}。
+
+# ---- 進度、分頁、快取
+progress.counted = 載入中 {done}/{total}
+progress.plain = 載入中...
+pager.prompt = --More-- (Space：下一頁 / Enter：一行 / q：結束)
+cell.failed = (載入失敗)
+cache.none = 沒有快取。
+cache.info.dir = 快取位置：{dir}
+cache.info.render = 繪製結果（text / half）：{count} 個檔案，{size}
+cache.info.thumbs = 縮圖（image 模式下的影片、PDF、HEIC/AVIF、SVG）：{count} 個檔案，{size}
+cache.info.tmp = 未寫完的暫存檔：{count} 個檔案，{size}
+cache.info.total = 合計：{count} 個檔案，{size}（上限 {limit}）
+cache.info.age = 最後使用：最舊的是 {oldest} 天前，最新的是 {newest} 天前（{days} 天未使用的項目會被刪除）
+cache.cleared = 已刪除快取：{count} 個項目（{mb} MB）[{dir}]
+
+# ---- 圖片資訊 (-v / -vv)
+info.modified = 修改 {date}
+info.taken = 拍攝 {date}
+info.gps = 含 GPS
+
+# ---- SVG / 影片 / PDF / HEIC 縮圖
+svg.bad_size = SVG 尺寸無效
+svg.convert_failed = SVG 轉換失敗
+thumb.failed = 無法產生縮圖
+tool.video = 產生影片縮圖需要 ffmpeg（請安裝並加入 PATH）
+tool.pdf = 產生 PDF 縮圖需要 mutool（MuPDF）、pdftoppm（poppler）或 ImageMagick
+tool.heif = 產生 HEIC/AVIF 縮圖需要 ImageMagick（magick）或 ffmpeg
+
+# ---- 詳細清單 (-l) 的欄位標題
+long.size = 大小
+long.dims = 尺寸
+long.mp = 像素數
+long.aspect = 長寬比
+long.format = 格式
+long.modified = 修改時間
+long.taken = 拍攝時間
+long.camera = 相機
+long.details = 詳細資料
+long.gps = GPS
+long.name = 名稱

@@ -1,0 +1,93 @@
+# Deutsch. Maschinelle Übersetzung; Korrekturen willkommen (siehe README). Format: key = Meldung
+# `\n` ist ein Zeilenumbruch; {name} ist ein Platzhalter, der wie in en.txt vorkommen muss.
+
+# ---- --help-Texte (help.<Optionsname>)
+help.about = `ls` für Bilder: zeigt Bilder im Terminal über ein Bildprotokoll (Sixel / Kitty / iTerm2), mit Halbblock-Zeichen oder als ASCII-Art.\nMehrere Bilder (Platzhalter und Verzeichnisse sind möglich) ergeben eine Vorschauliste mit Dateinamen.
+help.images = Bilddateien, Verzeichnisse oder Platzhalter (z. B. ./*). Standard: das aktuelle Verzeichnis
+help.regexp = Nach Dateiname (ohne Verzeichnisteil) mit einem regulären Ausdruck filtern. Mehrfach angeben, damit eines von mehreren Mustern passt. Beispiel: -e "\.png$" -e "(?i)^img_\d+" ((?i) ignoriert Groß-/Kleinschreibung)
+help.recursive = Auch Unterverzeichnisse durchsuchen (versteckte Verzeichnisse werden übersprungen). Der Name des übergeordneten Verzeichnisses steht vor dem Dateinamen
+help.max_depth = Wie tief abgestiegen wird (0: nur das angegebene Verzeichnis, 1: eine Ebene tiefer). Impliziert -R
+help.sort = Sortierschlüssel. name ist aufsteigend; date, size und exif-date beginnen mit dem Neuesten / Größten (-r kehrt um)
+help.reverse = Reihenfolge umkehren
+help.head = Nach dem Sortieren nur die ersten N Bilder anzeigen (z. B. --sort date -n 20 für die 20 neuesten)
+help.width = Ausgabebreite in Spalten: die Bildbreite bei einem einzelnen Bild, die Gesamtbreite bei einer Liste. Nicht mit --size kombinierbar
+help.size = Größenvorgabe (Standard: s). Einzelnes Bild: 24/40/80/120/160 Spalten; Liste: jede Vorschau 12/20/40/60/80 Spalten (xs/s/m/l/xl)
+help.palette = Voreingestellter Zeichensatz für den Modus text
+help.custom_palette = Beliebiger Zeichensatz, von dunkel nach hell (hat Vorrang vor --palette)
+help.invert = Helligkeit invertieren
+help.no_color = ANSI-Farben abschalten (einfarbig)
+help.no_links = Dateinamen keine Hyperlinks (Strg+Klick zum Öffnen) hinzufügen
+help.no_pager = Nicht anhalten (wie more), wenn die Ausgabe nicht auf den Bildschirm passt
+help.no_cache = Den Render-Cache nicht verwenden
+help.cache_max_mb = Größenlimit des Caches in MB (Standard: 256 oder die Umgebungsvariable GLS_CACHE_MAX_MB). Darüber hinausgehende alte Einträge werden sofort entfernt
+help.cache_days = Cache-Einträge löschen, die so viele Tage nicht verwendet wurden (Standard: 30 oder die Umgebungsvariable GLS_CACHE_DAYS)
+help.cache_info = Zeigt, wo der Cache liegt, wie groß er ist und welche Limits gelten, und beendet das Programm
+help.clear_cache = Löscht den gesamten Render-Cache und beendet das Programm
+help.contrast = Kontrast (1.0: unverändert; größer ist kräftiger)
+help.gamma = Gamma (1.0: unverändert; über 1 heller, unter 1 dunkler)
+help.mode = Darstellungsmodus. Standard: image (Bildprotokoll des Terminals), je nach Terminal mit Rückfall auf half (TrueColor, dann 256 Farben) und dann text (einfarbig). half lässt sich nicht mit --no-color kombinieren (dann wird text verwendet). -p/--palette gilt nur für text
+help.protocol = Bildprotokoll für --mode image. auto erkennt es anhand von Umgebungsvariablen
+help.cell_size = Pixelgröße einer Zeichenzelle (z. B. 10x20). Anpassen, wenn Bilder und Text bei Sixel nicht übereinanderliegen
+help.grid = Raster einer Liste (COLSxROWS pro Seite); lange Listen werden auf Seiten verteilt. Standard: so viele Spalten, wie in die Terminalbreite passen (2 Zeilen); 3x2, wenn nur --width angegeben ist
+help.verbose = Bildinfos unter jedem Namen anzeigen. -v: Pixelgröße und Dateigröße; -vv: zusätzlich Format, Farbe, Megapixel, Seitenverhältnis, Änderungsdatum und EXIF (Kamera und Aufnahmeeinstellungen)
+help.long = Lange Ausgabe wie bei ls -l: eine Zeile pro Datei mit Größe, Abmessungen, Format, Datum, Kamera und Aufnahmeeinstellungen (EXIF) und mehr. Spalten ohne Inhalt entfallen
+help.lang = Sprache der Meldungen (z. B. en, ja). Standard: aus der Umgebung erkannt
+
+# ---- Fehler und Warnungen
+err.prefix = Fehler: {msg}
+warn.prefix = Warnung: {msg}
+err.cell_size = `{s}` muss das Format WxH haben (z. B. 10x20)
+err.grid = `{s}` muss das Format COLSxROWS haben (z. B. 3x2)
+err.glob = Ungültiger Platzhalter `{arg}`: {err}
+err.read_dir = Verzeichnis `{arg}` kann nicht gelesen werden: {err}
+err.write = Ausgabe konnte nicht geschrieben werden: {err}
+err.load_image = Bild konnte nicht geladen werden: {err}
+err.gamma_contrast = --gamma muss größer als 0 und --contrast muss mindestens 0 sein.
+err.width = Die Breite muss mindestens 1 betragen.
+err.palette = Die Palette braucht mindestens 2 Zeichen.
+err.no_images = Keine Bilddateien gefunden.
+err.regex = Ungültiger regulärer Ausdruck: {err}
+err.no_match = Kein Bild passt zum regulären Ausdruck.
+warn.load = {path} kann nicht geladen werden: {err}
+warn.no_protocol = Es wurde kein Terminal mit Bildprotokoll erkannt; stattdessen werden Zeichen angezeigt (mit --protocol sixel|kitty|iterm2 lässt sich eines wählen).
+warn.unknown_lang = Die Sprache `{lang}` ist nicht verfügbar (verfügbar: {list}); verwendet wird {used}.
+
+# ---- Fortschritt, Pager, Cache
+progress.counted = lade {done}/{total}
+progress.plain = lade ...
+pager.prompt = --More-- (Leertaste: nächste Seite / Eingabe: eine Zeile / q: beenden)
+cell.failed = (Laden fehlgeschlagen)
+cache.none = Kein Cache vorhanden.
+cache.info.dir = Cache-Verzeichnis: {dir}
+cache.info.render = Gerenderte Zellen (text / half): {count} Dateien, {size}
+cache.info.thumbs = Vorschaubilder (Modus image: Video, PDF, HEIC/AVIF, SVG): {count} Dateien, {size}
+cache.info.tmp = Unfertige temporäre Dateien: {count} Dateien, {size}
+cache.info.total = Gesamt: {count} Dateien, {size} (Limit {limit})
+cache.info.age = Zuletzt verwendet: ältester vor {oldest} Tagen, neuester vor {newest} Tagen (Einträge, die {days} Tage nicht verwendet wurden, werden entfernt)
+cache.cleared = Cache geleert: {count} Einträge ({mb} MB) [{dir}]
+
+# ---- Bildinfos (-v / -vv)
+info.modified = Geändert {date}
+info.taken = Aufgenommen {date}
+info.gps = GPS
+
+# ---- Vorschaubilder von SVG / Video / PDF / HEIC
+svg.bad_size = Ungültige SVG-Größe
+svg.convert_failed = Das SVG konnte nicht umgewandelt werden
+thumb.failed = Vorschaubild konnte nicht erstellt werden
+tool.video = Für Video-Vorschaubilder wird ffmpeg benötigt (installieren und zum PATH hinzufügen)
+tool.pdf = Für PDF-Vorschaubilder wird mutool (MuPDF), pdftoppm (poppler) oder ImageMagick benötigt
+tool.heif = Für HEIC/AVIF-Vorschaubilder wird ImageMagick (magick) oder ffmpeg benötigt
+
+# ---- Spaltenüberschriften der langen Ausgabe (-l)
+long.size = Größe
+long.dims = Abmessungen
+long.mp = MP
+long.aspect = Seitenverh.
+long.format = Format
+long.modified = Geändert
+long.taken = Aufgenommen
+long.camera = Kamera
+long.details = Details
+long.gps = GPS
+long.name = Name
