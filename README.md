@@ -17,7 +17,35 @@
 
 ## Install
 
-Requires [Rust](https://rustup.rs/).
+### 1. Set up Rust and a C linker
+
+gls is built with [Rust](https://rustup.rs/). Rust needs your platform's linker, so install that first.
+
+**macOS**
+
+```bash
+xcode-select --install                                          # Xcode Command Line Tools (linker)
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh  # Rust
+```
+
+**Linux / WSL** (Debian / Ubuntu; on other distributions install the equivalent of `build-essential`)
+
+```bash
+sudo apt install build-essential curl                           # C compiler and linker
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh  # Rust
+```
+
+**Windows**
+
+```powershell
+winget install Rustlang.Rustup
+```
+
+Rust on Windows needs the Visual Studio C++ Build Tools. If they are missing, `rustup` offers to install them; choose "Desktop development with C++".
+
+Open a new terminal afterwards so that `cargo` is on `PATH`.
+
+### 2. Install gls
 
 ```bash
 cargo install --git https://github.com/equinox79/gls
@@ -30,6 +58,18 @@ git clone https://github.com/equinox79/gls
 cd gls
 cargo install --path .
 ```
+
+### 3. Optional: tools for video, PDF and HEIC
+
+Images and SVG work without anything else. Video, PDF and HEIC/AVIF need a way to make thumbnails (see [Supported formats](#supported-formats)):
+
+| OS | Built in | Install if needed |
+| --- | --- | --- |
+| macOS | Quick Look handles video, PDF and HEIC | `brew install ffmpeg` (video details for `-vv`) |
+| Windows | Explorer thumbnails handle video and PDF | HEIC: "HEIF Image Extensions" from the Microsoft Store. `winget install Gyan.FFmpeg` (video details for `-vv`) |
+| Linux / WSL | none | `sudo apt install ffmpeg mupdf-tools` (video and PDF). For HEIC/AVIF, ImageMagick 7 (the `magick` command) or an `ffmpeg` that can read HEIF |
+
+> Ubuntu's `imagemagick` package is version 6, which has no `magick` command, so gls does not use it.
 
 > **About the name:** on macOS, Homebrew's `coreutils` installs GNU `ls` as `gls`.
 > If that conflicts, rename the installed binary after `cargo install`, or use a shell alias.
