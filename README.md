@@ -74,6 +74,24 @@ gls ./* -vv                              # also show format, EXIF and other deta
 | `-g`, `--grid <COLSxROWS>` | Grid of a list. If omitted, as many columns as fit the terminal width are used (2 rows). With only `--width`, it is `3x2` |
 | `-v`, `-vv` | Show image info under each name. `-v`: pixel size and file size. `-vv`: also format, color, megapixels, aspect ratio, modified date and EXIF (camera, aperture, shutter speed, ISO, focal length, capture date, whether GPS is present). Items that cannot be read are omitted |
 
+### Long listing
+
+| Option | Description |
+| --- | --- |
+| `-l`, `--long` | Long listing like `ls -l`: one line per file with size, dimensions, megapixels, aspect ratio, format and color, modified date, EXIF capture time, camera, shooting settings (aperture, shutter speed, ISO, focal length; for video: length and codec) and whether GPS data is present. No thumbnails. Columns with nothing to show are left out, and `-` marks a missing value. Filtering, sorting, `-R` and `-n` work as usual. The header and the links are added only on a terminal |
+
+```
+$ gls -l
+273.8KB   960x966  0.9MP  0.99:1  JPEG RGB 8bit  2026-10-08 11:24  apollo11-aldrin.jpg
+230.3KB   960x960  0.9MP  1:1     JPEG RGB 8bit  2026-10-08 11:24  blue-marble.jpg
+ 62.9KB   960x960  0.9MP  1:1     JPEG RGB 8bit  2026-10-08 11:24  earthrise.jpg
+249.1KB   960x645  0.6MP  1.49:1  JPEG RGB 8bit  2026-10-08 11:24  great-wave.jpg
+505.2KB  960x1431  1.4MP  0.67:1  JPEG RGB 8bit  2026-10-08 11:24  mona-lisa.jpg
+341.8KB   960x760  0.7MP  24:19   JPEG RGB 8bit  2026-10-08 11:24  starry-night.jpg
+```
+
+Photos with EXIF also get the capture time, camera, and shooting settings (e.g. `f/11 1/125s ISO100 16mm`) columns. This example is piped; on a terminal a bold header line is added.
+
 ### Rendering
 
 | Option | Description |

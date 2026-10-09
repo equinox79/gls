@@ -346,6 +346,10 @@ struct Args {
     #[arg(short, long, action = clap::ArgAction::Count)]
     verbose: u8,
 
+    /// Long listing, like ls -l: one line per file with all the details
+    #[arg(short = 'l', long)]
+    long: bool,
+
     /// Message language (e.g. en, ja). Default: detected from the environment
     #[arg(long, value_name = "LANG")]
     lang: Option<String>,
@@ -1758,6 +1762,80 @@ fn die(msg: &str) -> ! {
     exit(1);
 }
 
+/// `-l`: ファイル1つにつき1行の詳細表示（ls -l 風）。サムネイルは出さない。
+/// 列はそろえ、どのファイルにも値がない列は省く。見出しは端末に出すときだけ付ける。
+fn long_listing(files: &[PathBuf], args: &Args, show_parent: bool) {
+    use io::IsTerminal;
+    use unicode_width::UnicodeWidthStr;
+
+    let tty = io::stdout().is_terminal();
+    let rows: Vec<Vec<String>> = files
+        .par_iter()
+        .map(|p| info::long_cells(&info::gather(p, true)))
+        .collect();
+    let keep: Vec<usize> = (0..info::LONG_COLUMNS.len())
+        .filter(|&c| rows.iter().any(|r| !r[c].is_empty()))
+        .collect();
+    let titles: Vec<&str> = keep
+        .iter()
+        .map(|&c| i18n::tr(info::LONG_COLUMNS[c].0))
+        .collect();
+    let widths: Vec<usize> = keep
+        .iter()
+        .enumerate()
+        .map(|(k, &c)| {
+            let cells = rows.iter().map(|r| r[c].width().max(1));
+            let title = if tty { titles[k].width() } else { 0 };
+            cells.chain([title]).max().unwrap_or(1)
+        })
+        .collect();
+    let pad = |s: &str, w: usize, right: bool| {
+        let gap = " ".repeat(w.saturating_sub(s.width()));
+        if right {
+            format!("{gap}{s}")
+        } else {
+            format!("{s}{gap}")
+        }
+    };
+
+    let mut lines = Vec::with_capacity(files.len() + 1);
+    if tty {
+        let mut h: Vec<String> = keep
+            .iter()
+            .enumerate()
+            .map(|(k, &c)| pad(titles[k], widths[k], info::LONG_COLUMNS[c].1))
+            .collect();
+        h.push(i18n::tr("long.name").to_string());
+        lines.push(format!("\x1b[1m{}\x1b[0m", h.join("  ")));
+    }
+    let links = tty && !args.no_links;
+    for (path, row) in files.iter().zip(&rows) {
+        let mut cells: Vec<String> = keep
+            .iter()
+            .enumerate()
+            .map(|(k, &c)| {
+                let text = if row[c].is_empty() { "-" } else { &row[c] };
+                pad(text, widths[k], info::LONG_COLUMNS[c].1)
+            })
+            .collect();
+        let mut name = path
+            .file_name()
+            .map(|n| n.to_string_lossy().into_owned())
+            .unwrap_or_default();
+        if show_parent {
+            if let Some(parent) = path.parent().and_then(|p| p.file_name()) {
+                name = format!("{}/{name}", parent.to_string_lossy());
+            }
+        }
+        cells.push(match (links, link::file_url(path)) {
+            (true, Some(u)) => link::wrap(&name, &u),
+            _ => name,
+        });
+        lines.push(cells.join("  "));
+    }
+    emit(lines.into_iter(), !args.no_pager);
+}
+
 /// `--lang` is needed before clap parses (the help text depends on it), so look for it by hand.
 fn lang_arg() -> Option<String> {
     let mut it = std::env::args().skip(1);
@@ -1872,6 +1950,10 @@ fn main() {
     sort_files(&mut files, args.sort, args.reverse);
     if let Some(n) = args.head {
         files.truncate(n.max(1));
+    }
+    if args.long {
+        long_listing(&files, &args, depth > 0);
+        return;
     }
 
     let mut color = !args.no_color;

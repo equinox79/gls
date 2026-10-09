@@ -30,7 +30,8 @@ help.protocol = Image protocol for --mode image. auto detects it from environmen
 help.cell_size = Pixel size of one character cell (e.g. 10x20). Adjust it when images and text are misaligned with Sixel
 help.grid = Grid of a list (COLSxROWS per page); long lists are split into pages. By default as many columns as fit the terminal width (2 rows); 3x2 when only --width is given
 help.verbose = Show image info under each name. -v: pixel size and file size; -vv: also format, color, megapixels, aspect ratio, modified date and EXIF (camera and shooting settings)
-help.lang = Message language (e.g. en, ja). Default: detected from the environment
+help.long = Long listing, like ls -l: one line per file with size, dimensions, format, dates, camera and shooting settings (EXIF) and more. Columns with nothing to show are left out
+help.lang =Message language (e.g. en, ja). Default: detected from the environment
 
 # ---- errors and warnings
 err.prefix = Error: {msg}
@@ -77,3 +78,16 @@ thumb.failed = Could not create a thumbnail
 tool.video = Making video thumbnails requires ffmpeg (install it and add it to PATH)
 tool.pdf = Making PDF thumbnails requires mutool (MuPDF), pdftoppm (poppler) or ImageMagick
 tool.heif = Making HEIC/AVIF thumbnails requires ImageMagick (magick) or ffmpeg
+
+# ---- long listing (-l) column titles
+long.size = Size
+long.dims = Dimensions
+long.mp = MP
+long.aspect = Aspect
+long.format = Format
+long.modified = Modified
+long.taken = Taken
+long.camera = Camera
+long.details = Details
+long.gps = GPS
+long.name = Name

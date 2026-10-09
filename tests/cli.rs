@@ -293,6 +293,32 @@ fn cache_limit_options_apply_now() {
 }
 
 #[test]
+fn long_listing_has_one_line_per_file() {
+    let dir = data_dir();
+    let o = gls(&["-l", dir.to_str().unwrap()]);
+    assert!(o.status.success(), "{}", String::from_utf8_lossy(&o.stderr));
+    let out = stdout(&o);
+    // 端末ではないので見出しは付かず、1ファイル1行
+    let lines: Vec<&str> = out.lines().collect();
+    assert_eq!(lines.len(), 4, "{out}");
+    let row = lines.iter().find(|l| l.ends_with("gradient.png")).unwrap();
+    for part in ["96x64", "3:2", "PNG RGBA 8bit"] {
+        assert!(row.contains(part), "{part}: {row}");
+    }
+    assert!(lines
+        .iter()
+        .any(|l| l.contains("SVG") && l.ends_with("logo.svg")));
+    // EXIF のない画像だけなので、カメラなどの列は出ない
+    assert!(!out.contains("GPS"), "{out}");
+
+    // 並び替え・件数の指定も効く
+    let o = gls(&["-l", "--sort", "size", "-n", "1", dir.to_str().unwrap()]);
+    let out = stdout(&o);
+    assert_eq!(out.lines().count(), 1, "{out}");
+    assert!(out.contains("gradient.png"), "最も大きいファイル: {out}");
+}
+
+#[test]
 fn missing_file_is_an_error() {
     let o = gls(&["no-such-file.png"]);
     assert!(!o.status.success());

@@ -30,7 +30,8 @@ help.protocol = 画像プロトコルの指定（--mode image のとき）。aut
 help.cell_size = 文字セル1つのピクセルサイズ（例: 10x20）。Sixel で画像と文字の位置がずれるときに調整する
 help.grid = 一覧表示のグリッド（COLSxROWS、1ページあたり）。画像が多い場合は複数ページに分けて出力。未指定なら、端末の横幅に収まるだけ列数を増やす（行数は2）。--width だけを指定したときは 3x2
 help.verbose = ファイル名の下に画像情報を表示する。-v: ピクセルの縦横とファイルサイズ、-vv: 形式・色・画素数・縦横比・更新日時・EXIF（カメラや撮影設定）も
-help.lang = メッセージの言語（例: en, ja）。省略時は環境から判定
+help.long = ls -l のような詳細表示。1ファイル1行で、サイズ・縦横・形式・日時・カメラや撮影設定（EXIF）などを並べる。表示するものがない列は省く
+help.lang =メッセージの言語（例: en, ja）。省略時は環境から判定
 
 # ---- エラーと警告
 err.prefix = エラー: {msg}
@@ -77,3 +78,16 @@ thumb.failed = サムネイルを作れませんでした
 tool.video = 動画のサムネイルを作るには ffmpeg が必要です（インストールして PATH に通してください）
 tool.pdf = PDF のサムネイルを作るには mutool（MuPDF）か pdftoppm（poppler）か ImageMagick が必要です
 tool.heif = HEIC/AVIF のサムネイルを作るには ImageMagick（magick）か ffmpeg が必要です
+
+# ---- 詳細表示（-l）の列の見出し
+long.size = サイズ
+long.dims = 縦横
+long.mp = 画素数
+long.aspect = 縦横比
+long.format = 形式
+long.modified = 更新日時
+long.taken = 撮影日時
+long.camera = カメラ
+long.details = 詳細
+long.gps = GPS
+long.name = 名前
