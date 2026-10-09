@@ -1054,7 +1054,9 @@ fn load_cell_image(
     // 動画・PDF・HEIC・SVG は作るのに時間がかかるので、縮小した画像をキャッシュする
     let cache = ext::kind(path).and_then(|_| box_cache_path(path, o, bw, bh));
     if let Some(img) = cache.as_ref().and_then(|p| {
-        let img = image::open(p).ok()?.to_rgb8();
+        // 拡張子が .img なので、形式は拡張子ではなく PNG と明示して読む
+        let file = BufReader::new(std::fs::File::open(p).ok()?);
+        let img = image::load(file, image::ImageFormat::Png).ok()?.to_rgb8();
         touch_cache(p);
         Some(img)
     }) {

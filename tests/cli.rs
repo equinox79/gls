@@ -190,6 +190,22 @@ fn image_mode_caches_svg_thumbnails() {
         "キャッシュから読んでも同じ出力"
     );
     assert_eq!(count("img"), 1);
+
+    // 本当にキャッシュから読んでいる（毎回作り直していない）ことを、中身を差し替えて確かめる
+    let img = std::fs::read_dir(cache.join("gls").join("cache"))
+        .unwrap()
+        .flatten()
+        .map(|e| e.path())
+        .find(|p| p.extension().is_some_and(|x| x == "img"))
+        .expect("キャッシュのファイルがある");
+    image::RgbImage::from_pixel(30, 30, image::Rgb([255, 0, 0]))
+        .save_with_format(&img, image::ImageFormat::Png)
+        .unwrap();
+    let third = run();
+    assert_ne!(
+        first.stdout, third.stdout,
+        "差し替えたキャッシュが表示に使われる"
+    );
     let _ = std::fs::remove_dir_all(&cache);
 }
 
