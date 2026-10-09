@@ -298,6 +298,14 @@ struct Args {
     #[arg(long)]
     no_cache: bool,
 
+    /// Cache size limit in MB (default 256, or GLS_CACHE_MAX_MB)
+    #[arg(long, value_name = "MB", value_parser = clap::value_parser!(u64).range(1..=1_000_000))]
+    cache_max_mb: Option<u64>,
+
+    /// Delete cache entries unused for this many days (default 30, or GLS_CACHE_DAYS)
+    #[arg(long, value_name = "DAYS", value_parser = clap::value_parser!(u64).range(1..=36500))]
+    cache_days: Option<u64>,
+
     /// Show where the cache is, how big it is and its limits, then exit
     #[arg(long)]
     cache_info: bool,
@@ -1326,8 +1334,13 @@ fn cache_info() {
     }
 }
 
-/// キャッシュの保存件数・期間の上限。環境変数 GLS_CACHE_MAX_MB（既定 256）、GLS_CACHE_DAYS（既定 30）で変えられる
+/// `--cache-max-mb` / `--cache-days` の指定（環境変数より優先）
+static LIMIT_OPTS: std::sync::OnceLock<(Option<u64>, Option<u64>)> = std::sync::OnceLock::new();
+
+/// キャッシュの容量・期間の上限。優先順は、オプション（--cache-max-mb / --cache-days）、
+/// 環境変数（GLS_CACHE_MAX_MB、GLS_CACHE_DAYS）、既定値（256 MB、30 日）
 fn cache_limits() -> (u64, std::time::Duration) {
+    let (opt_mb, opt_days) = LIMIT_OPTS.get().copied().unwrap_or_default();
     let env = |k: &str, default: u64| {
         std::env::var(k)
             .ok()
@@ -1335,8 +1348,10 @@ fn cache_limits() -> (u64, std::time::Duration) {
             .unwrap_or(default)
     };
     (
-        env("GLS_CACHE_MAX_MB", 256) * 1024 * 1024,
-        std::time::Duration::from_secs(env("GLS_CACHE_DAYS", 30) * 24 * 3600),
+        opt_mb.unwrap_or_else(|| env("GLS_CACHE_MAX_MB", 256)) * 1024 * 1024,
+        std::time::Duration::from_secs(
+            opt_days.unwrap_or_else(|| env("GLS_CACHE_DAYS", 30)) * 24 * 3600,
+        ),
     )
 }
 
@@ -1345,8 +1360,9 @@ fn cache_limits() -> (u64, std::time::Duration) {
 /// - 合計が GLS_CACHE_MAX_MB を超えていたら、古いものから削除
 /// - 書き込み途中で残った一時ファイルは、1日経ったら削除
 ///
-/// 実行は1日1回まで（`.pruned` ファイルの更新日時で判定）。起動を遅らせないよう、呼び出し側でバックグラウンドで実行する。
-fn prune_cache(dir: &Path) {
+/// 実行は1日1回まで（`.pruned` ファイルの更新日時で判定。force なら毎回）。
+/// 起動を遅らせないよう、呼び出し側でバックグラウンドで実行する。
+fn prune_cache(dir: &Path, force: bool) {
     use std::time::{Duration, SystemTime};
     let day = Duration::from_secs(24 * 3600);
     let now = SystemTime::now();
@@ -1356,7 +1372,7 @@ fn prune_cache(dir: &Path) {
         .ok()
         .and_then(|t| now.duration_since(t).ok())
         .is_some_and(|age| age < day);
-    if recently_pruned {
+    if recently_pruned && !force {
         return;
     }
     let (max_bytes, max_age) = cache_limits();
@@ -1794,6 +1810,7 @@ fn main() {
         ));
     }
 
+    let _ = LIMIT_OPTS.set((args.cache_max_mb, args.cache_days));
     if args.cache_info {
         cache_info();
         if !args.clear_cache {
@@ -1905,8 +1922,13 @@ fn main() {
     };
     let cache_dir = if args.no_cache { None } else { cache_dir() };
     if let Some(dir) = cache_dir.clone() {
-        // 古いキャッシュの整理は、表示を遅らせないようバックグラウンドで（1日1回まで）
-        std::thread::spawn(move || prune_cache(&dir));
+        if args.cache_max_mb.is_some() || args.cache_days.is_some() {
+            // 上限を指定したときは、すぐ反映する（整理が終わってから表示する）
+            prune_cache(&dir, true);
+        } else {
+            // 古いキャッシュの整理は、表示を遅らせないようバックグラウンドで（1日1回まで）
+            std::thread::spawn(move || prune_cache(&dir, false));
+        }
     }
     let mut opts = Opts::new(
         palette,

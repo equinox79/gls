@@ -245,6 +245,54 @@ fn cache_info_reports_without_creating_the_directory() {
 }
 
 #[test]
+fn cache_limit_options_apply_now() {
+    use std::time::{Duration, SystemTime};
+    let cache = std::env::temp_dir().join(format!("gls-cli-limit-{}", std::process::id()));
+    let dir = cache.join("gls").join("cache");
+    let _ = std::fs::remove_dir_all(&cache);
+    std::fs::create_dir_all(&dir).unwrap();
+    // 600KB のファイルを、古い順に3つ（合計 1.8MB）
+    for (name, age_days) in [("a.txt", 3), ("b.txt", 2), ("c.txt", 1)] {
+        let p = dir.join(name);
+        std::fs::write(&p, vec![b'x'; 600 * 1024]).unwrap();
+        let f = std::fs::OpenOptions::new().write(true).open(&p).unwrap();
+        f.set_modified(SystemTime::now() - Duration::from_secs(age_days * 24 * 3600))
+            .unwrap();
+    }
+    let run = |args: &[&str]| {
+        Command::new(env!("CARGO_BIN_EXE_gls"))
+            .env("GLS_LANG", "en")
+            .env("XDG_CACHE_HOME", &cache)
+            .env("LOCALAPPDATA", &cache)
+            .args(args)
+            .output()
+            .expect("gls を起動できる")
+    };
+
+    // 表示だけなら、指定した上限が出る（整理はしない）
+    let info = stdout(&run(&["--cache-info", "--cache-max-mb", "7"]));
+    assert!(info.contains("limit 7.0MB"), "{info}");
+    assert!(dir.join("a.txt").exists());
+
+    // 0 は指定できない
+    assert!(!run(&["--cache-max-mb", "0"]).status.success());
+
+    // 1MB に収まるまで、古いものから消える
+    let o = run(&[
+        "--cache-max-mb",
+        "1",
+        "-m",
+        "half",
+        data_dir().join("gradient.png").to_str().unwrap(),
+        data_dir().join("portrait.png").to_str().unwrap(),
+    ]);
+    assert!(o.status.success());
+    assert!(!dir.join("a.txt").exists(), "最も古いものから消える");
+    assert!(dir.join("c.txt").exists(), "新しいものは残る");
+    let _ = std::fs::remove_dir_all(&cache);
+}
+
+#[test]
 fn missing_file_is_an_error() {
     let o = gls(&["no-such-file.png"]);
     assert!(!o.status.success());
