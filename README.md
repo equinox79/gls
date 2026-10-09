@@ -10,10 +10,11 @@
 - File names are hyperlinks: `Ctrl+click` opens the file in its default app (OSC 8)
 - Parallel decoding, read-ahead and a cache keep it fast even with thousands of images
 - Windows, macOS and Linux (including WSL)
+- Messages in English and Japanese, chosen from your environment; more languages are easy to add (see [Languages](#languages))
 
-![gls listing six public-domain pictures as thumbnails with file names and sizes](docs/images/demo-image.jpg)
+![Animated demo of gls: a thumbnail list of six public-domain pictures appears row by row, then -vv details, half-block and ASCII art modes](docs/images/demo.gif)
 
-<sub>`gls -s m -v` in a terminal that supports an image protocol (real images, not characters). The six sample pictures are in the public domain, see [docs/CREDITS.md](docs/CREDITS.md). This image was rendered from the real output of `gls`; it is not a photograph of a terminal window.</sub>
+<sub>`gls -s m -v` in a terminal that supports an image protocol (real images, not characters), then `-vv`, `-m half` and `-m text`. The six sample pictures are in the public domain, see [docs/CREDITS.md](docs/CREDITS.md). Every frame was rendered from the real output of `gls`; this is not a screen recording, and the typing is simulated.</sub>
 
 ## Install
 
@@ -37,6 +38,7 @@ cargo install --path .
 ## Usage
 
 ```bash
+gls                                      # no arguments: thumbnails of the current directory
 gls photo.jpg                            # show one image
 gls ./*                                  # thumbnails of the images in the current directory
 gls photos/ -s m                         # bigger thumbnails
@@ -44,7 +46,7 @@ gls . -R -e '\.png$' --sort date -n 20   # PNGs in subfolders, newest 20
 gls ./* -vv                              # also show format, EXIF and other details under each name
 ```
 
-- Pass several images to get a thumbnail list. Wildcards and directories work too (`*` works in PowerShell and cmd as well). Files that are not images are ignored.
+- Without arguments, `gls` lists the current directory. Pass several images to get a thumbnail list. Wildcards and directories work too (`*` works in PowerShell and cmd as well). Files that are not images are ignored.
 - When the output is taller than the screen, it pauses one screen at a time like `more` (`Space`/`f`/`PageDown`: next screen, `Enter`/`j`/`↓`: one line, `q`/`Esc`/`Ctrl+C`: quit). It does not pause when piped or redirected.
 - Long file names wrap to at most 3 lines within the thumbnail width. If they still do not fit, the last line is shortened but keeps the extension, like `...png`.
 - Thumbnails are laid out side by side as far as the terminal width allows (set the columns with `-g COLSxROWS`).
@@ -148,7 +150,7 @@ In WSL, `/mnt/c/...` is converted to `C:/...` and other paths to `\\wsl.localhos
 
 - A list decodes and renders several images in parallel. It starts showing as soon as the first row is ready and reads a few rows ahead.
 - JPEG is decoded while scaling down to 1/2, 1/4 or 1/8. In a list, the EXIF thumbnail (about 160 px) is used when it is large enough, so the full image is not read at all.
-- Rendered output is cached. If the image path, modified time, size and display settings are the same, the next run does not decode the image again. In `image` mode, the downscaled thumbnails of video, PDF, HEIC/AVIF and SVG (the slow ones) are cached too, so ffmpeg and the like are not run again.
+- Rendered output is cached. If the image path, modified time, size and display settings are the same, the next run does not decode the image again. In `image` mode, the downscaled thumbnails of video, PDF, HEIC/AVIF and SVG (the slow ones) are cached too, so ffmpeg and the like are not run again. Only lists are cached: a single image (`gls video.mp4`) is always rebuilt. Use `--cache-info` to see what is cached.
   - Location: `%LOCALAPPDATA%\gls\cache` on Windows, `~/.cache/gls/cache` on Linux / macOS (`XDG_CACHE_HOME` takes precedence)
   - Old cache entries are cleaned up once a day in the background at startup: entries unused for 30 days, and the oldest entries beyond a total of 256 MB. Change the limits with the options `--cache-days` and `--cache-max-mb` (applied right away) or the environment variables `GLS_CACHE_DAYS` and `GLS_CACHE_MAX_MB` (applied at the next daily cleanup). Options take precedence over the environment variables.
 
