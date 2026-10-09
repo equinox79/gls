@@ -29,7 +29,7 @@ fn gcd(a: u32, b: u32) -> u32 {
 }
 
 /// 縦横比。約分して小さい整数比（16:9 など）になればそれを、ならなければ `1.85:1` 形式にする
-fn aspect(w: u32, h: u32) -> String {
+pub fn aspect(w: u32, h: u32) -> String {
     let g = gcd(w, h).max(1);
     let (a, b) = (w / g, h / g);
     if a <= 32 && b <= 32 {

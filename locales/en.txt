@@ -32,6 +32,8 @@ help.grid = Grid of a list (COLSxROWS per page); long lists are split into pages
 help.verbose = Show image info under each name. -v: pixel size and file size; -vv: also format, color, megapixels, aspect ratio, modified date and EXIF (camera and shooting settings)
 help.long = Long listing, like ls -l: one line per file with size, dimensions, format, dates, camera and shooting settings (EXIF) and more. Columns with nothing to show are left out
 help.thumbs = With -l, also show a thumbnail of each image to the left of its details (use -s to change the size). Implies -l
+help.json = Print the matching files as JSON (an array with one object per file: path, size, dimensions, format, dates, EXIF) and exit. For scripts
+help.null = Print only the matching file paths, separated by NUL characters (for xargs -0), and exit
 help.lang = Message language (e.g. en, ja). Default: detected from the environment
 
 # ---- errors and warnings

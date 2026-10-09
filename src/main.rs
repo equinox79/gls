@@ -6,6 +6,7 @@ mod i18n;
 mod ext;
 mod gfx;
 mod info;
+mod json;
 mod link;
 mod orient;
 mod thumb;
@@ -364,6 +365,14 @@ struct Args {
     /// With -l, show a thumbnail of each image next to its details
     #[arg(long)]
     thumbs: bool,
+
+    /// Print the matching files as JSON and exit (for scripts)
+    #[arg(long, conflicts_with_all = ["null", "long", "thumbs"])]
+    json: bool,
+
+    /// Print only the matching file paths, separated by NUL, and exit (for xargs -0)
+    #[arg(short = '0', long, conflicts_with_all = ["json", "long", "thumbs"])]
+    null: bool,
 
     /// Message language (e.g. en, ja). Default: detected from the environment
     #[arg(long, value_name = "LANG")]
@@ -1851,6 +1860,32 @@ fn long_listing(files: &[PathBuf], args: &Args, show_parent: bool) {
     emit(lines.into_iter(), !args.no_pager);
 }
 
+/// `-0`: パスだけを NUL 区切りで出す（`xargs -0` 用）。パイプが閉じられても panic しない
+fn null_listing(files: &[PathBuf]) {
+    let mut out = io::BufWriter::new(io::stdout().lock());
+    for p in files {
+        #[cfg(unix)]
+        let bytes = std::os::unix::ffi::OsStrExt::as_bytes(p.as_os_str()).to_vec();
+        #[cfg(not(unix))]
+        let bytes = p.to_string_lossy().into_owned().into_bytes();
+        if out.write_all(&bytes).is_err() || out.write_all(b"\0").is_err() {
+            return;
+        }
+    }
+    let _ = out.flush();
+}
+
+/// `--json`: 条件に合うファイルの情報を、1ファイル1オブジェクトの JSON 配列で出す
+fn json_listing(files: &[PathBuf]) {
+    let records: Vec<String> = files
+        .par_iter()
+        .map(|p| json::record(p, &info::gather(p, true)))
+        .collect();
+    let mut out = io::stdout().lock();
+    let _ = write!(out, "[\n{}\n]\n", records.join(",\n"));
+    let _ = out.flush();
+}
+
 /// 表示幅が max 桁に収まるよう、末尾を `...` に置き換えて切り詰める
 fn clip(s: &str, max: usize) -> String {
     use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
@@ -2082,6 +2117,14 @@ fn main() {
     sort_files(&mut files, args.sort, args.reverse);
     if let Some(n) = args.head {
         files.truncate(n.max(1));
+    }
+    if args.null {
+        null_listing(&files);
+        return;
+    }
+    if args.json {
+        json_listing(&files);
+        return;
     }
     if args.long && !args.thumbs {
         long_listing(&files, &args, depth > 0);

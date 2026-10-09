@@ -40,3 +40,7 @@ objc2-core-foundation = { version = "0.3", default-features = false, features = 
 [profile.release]
 opt-level = 3
 lto = true
+
+[dev-dependencies]
+serde_json = "1"
+

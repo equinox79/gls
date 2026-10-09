@@ -32,6 +32,8 @@ help.grid = Raster einer Liste (COLSxROWS pro Seite); lange Listen werden auf Se
 help.verbose = Bildinfos unter jedem Namen anzeigen. -v: Pixelgröße und Dateigröße; -vv: zusätzlich Format, Farbe, Megapixel, Seitenverhältnis, Änderungsdatum und EXIF (Kamera und Aufnahmeeinstellungen)
 help.long = Lange Ausgabe wie bei ls -l: eine Zeile pro Datei mit Größe, Abmessungen, Format, Datum, Kamera und Aufnahmeeinstellungen (EXIF) und mehr. Spalten ohne Inhalt entfallen
 help.thumbs = Zeigt zusätzlich zu -l eine Vorschau jedes Bildes links neben den Angaben (Größe mit -s ändern). Impliziert -l
+help.json = Gibt die passenden Dateien als JSON aus (ein Array mit einem Objekt pro Datei: Pfad, Größe, Abmessungen, Format, Datum, EXIF) und beendet das Programm. Für Skripte
+help.null = Gibt nur die Pfade der passenden Dateien aus, getrennt durch NUL-Zeichen (für xargs -0), und beendet das Programm
 help.lang = Sprache der Meldungen (z. B. en, ja). Standard: aus der Umgebung erkannt
 
 # ---- Fehler und Warnungen

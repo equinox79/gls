@@ -340,6 +340,69 @@ fn long_listing_with_thumbnails_makes_one_card_per_file() {
 }
 
 #[test]
+fn json_lists_every_file_with_stable_fields() {
+    let dir = data_dir();
+    let o = gls(&["--json", dir.to_str().unwrap()]);
+    assert!(o.status.success(), "{}", String::from_utf8_lossy(&o.stderr));
+    let v: serde_json::Value = serde_json::from_slice(&o.stdout).expect("有効な JSON");
+    let items = v.as_array().expect("配列");
+    assert_eq!(items.len(), 4);
+    let png = items
+        .iter()
+        .find(|i| i["name"] == "gradient.png")
+        .expect("gradient.png がある");
+    assert_eq!(png["type"], "image");
+    assert_eq!(png["width"], 96);
+    assert_eq!(png["height"], 64);
+    assert_eq!(png["aspect"], "3:2");
+    assert_eq!(png["format"], "PNG");
+    assert!(png["bytes"].as_u64().unwrap() > 0);
+    assert!(png["modified"].as_str().unwrap().contains('T'), "RFC 3339");
+    assert!(png["exif"].is_null(), "EXIF のない画像は null");
+    assert!(png["details"].as_array().unwrap().is_empty());
+    let svg = items.iter().find(|i| i["name"] == "logo.svg").unwrap();
+    assert_eq!(svg["type"], "svg");
+    assert_eq!(svg["width"], 80);
+
+    // 絞り込み・並び替え・件数がそのまま効く
+    let o = gls(&["--json", "--sort", "size", "-n", "1", dir.to_str().unwrap()]);
+    let v: serde_json::Value = serde_json::from_slice(&o.stdout).unwrap();
+    assert_eq!(v.as_array().unwrap().len(), 1);
+    assert_eq!(v[0]["name"], "gradient.png");
+}
+
+#[test]
+fn null_prints_only_paths_separated_by_nul() {
+    let dir = data_dir();
+    let o = gls(&["-0", "-e", r"\.png$", dir.to_str().unwrap()]);
+    assert!(o.status.success(), "{}", String::from_utf8_lossy(&o.stderr));
+    assert!(!o.stdout.contains(&b'\n'), "改行は出さない");
+    assert_eq!(o.stdout.last(), Some(&0u8), "最後も NUL で終わる");
+    let paths: Vec<String> = o
+        .stdout
+        .split(|&b| b == 0)
+        .filter(|p| !p.is_empty())
+        .map(|p| String::from_utf8_lossy(p).into_owned())
+        .collect();
+    assert_eq!(paths.len(), 2, "{paths:?}");
+    assert!(paths.iter().all(|p| p.ends_with(".png")));
+}
+
+#[test]
+fn json_and_null_do_not_combine_with_other_listings() {
+    let dir = data_dir();
+    for args in [
+        vec!["--json", "-l"],
+        vec!["--json", "-0"],
+        vec!["-0", "--thumbs"],
+    ] {
+        let mut a = args.clone();
+        a.push(dir.to_str().unwrap());
+        assert!(!gls(&a).status.success(), "{args:?}");
+    }
+}
+
+#[test]
 fn missing_file_is_an_error() {
     let o = gls(&["no-such-file.png"]);
     assert!(!o.status.success());

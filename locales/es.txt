@@ -32,6 +32,8 @@ help.grid = Cuadrícula de una lista (COLSxROWS por página); las listas largas 
 help.verbose = Muestra información de la imagen bajo cada nombre. -v: tamaño en píxeles y tamaño del archivo; -vv: además formato, color, megapíxeles, relación de aspecto, fecha de modificación y EXIF (cámara y ajustes de disparo)
 help.long = Listado largo, como ls -l: una línea por archivo con tamaño, dimensiones, formato, fechas, cámara y ajustes de disparo (EXIF) y más. Se omiten las columnas sin nada que mostrar
 help.thumbs = Con -l, muestra además una miniatura de cada imagen a la izquierda de sus detalles (usa -s para cambiar el tamaño). Implica -l
+help.json = Imprime los archivos coincidentes como JSON (una matriz con un objeto por archivo: ruta, tamaño, dimensiones, formato, fechas, EXIF) y termina. Para scripts
+help.null = Imprime solo las rutas de los archivos coincidentes, separadas por caracteres NUL (para xargs -0), y termina
 help.lang = Idioma de los mensajes (p. ej. en, ja). Por defecto: se detecta a partir del entorno
 
 # ---- errores y avisos
