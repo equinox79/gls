@@ -77,6 +77,17 @@ impl Size {
         }
     }
 
+    /// `--thumbs` のカード1枚の高さ（行数）。サムネイルは、この高さの3倍の幅の箱に収める
+    fn thumb_rows(self) -> u32 {
+        match self {
+            Size::Xs => 3,
+            Size::S => 4,
+            Size::M => 5,
+            Size::L => 7,
+            Size::Xl => 9,
+        }
+    }
+
     /// 一覧表示でのサムネイル1枚の横幅（文字数）
     fn cell_width(self) -> u32 {
         match self {
@@ -349,6 +360,10 @@ struct Args {
     /// Long listing, like ls -l: one line per file with all the details
     #[arg(short = 'l', long)]
     long: bool,
+
+    /// With -l, show a thumbnail of each image next to its details
+    #[arg(long)]
+    thumbs: bool,
 
     /// Message language (e.g. en, ja). Default: detected from the environment
     #[arg(long, value_name = "LANG")]
@@ -1836,6 +1851,123 @@ fn long_listing(files: &[PathBuf], args: &Args, show_parent: bool) {
     emit(lines.into_iter(), !args.no_pager);
 }
 
+/// 表示幅が max 桁に収まるよう、末尾を `...` に置き換えて切り詰める
+fn clip(s: &str, max: usize) -> String {
+    use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
+    if s.width() <= max {
+        return s.to_string();
+    }
+    let mut out = String::new();
+    let mut w = 0;
+    for c in s.chars() {
+        let cw = c.width().unwrap_or(0);
+        if w + cw + 3 > max {
+            break;
+        }
+        out.push(c);
+        w += cw;
+    }
+    out + "..."
+}
+
+/// `--thumbs` のカードの文字部分（ちょうど rows 行）。名前、サイズ・縦横・形式、日時・EXIF の順で、縦は中央にそろえる
+fn card_text(path: &Path, o: &Opts, rows: usize, width: usize) -> Vec<String> {
+    let cells = info::long_cells(&info::gather(path, true));
+    // 値のある項目だけを並べる（表のように列をそろえない）
+    let group = |r: std::ops::Range<usize>| {
+        let v: Vec<&str> = cells[r]
+            .iter()
+            .filter(|c| !c.is_empty())
+            .map(String::as_str)
+            .collect();
+        clip(&v.join("  "), width)
+    };
+    let mut name = path
+        .file_name()
+        .map(|n| n.to_string_lossy().into_owned())
+        .unwrap_or_default();
+    if o.show_parent {
+        if let Some(parent) = path.parent().and_then(|p| p.file_name()) {
+            name = format!("{}/{name}", parent.to_string_lossy());
+        }
+    }
+    let name = shorten_name(&name, width);
+    let name = match (o.links, link::file_url(path)) {
+        (true, Some(u)) => link::wrap(&name, &u),
+        _ => name,
+    };
+    let name = if o.color {
+        format!("\x1b[1m{name}\x1b[0m")
+    } else {
+        name
+    };
+    let lines = [name, group(0..5), group(5..10)];
+    let top = rows.saturating_sub(lines.len()) / 2;
+    let mut out = vec![String::new(); top];
+    out.extend(lines);
+    out.resize(rows, String::new());
+    out
+}
+
+/// `--thumbs` のカード1枚。左に幅 w・高さ rows のサムネイル、右に文字を並べた、rows 行ぶんの1項目
+fn thumb_card(path: &Path, o: &Opts, w: u32, rows: u32, text_w: usize) -> String {
+    let text = card_text(path, o, rows as usize, text_w);
+    if let Some(g) = o.gfx {
+        // 画像は描いたあとカーソルが元の位置（箱の左上）に戻るので、そこから文字を右にずらして書く
+        let mut s = String::new();
+        // 隣のカードとくっつかないよう、サムネイルは1行ぶん小さくして、箱の中央に置く
+        if let Some(img) = load_cell_image(path, o, g, w, (rows - 1).max(1)) {
+            let mut canvas = image::RgbaImage::new(w * g.px_w, rows * g.px_h);
+            let x0 = (w * g.px_w - img.width()) / 2;
+            let y0 = (rows * g.px_h - img.height()) / 2;
+            paste(&mut canvas, &img, &o.lut, x0, y0);
+            s = gfx::draw(&canvas, g.proto, w, rows);
+        }
+        let indent = format!("\x1b[{}C", w + 2);
+        let lines: Vec<String> = text.iter().map(|l| format!("{indent}{l}")).collect();
+        s + &lines.join("\n")
+    } else {
+        // 最後の1行は隣のカードとの隙間にする（render_cell は画像の行のあとにラベルも返すので使わない）
+        let img = render_cell(path, o, w, (rows - 1).max(1));
+        let blank = " ".repeat(w as usize);
+        let lines: Vec<String> = text
+            .iter()
+            .enumerate()
+            .map(|(k, l)| {
+                let pic = if k < (rows as usize - 1).max(1) {
+                    img.get(k).unwrap_or(&blank)
+                } else {
+                    &blank
+                };
+                format!("{pic}  {l}")
+            })
+            .collect();
+        lines.join("\n")
+    }
+}
+
+/// `--thumbs` のカードを、数枚ずつ並列に作って順に送る。1枚が1項目（ページャが途中で切らない）
+fn spawn_long_thumbs(files: Vec<PathBuf>, o: Opts, rows: u32, term: u32) -> mpsc::Receiver<String> {
+    let (tx, rx) = mpsc::sync_channel::<String>(256);
+    std::thread::spawn(move || {
+        let w = rows * 3;
+        let text_w = (term as usize).saturating_sub(w as usize + 2).max(20);
+        let chunk = (rayon::current_num_threads() * 2).max(4);
+        for part in files.chunks(chunk) {
+            let cards: Vec<String> = part
+                .par_iter()
+                .map(|p| thumb_card(p, &o, w, rows, text_w))
+                .collect();
+            for c in cards {
+                if tx.send(c).is_err() {
+                    return;
+                }
+            }
+        }
+    });
+    rx
+}
+
 /// `--lang` is needed before clap parses (the help text depends on it), so look for it by hand.
 fn lang_arg() -> Option<String> {
     let mut it = std::env::args().skip(1);
@@ -1951,7 +2083,7 @@ fn main() {
     if let Some(n) = args.head {
         files.truncate(n.max(1));
     }
-    if args.long {
+    if args.long && !args.thumbs {
         long_listing(&files, &args, depth > 0);
         return;
     }
@@ -2032,6 +2164,14 @@ fn main() {
     let single_width = args.width.unwrap_or(size.single_width());
 
     let pager = !args.no_pager;
+    if args.thumbs {
+        // サムネイル付きの詳細表示（--thumbs は -l を含む）
+        let term = terminal_width().saturating_sub(1);
+        let count = files.len();
+        let rx = spawn_long_thumbs(files, opts, size.thumb_rows(), term);
+        emit(Progress::new(rx, count), pager);
+        return;
+    }
     if files.len() == 1 {
         // 単体表示（読み込みに時間がかかるときにインジケータを出せるよう、別スレッドで処理する）
         let path = files[0].clone();

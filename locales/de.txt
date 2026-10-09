@@ -31,6 +31,7 @@ help.cell_size = Pixelgröße einer Zeichenzelle (z. B. 10x20). Anpassen, wenn B
 help.grid = Raster einer Liste (COLSxROWS pro Seite); lange Listen werden auf Seiten verteilt. Standard: so viele Spalten, wie in die Terminalbreite passen (2 Zeilen); 3x2, wenn nur --width angegeben ist
 help.verbose = Bildinfos unter jedem Namen anzeigen. -v: Pixelgröße und Dateigröße; -vv: zusätzlich Format, Farbe, Megapixel, Seitenverhältnis, Änderungsdatum und EXIF (Kamera und Aufnahmeeinstellungen)
 help.long = Lange Ausgabe wie bei ls -l: eine Zeile pro Datei mit Größe, Abmessungen, Format, Datum, Kamera und Aufnahmeeinstellungen (EXIF) und mehr. Spalten ohne Inhalt entfallen
+help.thumbs = Zeigt zusätzlich zu -l eine Vorschau jedes Bildes links neben den Angaben (Größe mit -s ändern). Impliziert -l
 help.lang = Sprache der Meldungen (z. B. en, ja). Standard: aus der Umgebung erkannt
 
 # ---- Fehler und Warnungen

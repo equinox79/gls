@@ -118,7 +118,8 @@ gls ./* -vv                              # also show format, EXIF and other deta
 
 | Option | Description |
 | --- | --- |
-| `-l`, `--long` | Long listing like `ls -l`: one line per file with size, dimensions, megapixels, aspect ratio, format and color, modified date, EXIF capture time, camera, shooting settings (aperture, shutter speed, ISO, focal length; for video: length and codec) and whether GPS data is present. No thumbnails. Columns with nothing to show are left out, and `-` marks a missing value. Filtering, sorting, `-R` and `-n` work as usual. The header and the links are added only on a terminal |
+| `-l`, `--long` | Long listing like `ls -l`: one line per file with size, dimensions, megapixels, aspect ratio, format and color, modified date, EXIF capture time, camera, shooting settings (aperture, shutter speed, ISO, focal length; for video: length and codec) and whether GPS data is present. No thumbnails unless you add `--thumbs`. Columns with nothing to show are left out, and `-` marks a missing value. Filtering, sorting, `-R` and `-n` work as usual. The header and the links are added only on a terminal |
+| `--thumbs` | With `-l`, show a thumbnail of each image to the left of its details (see below). Implies `-l` |
 
 ```
 $ gls -l
@@ -131,6 +132,12 @@ $ gls -l
 ```
 
 Photos with EXIF also get the capture time, camera, and shooting settings (e.g. `f/11 1/125s ISO100 16mm`) columns. This example is piped; on a terminal a bold header line is added.
+
+With `--thumbs`, each file becomes a small card instead: the thumbnail on the left, and on the right the name, then size / dimensions / format, then dates and EXIF (values that exist, one group per line). `--thumbs` includes `-l`, and `-s xs|s|m|l|xl` sets the card height (3/4/5/7/9 lines). It uses the same rendering as the thumbnail list, so it falls back to half blocks and ASCII art in the same way.
+
+```
+gls -l --thumbs -s m
+```
 
 ### Rendering
 

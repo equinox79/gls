@@ -31,6 +31,7 @@ help.cell_size = Taille en pixels d'une cellule de caractère (p. ex. 10x20). À
 help.grid = Grille d'une liste (COLSxROWS par page) ; les longues listes sont réparties en pages. Par défaut, autant de colonnes que la largeur du terminal en permet (2 lignes) ; 3x2 si seul --width est donné
 help.verbose = Affiche des informations sur l'image sous chaque nom. -v : taille en pixels et taille du fichier ; -vv : aussi le format, la couleur, les mégapixels, le rapport d'aspect, la date de modification et l'EXIF (appareil et réglages de prise de vue)
 help.long = Liste détaillée, comme ls -l : une ligne par fichier avec taille, dimensions, format, dates, appareil et réglages de prise de vue (EXIF) et plus. Les colonnes sans rien à afficher sont omises
+help.thumbs = Avec -l, affiche aussi une miniature de chaque image à gauche de ses détails (-s change la taille). Implique -l
 help.lang = Langue des messages (p. ex. en, ja). Par défaut : détectée à partir de l'environnement
 
 # ---- erreurs et avertissements

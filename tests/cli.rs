@@ -319,6 +319,27 @@ fn long_listing_has_one_line_per_file() {
 }
 
 #[test]
+fn long_listing_with_thumbnails_makes_one_card_per_file() {
+    let dir = data_dir();
+    // 文字描画（モノクロ）なので、サムネイルも文字になり、出力を固定できる
+    let o = gls(&["-l", "--thumbs", "-s", "xs", dir.to_str().unwrap()]);
+    assert!(o.status.success(), "{}", String::from_utf8_lossy(&o.stderr));
+    let out = stdout(&o);
+    let lines: Vec<&str> = out.lines().collect();
+    // xs のカードは3行。4ファイルで12行
+    assert_eq!(lines.len(), 12, "{out}");
+    let i = lines
+        .iter()
+        .position(|l| l.ends_with("gradient.png"))
+        .expect("名前の行がある");
+    assert!(lines[i + 1].contains("96x64"), "名前の次の行に情報: {out}");
+    assert!(lines[i + 1].contains("PNG RGBA 8bit"), "{out}");
+    // 絞り込みなどもそのまま効く
+    let o = gls(&["--thumbs", "-n", "1", "-s", "xs", dir.to_str().unwrap()]);
+    assert_eq!(stdout(&o).lines().count(), 3, "--thumbs だけで -l を含む");
+}
+
+#[test]
 fn missing_file_is_an_error() {
     let o = gls(&["no-such-file.png"]);
     assert!(!o.status.success());
