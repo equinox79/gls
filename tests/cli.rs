@@ -148,6 +148,51 @@ fn recursive_adds_parent_directory() {
     assert!(stdout(&o).contains("data/"), "親ディレクトリ名が付く");
 }
 
+/// image モードでも、SVG のように作るのに時間のかかるものは縮小画像をキャッシュし、
+/// 2回目は同じ出力になる
+#[test]
+fn image_mode_caches_svg_thumbnails() {
+    let cache = std::env::temp_dir().join(format!("gls-cli-cache-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&cache);
+    let svg = data_dir().join("logo.svg");
+    let run = || {
+        Command::new(env!("CARGO_BIN_EXE_gls"))
+            .env("GLS_LANG", "en")
+            .env("XDG_CACHE_HOME", &cache)
+            .env("LOCALAPPDATA", &cache)
+            .args(["-m", "image", "--protocol", "sixel", "--cell-size", "10x20"])
+            .arg(&svg)
+            .arg(data_dir().join("gradient.png"))
+            .output()
+            .expect("gls を起動できる")
+    };
+    let count = |ext: &str| {
+        let mut n = 0;
+        let mut stack = vec![cache.clone()];
+        while let Some(d) = stack.pop() {
+            for e in std::fs::read_dir(d).into_iter().flatten().flatten() {
+                let p = e.path();
+                if p.is_dir() {
+                    stack.push(p);
+                } else if p.extension().is_some_and(|x| x == ext) {
+                    n += 1;
+                }
+            }
+        }
+        n
+    };
+    let first = run();
+    assert!(first.status.success());
+    assert_eq!(count("img"), 1, "SVG だけがキャッシュされる");
+    let second = run();
+    assert_eq!(
+        first.stdout, second.stdout,
+        "キャッシュから読んでも同じ出力"
+    );
+    assert_eq!(count("img"), 1);
+    let _ = std::fs::remove_dir_all(&cache);
+}
+
 #[test]
 fn missing_file_is_an_error() {
     let o = gls(&["no-such-file.png"]);

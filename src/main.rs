@@ -1046,10 +1046,32 @@ fn load_cell_image(
     cell_w: u32,
     cell_h: u32,
 ) -> Option<image::RgbImage> {
-    let result = load_box(path, o.filter, cell_w * g.px_w, cell_h * g.px_h, true);
+    let (bw, bh) = (cell_w * g.px_w, cell_h * g.px_h);
+    // 動画・PDF・HEIC・SVG は作るのに時間がかかるので、縮小した画像をキャッシュする
+    let cache = ext::kind(path).and_then(|_| box_cache_path(path, o, bw, bh));
+    if let Some(img) = cache.as_ref().and_then(|p| {
+        let img = image::open(p).ok()?.to_rgb8();
+        touch_cache(p);
+        Some(img)
+    }) {
+        DONE.fetch_add(1, Ordering::Relaxed);
+        return Some(img);
+    }
+    let result = load_box(path, o.filter, bw, bh, true);
     DONE.fetch_add(1, Ordering::Relaxed);
     match result {
-        Ok(img) => Some(img),
+        Ok(img) => {
+            if let Some(p) = &cache {
+                // 書き込み途中のファイルを読まないよう、一時ファイル経由で置き換える
+                let tmp = p.with_extension(format!("tmp{}", std::process::id()));
+                if img.save_with_format(&tmp, image::ImageFormat::Png).is_ok() {
+                    let _ = std::fs::rename(&tmp, p);
+                } else {
+                    let _ = std::fs::remove_file(&tmp);
+                }
+            }
+            Some(img)
+        }
         Err(e) => {
             warn_load(path, &e);
             None
@@ -1272,8 +1294,7 @@ fn prune_with(dir: &Path, max_bytes: u64, max_age: std::time::Duration) {
     if let Ok(entries) = std::fs::read_dir(dir) {
         for e in entries.flatten() {
             let p = e.path();
-            let ext = p.extension().and_then(|x| x.to_str()).unwrap_or("");
-            if !(ext == "txt" || ext.starts_with("tmp")) {
+            if !is_cache_file(&p) {
                 continue; // 自分が作ったファイルだけを対象にする
             }
             if let Ok(m) = e.metadata() {
@@ -1339,12 +1360,8 @@ fn clear_cache() {
     if let Ok(entries) = std::fs::read_dir(&dir) {
         for entry in entries.flatten() {
             let p = entry.path();
-            // 自分が作ったファイル（<hash>.txt と書き込み途中の一時ファイル）だけを対象にする
-            let ours = p
-                .extension()
-                .and_then(|e| e.to_str())
-                .is_some_and(|e| e == "txt" || e.starts_with("tmp"));
-            if !ours {
+            // 自分が作ったファイルだけを対象にする
+            if !is_cache_file(&p) {
                 continue;
             }
             let len = entry.metadata().map(|m| m.len()).unwrap_or(0);
@@ -1365,27 +1382,51 @@ fn clear_cache() {
     );
 }
 
-/// キャッシュファイルのパス。画像のパス・更新日時・サイズ、セルの大きさ、描画設定で決まる
-fn cache_path(path: &Path, o: &Opts, cell_w: u32, cell_h: u32) -> Option<PathBuf> {
-    let dir = o.cache_dir.as_ref()?;
+/// 元ファイルを見分ける情報（絶対パス・更新日時・サイズ）。キャッシュキーに使う
+fn file_identity(path: &Path) -> Option<(PathBuf, u128, u64)> {
     let meta = std::fs::metadata(path).ok()?;
     let mtime = meta
         .modified()
         .ok()?
         .duration_since(std::time::UNIX_EPOCH)
         .ok()?;
-    let abs = std::fs::canonicalize(path).ok()?;
-    let mut h = std::collections::hash_map::DefaultHasher::new();
-    (
-        o.fingerprint,
-        abs,
+    Some((
+        std::fs::canonicalize(path).ok()?,
         mtime.as_nanos(),
         meta.len(),
-        cell_w,
-        cell_h,
+    ))
+}
+
+/// 描画結果（text / half）のキャッシュファイルのパス。画像のパス・更新日時・サイズ、セルの大きさ、描画設定で決まる
+fn cache_path(path: &Path, o: &Opts, cell_w: u32, cell_h: u32) -> Option<PathBuf> {
+    let dir = o.cache_dir.as_ref()?;
+    let mut h = std::collections::hash_map::DefaultHasher::new();
+    (o.fingerprint, file_identity(path)?, cell_w, cell_h).hash(&mut h);
+    Some(dir.join(format!("{:016x}.txt", h.finish())))
+}
+
+/// 縮小した画像（image モード用。ガンマ補正の前）のキャッシュファイルのパス。
+/// 描画設定には左右されないので、箱の大きさと縮小フィルタだけで決まる
+fn box_cache_path(path: &Path, o: &Opts, bw: u32, bh: u32) -> Option<PathBuf> {
+    let dir = o.cache_dir.as_ref()?;
+    let mut h = std::collections::hash_map::DefaultHasher::new();
+    (
+        env!("CARGO_PKG_VERSION"),
+        CACHE_FORMAT,
+        file_identity(path)?,
+        bw,
+        bh,
+        format!("{:?}", o.filter),
     )
         .hash(&mut h);
-    Some(dir.join(format!("{:016x}.txt", h.finish())))
+    Some(dir.join(format!("{:016x}.img", h.finish())))
+}
+
+/// 自分が作ったキャッシュファイル（描画結果 .txt、縮小画像 .img、書き込み途中の一時ファイル）か
+fn is_cache_file(p: &Path) -> bool {
+    p.extension()
+        .and_then(|e| e.to_str())
+        .is_some_and(|e| e == "txt" || e == "img" || e.starts_with("tmp"))
 }
 
 /// 1枚分のセル。必ず cell_h + 1 行（画像 + ラベル）、各行の可視幅は cell_w
@@ -1972,6 +2013,7 @@ mod cache_tests {
         let dir = std::env::temp_dir().join(format!("gls-prune-test-{}", std::process::id()));
         std::fs::create_dir_all(&dir).unwrap();
         make(&dir, "old.txt", 10, 40); // 30日より古い → 削除
+        make(&dir, "old.img", 10, 40); // 縮小画像のキャッシュも同じ
         make(&dir, "a.txt", 100, 3);
         make(&dir, "b.txt", 100, 2);
         make(&dir, "c.txt", 100, 1);
@@ -1981,7 +2023,7 @@ mod cache_tests {
                                         // 上限 250 バイト: 期限切れを消した後の合計 100*3 + 10(fresh tmp) = 310 → 古い a.txt を消して 210
         prune_with(&dir, 250, Duration::from_secs(30 * 24 * 3600));
         let exists = |n: &str| dir.join(n).exists();
-        assert!(!exists("old.txt"));
+        assert!(!exists("old.txt") && !exists("old.img"));
         assert!(!exists("stale.tmp123"));
         assert!(exists("fresh.tmp456"));
         assert!(exists("keep.dat"));

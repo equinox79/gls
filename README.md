@@ -145,7 +145,7 @@ In WSL, `/mnt/c/...` is converted to `C:/...` and other paths to `\\wsl.localhos
 
 - A list decodes and renders several images in parallel. It starts showing as soon as the first row is ready and reads a few rows ahead.
 - JPEG is decoded while scaling down to 1/2, 1/4 or 1/8. In a list, the EXIF thumbnail (about 160 px) is used when it is large enough, so the full image is not read at all.
-- Rendered output is cached. If the image path, modified time, size and display settings are the same, the next run does not decode the image again.
+- Rendered output is cached. If the image path, modified time, size and display settings are the same, the next run does not decode the image again. In `image` mode, the downscaled thumbnails of video, PDF, HEIC/AVIF and SVG (the slow ones) are cached too, so ffmpeg and the like are not run again.
   - Location: `%LOCALAPPDATA%\gls\cache` on Windows, `~/.cache/gls/cache` on Linux / macOS (`XDG_CACHE_HOME` takes precedence)
   - Old cache entries are cleaned up once a day in the background at startup: entries unused for 30 days, and the oldest entries beyond a total of 256 MB. Change the limits with the environment variables `GLS_CACHE_DAYS` (days) and `GLS_CACHE_MAX_MB` (size).
 
