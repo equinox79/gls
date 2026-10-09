@@ -1086,8 +1086,9 @@ fn gfx_row(
             paste(&mut canvas, img, &o.lut, x0, 0);
         }
     }
-    let mut lines = vec![gfx::draw(&canvas, g.proto, total_cols, cell_h)];
-    lines.extend((1..cell_h).map(|_| String::new()));
+    // 画像の高さぶんの改行を含む1つの項目にする（ページャが途中で切らないように）
+    let block = gfx::draw(&canvas, g.proto, total_cols, cell_h) + &"\n".repeat(cell_h as usize - 1);
+    let mut lines = vec![block];
     let mut labels: Vec<Vec<String>> = paths.iter().map(|p| label_lines(p, o, cell_w)).collect();
     pad_labels(&mut labels, cell_w);
     for n in 0..labels[0].len() {
@@ -1104,11 +1105,16 @@ enum PagerKey {
     Quit,
 }
 
-/// more 風のプロンプトを出してキー入力を待つ
-fn wait_key(out: &mut impl io::Write) -> PagerKey {
+/// more 風のプロンプトを出してキー入力を待つ。
+/// 端末の高さが分かるときは、プロンプトを画面の最下行に出す（カーソル位置は保存して、あとで元に戻す）。
+/// 画像のように高さのあるまとまりは途中で切らないため、内容の直下ではなく最下行に固定したほうが見やすい。
+fn wait_key(out: &mut impl io::Write, term_rows: Option<usize>) -> PagerKey {
     use crossterm::event::{read, Event, KeyCode, KeyEventKind, KeyModifiers};
     use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
 
+    if let Some(rows) = term_rows {
+        let _ = write!(out, "\x1b7\x1b[{rows};1H\x1b[2K"); // 保存して、最下行へ
+    }
     let _ = write!(
         out,
         "\x1b[7m--More-- (Space: 次の画面 / Enter: 1行 / q: 終了)\x1b[0m"
@@ -1136,10 +1142,52 @@ fn wait_key(out: &mut impl io::Write) -> PagerKey {
     };
     let _ = disable_raw_mode();
     let _ = write!(out, "\r\x1b[2K"); // プロンプト行を消す
+    if term_rows.is_some() {
+        let _ = write!(out, "\x1b8"); // 保存した位置に戻る
+    }
     key
 }
 
-/// 行を標準出力へ出す。ページ表示が有効なら画面ごとに more 風に停止する。
+/// 1つの出力項目が端末で占める行数。画像の項目は、改行を含めて高さぶんの行を持つ
+fn line_height(line: &str) -> usize {
+    1 + line.matches('\n').count()
+}
+
+/// 項目を out へ書き出す。pager なら、画面がいっぱいになるたびに next_key で止まる。
+/// 画像のように複数行にわたる項目は途中で切らず、収まらないなら次の画面に回す。
+fn page_out<W: io::Write>(
+    lines: impl Iterator<Item = String>,
+    out: &mut W,
+    pager: bool,
+    screen: usize,
+    mut next_key: impl FnMut(&mut W) -> PagerKey,
+) -> io::Result<()> {
+    // 使った行数。シェルのコマンド行が1行ある
+    let mut used = 1;
+    // Enter（1行進む）を押した直後は、収まるかどうかにかかわらず次の項目を出す
+    let mut force = false;
+    for line in lines {
+        let h = line_height(&line);
+        if pager && !force && used > 0 && used + h > screen {
+            match next_key(out) {
+                PagerKey::Quit => return Ok(()),
+                PagerKey::Line => force = true,
+                PagerKey::Screen => used = 0,
+            }
+        }
+        writeln!(out, "{line}")?;
+        if force {
+            // 1項目だけ進めたので、次の項目の前でまた止まる
+            used = screen;
+            force = false;
+        } else {
+            used += h;
+        }
+    }
+    out.flush()
+}
+
+/// 行を標準出力へ出す。ページ表示が有効なら、画面がいっぱいになるたびに more 風に停止する。
 /// `gls ... | head` などでパイプが閉じられても panic しない。
 fn emit(lines: impl Iterator<Item = String>, pager: bool) {
     use io::IsTerminal;
@@ -1147,34 +1195,16 @@ fn emit(lines: impl Iterator<Item = String>, pager: bool) {
     let stdout = io::stdout();
     let interactive = stdout.is_terminal() && io::stdin().is_terminal();
     let pager = pager && interactive;
-    let screen = terminal_size::terminal_size()
-        .map(|(_, h)| h.0 as usize)
-        .unwrap_or(24)
-        .saturating_sub(1)
-        .max(1);
+    let term_rows = terminal_size::terminal_size().map(|(_, h)| h.0 as usize);
+    // 1画面に出せる行数。最下行はプロンプト用に空けておく
+    let screen = term_rows.unwrap_or(24).saturating_sub(1).max(1);
 
     let mut out = stdout.lock();
-    let mut lines = lines.peekable();
-    let mut budget = screen;
-    while let Some(line) = lines.next() {
-        if let Err(e) = writeln!(out, "{line}") {
-            if e.kind() != io::ErrorKind::BrokenPipe {
-                die(&format!("出力に失敗しました: {e}"));
-            }
-            return;
-        }
-        if pager {
-            budget -= 1;
-            if budget == 0 && lines.peek().is_some() {
-                match wait_key(&mut out) {
-                    PagerKey::Quit => return,
-                    PagerKey::Line => budget = 1,
-                    PagerKey::Screen => budget = screen,
-                }
-            }
+    if let Err(e) = page_out(lines, &mut out, pager, screen, |o| wait_key(o, term_rows)) {
+        if e.kind() != io::ErrorKind::BrokenPipe {
+            die(&format!("出力に失敗しました: {e}"));
         }
     }
-    let _ = out.flush();
 }
 
 /// 描画キャッシュの保存先ディレクトリ（OS 標準のキャッシュ置き場）
@@ -1430,9 +1460,8 @@ fn single_lines(path: &Path, o: &Opts, width: u32) -> Vec<String> {
         let (cols, rows) = (img.width().div_ceil(g.px_w), img.height().div_ceil(g.px_h));
         let mut canvas = image::RgbaImage::new(cols * g.px_w, rows * g.px_h);
         paste(&mut canvas, &img, &o.lut, 0, 0);
-        let mut lines = vec![gfx::draw(&canvas, g.proto, cols, rows)];
-        lines.extend((1..rows).map(|_| String::new()));
-        lines
+        let block = gfx::draw(&canvas, g.proto, cols, rows) + &"\n".repeat(rows as usize - 1);
+        vec![block]
     } else {
         let (img, w, h) = match load_fit(path, o, width, None) {
             Ok(r) => r,
@@ -1895,5 +1924,90 @@ mod cache_tests {
         assert!(!exists("a.txt"), "最も古い a.txt から削除される");
         assert!(exists("b.txt") && exists("c.txt"));
         let _ = std::fs::remove_dir_all(&dir);
+    }
+}
+
+#[cfg(test)]
+mod pager_tests {
+    use super::*;
+
+    fn item(h: usize) -> String {
+        // 高さ h の項目（画像のブロックは、末尾に改行を h - 1 個持つ）
+        format!("x{}", "\n".repeat(h - 1))
+    }
+
+    /// keys の順にキーを返しながら項目を出す。(止まった回数, 出力に出た項目の数) を返す
+    fn run(heights: &[usize], screen: usize, keys: &[PagerKey]) -> (usize, usize) {
+        let mut out: Vec<u8> = Vec::new();
+        let mut stops = 0;
+        let mut keys = keys.iter();
+        let items = heights.iter().map(|&h| item(h));
+        page_out(items, &mut out, true, screen, |_| {
+            stops += 1;
+            match keys.next() {
+                Some(PagerKey::Screen) => PagerKey::Screen,
+                Some(PagerKey::Line) => PagerKey::Line,
+                _ => PagerKey::Quit,
+            }
+        })
+        .unwrap();
+        (stops, String::from_utf8(out).unwrap().matches('x').count())
+    }
+
+    #[test]
+    fn stops_when_screen_is_full() {
+        // screen=5、使用済み1行（コマンド行）→ 4項目出したところで止まる
+        let (stops, shown) = run(&[1; 10], 5, &[PagerKey::Quit]);
+        assert_eq!((stops, shown), (1, 4));
+        // Space で次の画面へ: 4 + 4 + 2 = 10 項目、止まるのは2回
+        let (stops, shown) = run(
+            &[1; 10],
+            5,
+            &[PagerKey::Screen, PagerKey::Screen, PagerKey::Screen],
+        );
+        assert_eq!((stops, shown), (2, 10));
+    }
+
+    #[test]
+    fn tall_blocks_are_not_split() {
+        // screen=8、使用済み1 + 1 + 1 = 3。高さ6の項目は 3 + 6 > 8 なので、その前で止まる
+        let (stops, shown) = run(&[1, 1, 6, 1], 8, &[PagerKey::Quit]);
+        assert_eq!((stops, shown), (1, 2), "高さ6の項目は出さずに止まる");
+        // Space で進むと、次の画面の先頭にそのブロックが来る
+        let (stops, shown) = run(&[1, 1, 6, 1], 8, &[PagerKey::Screen]);
+        assert_eq!((stops, shown), (1, 4));
+    }
+
+    #[test]
+    fn enter_advances_one_item_at_a_time() {
+        // screen=3: 使用済み1 + 項目1 + 項目1 = 3 で満杯。Enter で1項目ずつ、そのたびに止まる
+        let (stops, shown) = run(
+            &[1; 6],
+            3,
+            &[
+                PagerKey::Line,
+                PagerKey::Line,
+                PagerKey::Line,
+                PagerKey::Line,
+            ],
+        );
+        assert_eq!(shown, 6);
+        assert_eq!(stops, 4);
+    }
+
+    #[test]
+    fn oversized_block_is_still_shown() {
+        // 画面より高い項目でも、止まったあとには必ず出す（無限に止まらない）
+        let (stops, shown) = run(&[10, 1], 5, &[PagerKey::Screen, PagerKey::Screen]);
+        assert_eq!(shown, 2);
+        assert!(stops <= 2);
+    }
+
+    #[test]
+    fn no_pause_when_pager_is_off() {
+        let mut out: Vec<u8> = Vec::new();
+        let items = (0..50).map(|_| item(3));
+        page_out(items, &mut out, false, 5, |_| panic!("止まってはいけない")).unwrap();
+        assert_eq!(String::from_utf8(out).unwrap().matches('x').count(), 50);
     }
 }

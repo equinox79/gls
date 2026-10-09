@@ -54,7 +54,7 @@ pub fn query_cell_px() -> Option<(u32, u32)> {
 /// canvas（透明部分は何も描かない）を、現在のカーソル位置に cols×rows 文字ぶんの領域として描画する
 /// 文字列にする。出力後のカーソル位置は呼び出し前と同じ（描画位置の確保・復元込み）。
 ///
-/// 手順: 先に rows 回改行して領域を確保（画面末尾ならここでスクロールする）→ rows 行戻る →
+/// 手順: 先に rows 回 IND（ESC D、改行と同じく下へ動き、画面末尾ならスクロールする）で領域を確保（画面末尾ならここでスクロールする）→ rows 行戻る →
 /// カーソルを保存して描画 → 保存位置へ復帰。描画中にスクロールが起きないので位置がずれない。
 pub fn draw(canvas: &RgbaImage, proto: Proto, cols: u32, rows: u32) -> String {
     let body = match proto {
@@ -64,7 +64,7 @@ pub fn draw(canvas: &RgbaImage, proto: Proto, cols: u32, rows: u32) -> String {
     };
     format!(
         "{}\x1b[{rows}A\r\x1b7{body}\x1b8",
-        "\n".repeat(rows as usize)
+        "\x1bD".repeat(rows as usize)
     )
 }
 
@@ -347,7 +347,7 @@ mod tests {
         let img = RgbaImage::from_pixel(8, 8, Rgba([1, 2, 3, 255]));
         for p in [Proto::Sixel, Proto::Kitty, Proto::Iterm2] {
             let s = draw(&img, p, 2, 3);
-            assert!(s.starts_with("\n\n\n\x1b[3A\r\x1b7"));
+            assert!(s.starts_with("\x1bD\x1bD\x1bD\x1b[3A\r\x1b7"));
             assert!(s.ends_with("\x1b8"));
         }
     }
