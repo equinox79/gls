@@ -10,7 +10,8 @@
 - 正規表現での絞り込み、並び替え、件数の制限、再帰、EXIF の向きの反映、`-vv` で EXIF などの詳細表示
 - ファイル名を `Ctrl+クリック` で既定のアプリで開ける（OSC 8 ハイパーリンク）
 - 並列デコード・先読み・キャッシュで、大量の画像でも速い
-- Windows / macOS / Linux（WSL を含む）
+- Windows / macOS / Linux（WSL を含む）。ビルド済みのバイナリを [Releases のページ](https://github.com/equinox79/gls/releases)で配布
+- スクリプトから使える: 構造化した出力の `--json`、`xargs -0` 向けの `-0`、`ls -l` 風の `-l`
 - メッセージは10言語（English・日本語・简体中文・繁體中文・한국어・Español・Français・Deutsch・Português (Brasil)・Русский）に対応し、環境から自動で選びます。言語は簡単に追加できます（[言語](#言語)を参照）
 
 ![gls のデモ動画: パブリックドメインの画像6枚のサムネイル一覧が1行ずつ現れ、続いて -vv の詳細表示、ハーフブロック、アスキーアートで表示する](docs/images/demo.gif)
@@ -19,7 +20,23 @@
 
 ## インストール
 
-### 1. Rust とリンカを用意する
+### 方法1: ビルド済みのバイナリをダウンロードする（Rust は不要）
+
+[Releases のページ](https://github.com/equinox79/gls/releases)から、お使いの OS 用のアーカイブをダウンロードして展開し、`gls`（Windows は `gls.exe`）を `PATH` の通ったフォルダに置きます。
+
+| OS | ファイル |
+| --- | --- |
+| Windows（x64） | `gls-<バージョン>-x86_64-pc-windows-msvc.zip` |
+| macOS（Apple シリコン） | `gls-<バージョン>-aarch64-apple-darwin.tar.gz` |
+| macOS（Intel） | `gls-<バージョン>-x86_64-apple-darwin.tar.gz` |
+| Linux / WSL（x64） | `gls-<バージョン>-x86_64-unknown-linux-gnu.tar.gz` |
+| Linux（ARM64） | `gls-<バージョン>-aarch64-unknown-linux-gnu.tar.gz` |
+
+同じページの `SHA256SUMS` に、チェックサムがあります。macOS のバイナリは署名していないので、開けないと言われたら、`xattr -d com.apple.quarantine gls` を一度実行してください。Linux 版には glibc 2.35 以上（Ubuntu 22.04 以降）が必要です。
+
+### 方法2: ソースからビルドする
+
+#### 1. Rust とリンカを用意する
 
 gls は [Rust](https://rustup.rs/) でビルドします。Rust は OS のリンカを使うので、先にそれを入れます。
 
@@ -47,7 +64,7 @@ Windows の Rust には Visual Studio の C++ ビルドツールが必要です�
 
 終わったら、`cargo` を PATH に通すためにターミナルを開き直してください。
 
-### 2. gls をインストールする
+#### 2. gls をインストールする
 
 ```bash
 cargo install --git https://github.com/equinox79/gls
@@ -61,7 +78,7 @@ cd gls
 cargo install --path .
 ```
 
-### 3. 必要なら: 動画・PDF・HEIC 用のツール
+### 必要なら: 動画・PDF・HEIC 用のツール
 
 画像と SVG は追加のツールなしで表示できます。動画・PDF・HEIC/AVIF にはサムネイルを作る手段が必要です（[対応形式](#対応形式)を参照）。
 
@@ -140,8 +157,43 @@ EXIF のある写真では、さらに撮影日時・カメラ・撮影設定（
 gls -l --thumbs -s m
 ```
 
-### 描画
+### スクリプト向け
 
+| オプション | 説明 |
+| --- | --- |
+| `--json` | 条件に合うファイルの情報を JSON で出力して終了する。1ファイル1オブジェクトの配列。絞り込み・並び替え・`-R`・`-n` もそのまま使える。`-l` / `--thumbs` / `-0` とは併用できない |
+| `-0`, `--null` | 条件に合うファイルのパスだけを、NUL 文字区切りで出力して終了する（`find -print0` と同じ）。`xargs -0` 用。パスはバイト列のまま出す |
+
+```
+$ gls --json tests/data/gradient.png
+[
+{"path":"tests/data/gradient.png","name":"gradient.png","type":"image","bytes":2571,"width":96,"height":64,"megapixels":0.01,"aspect":"3:2","format":"PNG","color":"RGBA 8bit","modified":"2026-10-08T11:05:04.335445900+09:00","details":[],"exif":null}
+]
+```
+
+どのオブジェクトも同じキーを持ち、`null` は「取得できなかった」を表します。
+
+| キー | 意味 |
+| --- | --- |
+| `path`, `name` | gls が見つけたパスと、ファイル名 |
+| `type` | `image`、`svg`、`video`、`pdf`、`heif` のどれか |
+| `bytes`, `width`, `height`, `megapixels`, `aspect` | 数値（`aspect` は `16:9` のような文字列）。動画・PDF・HEIC は大きさを読まないので `null` |
+| `format`, `color` | 例: `JPEG`、`RGB 8bit` |
+| `modified` | 更新日時（RFC 3339） |
+| `details` | 動画の長さやコーデックなど（`ffprobe` が必要）。なければ空 |
+| `exif` | `null`、または `camera`、`aperture`、`exposure`、`iso`、`focal_length`、`taken`（ファイルの記録のままの文字列。例: `f/11`、`1/125s`、`ISO100`）と `gps`（真偽値）を持つオブジェクト |
+
+```bash
+# 特定のカメラで撮った写真を、撮影日時つきで一覧する
+gls --json -R photos | jq -r '.[] | select(.exif.camera // "" | test("SONY")) | [.exif.taken, .path] | @tsv'
+
+# 新しい PNG 20枚を別の場所へコピーする（スペースのあるファイル名でも大丈夫）
+gls -0 -R -e '\.png$' --sort date -n 20 | xargs -0 cp -t backup/
+```
+
+警告とエラーは標準エラー出力に出るので、この出力には混ざりません。
+
+### 描画
 | オプション | 説明 |
 | --- | --- |
 | `-m`, `--mode <image\|half\|text>` | 描画モード（既定: `image`。使えない端末では下記のとおり自動でフォールバック） |

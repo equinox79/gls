@@ -9,7 +9,8 @@
 - Regex filtering, sorting, limiting the count, recursion, EXIF orientation, and detailed info (EXIF and more) with `-vv`
 - File names are hyperlinks: `Ctrl+click` opens the file in its default app (OSC 8)
 - Parallel decoding, read-ahead and a cache keep it fast even with thousands of images
-- Windows, macOS and Linux (including WSL)
+- Windows, macOS and Linux (including WSL); prebuilt binaries on the [Releases page](https://github.com/equinox79/gls/releases)
+- Scriptable: `--json` for structured output, `-0` for `xargs -0`, and `-l` for an `ls -l` style listing
 - Messages in 10 languages (English, 日本語, 简体中文, 繁體中文, 한국어, Español, Français, Deutsch, Português (Brasil), Русский), chosen from your environment; more languages are easy to add (see [Languages](#languages))
 
 ![Animated demo of gls: a thumbnail list of six public-domain pictures appears row by row, then -vv details, half-block and ASCII art modes](docs/images/demo.gif)
@@ -18,7 +19,23 @@
 
 ## Install
 
-### 1. Set up Rust and a C linker
+### Option 1: download a binary (no Rust needed)
+
+Download the archive for your OS from the [Releases page](https://github.com/equinox79/gls/releases), unpack it, and put `gls` (`gls.exe` on Windows) in a folder on your `PATH`.
+
+| OS | File |
+| --- | --- |
+| Windows (x64) | `gls-<version>-x86_64-pc-windows-msvc.zip` |
+| macOS (Apple silicon) | `gls-<version>-aarch64-apple-darwin.tar.gz` |
+| macOS (Intel) | `gls-<version>-x86_64-apple-darwin.tar.gz` |
+| Linux / WSL (x64) | `gls-<version>-x86_64-unknown-linux-gnu.tar.gz` |
+| Linux (ARM64) | `gls-<version>-aarch64-unknown-linux-gnu.tar.gz` |
+
+`SHA256SUMS` on the same page lists the checksums. The macOS binaries are not signed; if macOS refuses to open one, run `xattr -d com.apple.quarantine gls` once. The Linux builds need glibc 2.35 or newer (Ubuntu 22.04 and later).
+
+### Option 2: build from source
+
+#### 1. Set up Rust and a C linker
 
 gls is built with [Rust](https://rustup.rs/). Rust needs your platform's linker, so install that first.
 
@@ -46,7 +63,7 @@ Rust on Windows needs the Visual Studio C++ Build Tools. If they are missing, `r
 
 Open a new terminal afterwards so that `cargo` is on `PATH`.
 
-### 2. Install gls
+#### 2. Install gls
 
 ```bash
 cargo install --git https://github.com/equinox79/gls
@@ -60,7 +77,7 @@ cd gls
 cargo install --path .
 ```
 
-### 3. Optional: tools for video, PDF and HEIC
+### Optional: tools for video, PDF and HEIC
 
 Images and SVG work without anything else. Video, PDF and HEIC/AVIF need a way to make thumbnails (see [Supported formats](#supported-formats)):
 
@@ -139,8 +156,43 @@ With `--thumbs`, each file becomes a small card instead: the thumbnail on the le
 gls -l --thumbs -s m
 ```
 
-### Rendering
+### Scripting
 
+| Option | Description |
+| --- | --- |
+| `--json` | Print the matching files as JSON and exit: one array with one object per file. Filtering, sorting, `-R` and `-n` work as usual. Cannot be combined with `-l` / `--thumbs` / `-0` |
+| `-0`, `--null` | Print only the matching file paths, separated by NUL characters (like `find -print0`), and exit. For `xargs -0`. Paths are written byte for byte |
+
+```
+$ gls --json tests/data/gradient.png
+[
+{"path":"tests/data/gradient.png","name":"gradient.png","type":"image","bytes":2571,"width":96,"height":64,"megapixels":0.01,"aspect":"3:2","format":"PNG","color":"RGBA 8bit","modified":"2026-10-08T11:05:04.335445900+09:00","details":[],"exif":null}
+]
+```
+
+Every object has the same keys, and `null` means "not available":
+
+| Key | Meaning |
+| --- | --- |
+| `path`, `name` | The path as gls found it, and the file name |
+| `type` | `image`, `svg`, `video`, `pdf` or `heif` |
+| `bytes`, `width`, `height`, `megapixels`, `aspect` | Numbers (`aspect` is a string such as `16:9`). `null` for video, PDF and HEIC, whose size is not read |
+| `format`, `color` | e.g. `JPEG`, `RGB 8bit` |
+| `modified` | Modified time in RFC 3339 |
+| `details` | Video length, codec and so on (needs `ffprobe`); empty otherwise |
+| `exif` | `null`, or an object with `camera`, `aperture`, `exposure`, `iso`, `focal_length`, `taken` (strings as stored in the file, e.g. `f/11`, `1/125s`, `ISO100`) and `gps` (boolean) |
+
+```bash
+# Photos taken with a given camera, with their capture time
+gls --json -R photos | jq -r '.[] | select(.exif.camera // "" | test("SONY")) | [.exif.taken, .path] | @tsv'
+
+# The 20 newest PNGs, copied somewhere (file names with spaces are fine)
+gls -0 -R -e '\.png$' --sort date -n 20 | xargs -0 cp -t backup/
+```
+
+Warnings and errors go to standard error, so they never get mixed into this output.
+
+### Rendering
 | Option | Description |
 | --- | --- |
 | `-m`, `--mode <image\|half\|text>` | Rendering mode (default: `image`; falls back automatically on terminals that cannot use it, see below) |

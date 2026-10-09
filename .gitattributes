@@ -1,0 +1,2 @@
+# Shell scripts must keep LF, or bash on the Windows runner fails on the carriage returns
+*.sh text eol=lf
