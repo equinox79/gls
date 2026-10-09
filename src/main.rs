@@ -231,8 +231,7 @@ fn parse_grid(s: &str) -> Result<Grid, String> {
     about = "画像をターミナルに表示する `ls`。画像プロトコル（Sixel / Kitty / iTerm2）・ハーフブロック・アスキーアートで描画します。\n複数の画像（ワイルドカード・ディレクトリ可）を指定すると、ファイル名つきのサムネイル一覧で表示します。"
 )]
 struct Args {
-    /// 入力画像ファイル・ディレクトリ・ワイルドカード（例: ./*）
-    #[arg(required_unless_present = "clear_cache")]
+    /// 入力画像ファイル・ディレクトリ・ワイルドカード（例: ./*）。省略時はカレントディレクトリ
     images: Vec<String>,
 
     /// ファイル名（ディレクトリ部分を除く）を正規表現で絞り込む。複数指定すると、どれかに一致すれば表示する。
@@ -1642,7 +1641,12 @@ fn main() {
         (true, None) => usize::MAX,
         (false, None) => 0,
     };
-    let mut files = collect_inputs(&args.images, depth);
+    let inputs = if args.images.is_empty() {
+        vec![".".to_string()]
+    } else {
+        args.images.clone()
+    };
+    let mut files = collect_inputs(&inputs, depth);
     if files.is_empty() {
         die("画像ファイルが見つかりませんでした。");
     }
