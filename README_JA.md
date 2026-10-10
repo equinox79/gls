@@ -60,18 +60,18 @@ gls -l               # 1行ごとにサムネイルが付いた、詳細な一�
 
 [Releases のページ](https://github.com/equinox79/gls/releases)から、お使いの OS 用のアーカイブをダウンロードして展開し、`gls`（Windows は `gls.exe`）を `PATH` の通ったフォルダに置きます。
 
-| OS | ファイル（バージョン `v0.1.0` の場合） |
+| OS | ファイル（バージョン `v0.1.1` の場合） |
 | --- | --- |
-| Windows（x64） | `gls-v0.1.0-x86_64-pc-windows-msvc.zip` |
-| macOS（Apple シリコン） | `gls-v0.1.0-aarch64-apple-darwin.tar.gz` |
-| macOS（Intel） | `gls-v0.1.0-x86_64-apple-darwin.tar.gz` |
-| Linux / WSL（x64） | `gls-v0.1.0-x86_64-unknown-linux-gnu.tar.gz` |
-| Linux（ARM64） | `gls-v0.1.0-aarch64-unknown-linux-gnu.tar.gz` |
+| Windows（x64） | `gls-v0.1.1-x86_64-pc-windows-msvc.zip` |
+| macOS（Apple シリコン） | `gls-v0.1.1-aarch64-apple-darwin.tar.gz` |
+| macOS（Intel） | `gls-v0.1.1-x86_64-apple-darwin.tar.gz` |
+| Linux / WSL（x64） | `gls-v0.1.1-x86_64-unknown-linux-gnu.tar.gz` |
+| Linux（ARM64） | `gls-v0.1.1-aarch64-unknown-linux-gnu.tar.gz` |
 
 コピーして貼り付けられる例です（Linux の x64）。ほかの環境では、`VERSION` とターゲット名を変えてください。
 
 ```bash
-VERSION=0.1.0
+VERSION=0.1.1
 TARGET=x86_64-unknown-linux-gnu
 curl -L -o gls.tar.gz "https://github.com/equinox79/gls/releases/download/v$VERSION/gls-v$VERSION-$TARGET.tar.gz"
 tar xzf gls.tar.gz
@@ -81,7 +81,7 @@ sudo install "gls-v$VERSION-$TARGET/gls" /usr/local/bin/
 Windows（PowerShell）の場合:
 
 ```powershell
-$v = "0.1.0"
+$v = "0.1.1"
 $t = "x86_64-pc-windows-msvc"
 Invoke-WebRequest "https://github.com/equinox79/gls/releases/download/v$v/gls-v$v-$t.zip" -OutFile gls.zip
 Expand-Archive gls.zip -DestinationPath .
@@ -397,7 +397,7 @@ gls はまだ若いツール（バージョン 0.1）です。確認できてい
 - `-l` のカードを、実際の画像プロトコルで表示したときの位置（端末の動きを再現するスクリプトでしか確認していません）
 - iTerm2、WezTerm、Kitty、Ghostty、GNOME Terminal、foot、mlterm、VS Code のターミナル
 - macOS の Terminal.app（画像プロトコルがないので `half` になります）と、macOS の Quick Look のサムネイル
-- 動画と HEIC のサムネイル、v0.1.0 のビルド済みバイナリを、すべての環境で動かすこと（リリースは公開済みで、ダウンロードのリンクも使えますが、パッケージ化したバイナリを、すべての環境では動かしていません）
+- 動画と HEIC のサムネイル、ビルド済みバイナリを、すべての環境で動かすこと（リリースは公開済みで、ダウンロードのリンクも使えますが、パッケージ化したバイナリを、すべての環境では動かしていません）
 
 **既知の制限**
 - RAW 写真（CR2、NEF、ARW など）には対応していません。
@@ -459,7 +459,7 @@ cargo clippy --all-targets -- -D warnings
 
 1. `Cargo.toml` のバージョンを上げます（`cargo build` を実行して `Cargo.lock` も追従させます）。コミットして push します。
 2. 任意の予行演習: Actions のタブで **Release** → **Run workflow** を選びます。5つの環境でビルドして、アーカイブを成果物として残します。公開はしません。
-3. バージョンに合うタグを push します: `git tag v0.1.0 && git push origin v0.1.0`。ワークフローが、タグと `Cargo.toml` のバージョンが同じことを確かめ、テストを実行し、Linux（x64、ARM64）、macOS（Apple シリコン、Intel）、Windows（x64）をビルドして、アーカイブと `SHA256SUMS` を付けた GitHub のリリースを公開します。
+3. バージョンに合うタグを push します: `git tag v0.1.1 && git push origin v0.1.1`（バージョンは読み替えてください）。ワークフローが、タグと `Cargo.toml` のバージョンが同じことを確かめ、テストを実行し、Linux（x64、ARM64）、macOS（Apple シリコン、Intel）、Windows（x64）をビルドして、アーカイブと `SHA256SUMS` を付けた GitHub のリリースを公開します。
 
 ## 言語
 

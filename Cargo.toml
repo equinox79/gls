@@ -1,6 +1,6 @@
 [package]
 name = "gls"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "ls, with pictures: an ls-style lister that shows thumbnails of images, videos and PDFs in your terminal (Sixel / Kitty / iTerm2, half blocks, ASCII art)"
 license = "MIT"

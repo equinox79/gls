@@ -59,18 +59,18 @@ Tools such as [chafa](https://hpjansson.org/chafa/), [viu](https://github.com/at
 
 Download the archive for your OS from the [Releases page](https://github.com/equinox79/gls/releases), unpack it, and put `gls` (`gls.exe` on Windows) in a folder on your `PATH`.
 
-| OS | File (for version `v0.1.0`) |
+| OS | File (for version `v0.1.1`) |
 | --- | --- |
-| Windows (x64) | `gls-v0.1.0-x86_64-pc-windows-msvc.zip` |
-| macOS (Apple silicon) | `gls-v0.1.0-aarch64-apple-darwin.tar.gz` |
-| macOS (Intel) | `gls-v0.1.0-x86_64-apple-darwin.tar.gz` |
-| Linux / WSL (x64) | `gls-v0.1.0-x86_64-unknown-linux-gnu.tar.gz` |
-| Linux (ARM64) | `gls-v0.1.0-aarch64-unknown-linux-gnu.tar.gz` |
+| Windows (x64) | `gls-v0.1.1-x86_64-pc-windows-msvc.zip` |
+| macOS (Apple silicon) | `gls-v0.1.1-aarch64-apple-darwin.tar.gz` |
+| macOS (Intel) | `gls-v0.1.1-x86_64-apple-darwin.tar.gz` |
+| Linux / WSL (x64) | `gls-v0.1.1-x86_64-unknown-linux-gnu.tar.gz` |
+| Linux (ARM64) | `gls-v0.1.1-aarch64-unknown-linux-gnu.tar.gz` |
 
 Copy and paste, for example on Linux (x64). Change `VERSION` and the target name for other platforms:
 
 ```bash
-VERSION=0.1.0
+VERSION=0.1.1
 TARGET=x86_64-unknown-linux-gnu
 curl -L -o gls.tar.gz "https://github.com/equinox79/gls/releases/download/v$VERSION/gls-v$VERSION-$TARGET.tar.gz"
 tar xzf gls.tar.gz
@@ -80,7 +80,7 @@ sudo install "gls-v$VERSION-$TARGET/gls" /usr/local/bin/
 On Windows (PowerShell):
 
 ```powershell
-$v = "0.1.0"
+$v = "0.1.1"
 $t = "x86_64-pc-windows-msvc"
 Invoke-WebRequest "https://github.com/equinox79/gls/releases/download/v$v/gls-v$v-$t.zip" -OutFile gls.zip
 Expand-Archive gls.zip -DestinationPath .
@@ -396,7 +396,7 @@ gls is young (version 0.1). Here is what has been checked, and what has not.
 - The `-l` cards with a real image protocol: the placement was checked with a terminal-emulation script only
 - iTerm2, WezTerm, Kitty, Ghostty, GNOME Terminal, foot, mlterm, the VS Code terminal
 - macOS Terminal.app (it has no image protocol, so `half` is used) and the macOS Quick Look thumbnails
-- Video and HEIC thumbnails, and running the prebuilt binaries of v0.1.0 on every platform (the release is published and its download links work, but the packaged binaries have not been run on all of them)
+- Video and HEIC thumbnails, and running the prebuilt binaries on every platform (the release is published and its download links work, but the packaged binaries have not been run on all of them)
 
 **Known limitations**
 - RAW photos (CR2, NEF, ARW and so on) are not supported.
@@ -458,7 +458,7 @@ Source layout:
 
 1. Set the new version in `Cargo.toml` (and run `cargo build` so that `Cargo.lock` follows), commit and push.
 2. Optional dry run: in the Actions tab choose **Release** → **Run workflow**. It builds all five platforms and keeps the archives as artifacts, without publishing.
-3. Push a tag that matches the version: `git tag v0.1.0 && git push origin v0.1.0`. The workflow checks that the tag equals the `Cargo.toml` version, runs the tests, builds Linux (x64, ARM64), macOS (Apple silicon, Intel) and Windows (x64), and publishes a GitHub release with the archives and `SHA256SUMS`.
+3. Push a tag that matches the version: `git tag v0.1.1 && git push origin v0.1.1` (use your own version). The workflow checks that the tag equals the `Cargo.toml` version, runs the tests, builds Linux (x64, ARM64), macOS (Apple silicon, Intel) and Windows (x64), and publishes a GitHub release with the archives and `SHA256SUMS`.
 
 ## Languages
 
