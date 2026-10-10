@@ -79,15 +79,37 @@ cargo install --path .
 
 ### Optional: tools for video, PDF and HEIC
 
-Images and SVG work without anything else. Video, PDF and HEIC/AVIF need a way to make thumbnails (see [Supported formats](#supported-formats)):
+Images and SVG work without anything else. Video, PDF and HEIC/AVIF need a way to make thumbnails, and gls tries these in order: **the OS thumbnail first, then external tools found on `PATH`** (see [Supported formats](#supported-formats)). So what you have to install depends on your OS:
 
-| OS | Built in | Install if needed |
-| --- | --- | --- |
-| macOS | Quick Look handles video, PDF and HEIC | `brew install ffmpeg` (video details for `-vv`) |
-| Windows | Explorer thumbnails handle video and PDF | HEIC: "HEIF Image Extensions" from the Microsoft Store. `winget install Gyan.FFmpeg` (video details for `-vv`) |
-| Linux / WSL | none | `sudo apt install ffmpeg mupdf-tools` (video and PDF). For HEIC/AVIF, ImageMagick 7 (the `magick` command) or an `ffmpeg` that can read HEIF |
+| | Video | PDF | HEIC / AVIF | Video details (`-vv`, `-l`, `--json`) |
+| --- | --- | --- | --- | --- |
+| **macOS** | Quick Look | Quick Look | Quick Look | `ffprobe` (comes with ffmpeg) |
+| **Windows** | Explorer thumbnails | Explorer thumbnails, **only if a PDF thumbnail handler is installed** (Adobe Acrobat, PDF-XChange and others do it; plain Windows does not). Otherwise `mutool`, `pdftoppm` or ImageMagick | "HEIF Image Extensions" from the Microsoft Store, or ImageMagick / `ffmpeg` | `ffprobe` |
+| **Linux / WSL** | `ffmpeg` | `mutool`, `pdftoppm` or ImageMagick | ImageMagick 7 (`magick`) or an `ffmpeg` that can read HEIF | `ffprobe` |
 
-> Ubuntu's `imagemagick` package is version 6, which has no `magick` command, so gls does not use it.
+If a tool is missing, the cell shows "(load failed)" and **one warning that names the missing tool** is printed. You do not need all of them: install only what you use.
+
+**Install commands**
+
+| Platform | Command |
+| --- | --- |
+| macOS (Homebrew) | `brew install ffmpeg mupdf poppler imagemagick` (all optional: Quick Look already handles the thumbnails) |
+| Windows (winget) | `winget install Gyan.FFmpeg` (video details) and `winget install oschwartz10612.Poppler` (PDF: provides `pdftoppm`). ImageMagick: `winget install ImageMagick.ImageMagick` |
+| Windows (Scoop) | `scoop install ffmpeg mupdf` (`mupdf` provides `mutool`) |
+| Debian / Ubuntu / WSL | `sudo apt install ffmpeg mupdf-tools poppler-utils` |
+| Fedora | `sudo dnf install ffmpeg-free mupdf poppler-utils ImageMagick` (for all codecs, use `ffmpeg` from RPM Fusion) |
+| Arch | `sudo pacman -S ffmpeg mupdf-tools poppler imagemagick` |
+
+Open a new terminal afterwards so that the commands are on `PATH`, then check that they are found:
+
+```bash
+ffmpeg -version     # video thumbnails
+ffprobe -version    # video details
+mutool -v           # PDF (or: pdftoppm -v)
+magick -version     # HEIC / AVIF (ImageMagick 7)
+```
+
+> Ubuntu and Debian ship ImageMagick 6 as `imagemagick`. It has no `magick` command, so gls does not use it; for HEIC/AVIF on those systems use an `ffmpeg` that can read HEIF, or install ImageMagick 7 yourself.
 
 > **About the name:** on macOS, Homebrew's `coreutils` installs GNU `ls` as `gls`.
 > If that conflicts, rename the installed binary after `cargo install`, or use a shell alias.
@@ -250,7 +272,7 @@ If your terminal is not detected, choose a protocol with `--protocol sixel` and 
 - **Images:** PNG, JPEG, GIF, BMP, WebP, TIFF, ICO, TGA, QOI. EXIF orientation (JPEG and others) is applied.
 - **SVG:** rendered directly (no external tools; white background; `<text>` is not rendered).
 - **Video (mp4, mov, mkv, webm, avi, m4v, wmv, flv, mpg, 3gp), PDF (first page), HEIC / HEIF / AVIF:** a way to make thumbnails is required. These are tried in order:
-  1. **The OS thumbnail:** on Windows, the same as Explorer (video and PDF work out of the box; for HEIC install "HEIF Image Extensions" from the Microsoft Store); on macOS, Quick Look
+  1. **The OS thumbnail:** on Windows, the same as Explorer (video works out of the box; PDF only if a PDF thumbnail handler such as Adobe Acrobat or PDF-XChange is installed; for HEIC install "HEIF Image Extensions" from the Microsoft Store). See [the tools for video, PDF and HEIC](#optional-tools-for-video-pdf-and-heic); on macOS, Quick Look
   2. **External tools** (used if they are on `PATH`): `ffmpeg` for video; `mutool`, then `pdftoppm`, then ImageMagick for PDF; ImageMagick (`magick`), then `ffmpeg` for HEIC/AVIF
 
   If none works, the cell shows "(load failed)" and a warning that names the missing tool is printed once.

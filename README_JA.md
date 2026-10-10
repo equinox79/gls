@@ -80,15 +80,37 @@ cargo install --path .
 
 ### 必要なら: 動画・PDF・HEIC 用のツール
 
-画像と SVG は追加のツールなしで表示できます。動画・PDF・HEIC/AVIF にはサムネイルを作る手段が必要です（[対応形式](#対応形式)を参照）。
+画像と SVG は追加のツールなしで表示できます。動画・PDF・HEIC/AVIF にはサムネイルを作る手段が必要で、gls は**まず OS のサムネイル、次に `PATH` にある外部ツール**の順で試します（[対応形式](#対応形式)を参照）。そのため、入れるべきものは OS によって違います。
 
-| OS | 標準で使えるもの | 必要に応じて入れるもの |
-| --- | --- | --- |
-| macOS | Quick Look が動画・PDF・HEIC に対応 | `brew install ffmpeg`（`-vv` で動画の詳細を出す場合） |
-| Windows | エクスプローラーのサムネイルが動画・PDF に対応 | HEIC: Microsoft Store の「HEIF 画像拡張機能」。`winget install Gyan.FFmpeg`（`-vv` で動画の詳細を出す場合） |
-| Linux / WSL | なし | `sudo apt install ffmpeg mupdf-tools`（動画と PDF）。HEIC/AVIF には ImageMagick 7（`magick` コマンド）か、HEIF を読める `ffmpeg` |
+| | 動画 | PDF | HEIC / AVIF | 動画の詳細（`-vv`、`-l`、`--json`） |
+| --- | --- | --- | --- | --- |
+| **macOS** | Quick Look | Quick Look | Quick Look | `ffprobe`（ffmpeg に付属） |
+| **Windows** | エクスプローラーのサムネイル | エクスプローラーのサムネイル。**ただし PDF のサムネイルを作る仕組みが入っている場合だけ**（Adobe Acrobat や PDF-XChange などは作れますが、素の Windows は作れません）。なければ `mutool`、`pdftoppm`、ImageMagick のどれか | Microsoft Store の「HEIF 画像拡張機能」、または ImageMagick / `ffmpeg` | `ffprobe` |
+| **Linux / WSL** | `ffmpeg` | `mutool`、`pdftoppm`、ImageMagick のどれか | ImageMagick 7（`magick`）か、HEIF を読める `ffmpeg` | `ffprobe` |
 
-> Ubuntu の `imagemagick` パッケージはバージョン 6 で `magick` コマンドが無いため、gls からは使われません。
+ツールが足りないと、そのセルには「(読み込み失敗)」と出て、**足りないツールの名前を挙げた警告が1回だけ**出ます。全部を入れる必要はありません。使うものだけ入れてください。
+
+**インストールのコマンド**
+
+| 環境 | コマンド |
+| --- | --- |
+| macOS（Homebrew） | `brew install ffmpeg mupdf poppler imagemagick`（どれも任意。サムネイルは Quick Look が作ります） |
+| Windows（winget） | `winget install Gyan.FFmpeg`（動画の詳細）と `winget install oschwartz10612.Poppler`（PDF。`pdftoppm` が入ります）。ImageMagick は `winget install ImageMagick.ImageMagick` |
+| Windows（Scoop） | `scoop install ffmpeg mupdf`（`mupdf` に `mutool` が入っています） |
+| Debian / Ubuntu / WSL | `sudo apt install ffmpeg mupdf-tools poppler-utils` |
+| Fedora | `sudo dnf install ffmpeg-free mupdf poppler-utils ImageMagick`（すべてのコーデックが必要なら、RPM Fusion の `ffmpeg`） |
+| Arch | `sudo pacman -S ffmpeg mupdf-tools poppler imagemagick` |
+
+入れたあとは、新しいターミナルを開いて `PATH` に通ったことを確認します。
+
+```bash
+ffmpeg -version     # 動画のサムネイル
+ffprobe -version    # 動画の詳細
+mutool -v           # PDF（または pdftoppm -v）
+magick -version     # HEIC / AVIF（ImageMagick 7）
+```
+
+> Debian / Ubuntu の `imagemagick` はバージョン 6 で、`magick` コマンドがないため、gls からは使われません。これらの OS で HEIC/AVIF を扱うには、HEIF を読める `ffmpeg` を使うか、ImageMagick 7 を自分で入れてください。
 
 > **名前について:** macOS で Homebrew の `coreutils` を入れていると、GNU の `ls` が `gls` という名前で入っています。
 > 衝突する場合は、`cargo install` のあとに実行ファイルの名前を変えるか、シェルでエイリアスを使ってください。
@@ -251,7 +273,7 @@ gls -0 -R -e '\.png$' --sort date -n 20 | xargs -0 cp -t backup/
 - **画像:** PNG・JPEG・GIF・BMP・WebP・TIFF・ICO・TGA・QOI。JPEG などの EXIF の向きは反映します。
 - **SVG:** そのまま描画します（外部ツール不要。白背景。`<text>` の文字は描画されません）。
 - **動画（mp4, mov, mkv, webm, avi, m4v, wmv, flv, mpg, 3gp）・PDF（1ページ目）・HEIC / HEIF / AVIF:** サムネイルを作れる環境が必要です。次の順に試します。
-  1. **OS のサムネイル** — Windows はエクスプローラーと同じもの（動画・PDF は標準で、HEIC は Microsoft Store の「HEIF 画像拡張機能」を入れると対応）、macOS は Quick Look
+  1. **OS のサムネイル** — Windows はエクスプローラーと同じもの（動画は標準で、PDF は Adobe Acrobat や PDF-XChange のような PDF のサムネイルを作る仕組みが入っている場合だけ、HEIC は Microsoft Store の「HEIF 画像拡張機能」を入れると対応）。入れるツールは[動画・PDF・HEIC 用のツール](#必要なら-動画pdfheic-用のツール)を参照、macOS は Quick Look
   2. **外部ツール**（PATH に通っていれば使います） — 動画は `ffmpeg`、PDF は `mutool` → `pdftoppm` → ImageMagick、HEIC/AVIF は ImageMagick（`magick`）→ `ffmpeg`
 
   どれも使えないときは、そのセルを「(読み込み失敗)」にして、必要なツールを案内する警告を1回だけ出します。
