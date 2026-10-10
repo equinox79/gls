@@ -393,10 +393,11 @@ gls はまだ若いツール（バージョン 0.1）です。確認できてい
 - `-l`、`--json`、`-0` は Windows で動かしていて、自動テストの対象です。
 - v0.1.1 のビルド済みバイナリのうち、**Windows x64** と **Linux x64** は、リリースからダウンロードして、`SHA256SUMS` と一致することを確かめ、動かしました（`--version`、サムネイル一覧、`-l`、`--json`、`-0`、日本語のメッセージ。Linux 版は WSL の Ubuntu 24.04）。
 - v0.1.1 のビルド済みバイナリのうち、**macOS の Apple シリコン**（`aarch64-apple-darwin`）は、`curl` でダウンロードして、**Ghostty** で動かし、サムネイル一覧が本物の画像（Kitty のグラフィックスプロトコル）で正しく表示されました。macOS に止められたり、確認を求められたりはしませんでした。
+- `gls -l`（サムネイルのカード）を、**Windows Terminal**（Sixel）で、画像と PDF が混ざったフォルダに対して実行: サムネイルと文字が揃って並び、PDF のサムネイルと日本語のファイル名も表示され、名前はリンクとして表示されました。
 - 継続的インテグレーションで、Linux・macOS・Windows でビルドとテストを実行しています。テストは、実際の端末には描画しません。
 
 **まだ実際の端末で確認できていないこと**（報告をとても歓迎します。[issue を立てて](https://github.com/equinox79/gls/issues)ください）
-- `-l` のカードを、実際の画像プロトコルで表示したときの位置（端末の動きを再現するスクリプトでしか確認していません）
+- `-l` のカードを、Kitty と iTerm2 のプロトコル（Ghostty、Kitty、iTerm2、WezTerm）で表示したときの位置（端末の動きを再現するスクリプトでしか確認していません）
 - iTerm2、WezTerm、Kitty、GNOME Terminal、foot、mlterm、VS Code のターミナル
 - macOS の Terminal.app（画像プロトコルがないので `half` になります）と、macOS の Quick Look のサムネイル
 - ビルド済みバイナリのうち、**macOS の Intel** と **Linux ARM64**: CI でビルドとテストは通っていますが、ダウンロードしたアーカイブを動かした人はまだいません。結果は歓迎します。お使いの環境、使ったアーカイブ、端末、`./gls --version` と画像のフォルダでの表示を、[issue](https://github.com/equinox79/gls/issues/new) で教えてください

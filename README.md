@@ -392,10 +392,11 @@ gls is young (version 0.1). Here is what has been checked, and what has not.
 - `-l`, `--json` and `-0` run on Windows and are covered by the automated tests.
 - The v0.1.1 prebuilt binaries for **Windows x64** and **Linux x64** were downloaded from the release, matched `SHA256SUMS`, and ran (`--version`, a thumbnail list, `-l`, `--json`, `-0`, the Japanese messages; the Linux one on Ubuntu 24.04 in WSL).
 - The v0.1.1 prebuilt binary for **macOS Apple silicon** (`aarch64-apple-darwin`) was downloaded with `curl` and ran in **Ghostty**, where the thumbnail list displayed correctly as real images (Kitty graphics protocol). macOS did not block it or ask for confirmation.
+- `gls -l` (the thumbnail cards) in **Windows Terminal** with Sixel, on a folder of mixed images and PDFs: the thumbnails and the text line up, PDF thumbnails and Japanese file names are shown, and the names appear as links.
 - The continuous integration builds and runs the tests on Linux, macOS and Windows. The tests do not draw to a real terminal.
 
 **Not checked in a real terminal yet** (reports are very welcome, please [open an issue](https://github.com/equinox79/gls/issues))
-- The `-l` cards with a real image protocol: the placement was checked with a terminal-emulation script only
+- The `-l` cards with the Kitty and iTerm2 protocols (Ghostty, Kitty, iTerm2, WezTerm): the placement was checked with a terminal-emulation script only
 - iTerm2, WezTerm, Kitty, GNOME Terminal, foot, mlterm, the VS Code terminal
 - macOS Terminal.app (it has no image protocol, so `half` is used) and the macOS Quick Look thumbnails
 - The prebuilt binaries for **macOS Intel** and **Linux ARM64**: they build and pass the tests in CI, but nobody has run the downloaded archives yet. Results are welcome: please [open an issue](https://github.com/equinox79/gls/issues/new) with your system, the archive you used, the terminal, and what `./gls --version` and a folder of images showed
