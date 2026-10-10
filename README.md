@@ -2,39 +2,90 @@
 
 **English** | [日本語](README_JA.md)
 
-**`ls` for images.** List the images in a folder as thumbnails with file names, right in your terminal.
+[![CI](https://github.com/equinox79/gls/actions/workflows/ci.yml/badge.svg)](https://github.com/equinox79/gls/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-- Shows real images through the terminal's image protocols (**Sixel / Kitty / iTerm2**). On terminals without one, it falls back automatically to **half-block** rendering (TrueColor / 256 colors) and then to **ASCII art**
-- Supports PNG, JPEG, GIF, WebP, TIFF, BMP, **SVG**, **video**, **PDF** and **HEIC**
-- Regex filtering, sorting, limiting the count, recursion, EXIF orientation, and detailed info (EXIF and more) with `-vv`
-- File names are hyperlinks: `Ctrl+click` opens the file in its default app (OSC 8)
-- Parallel decoding, read-ahead and a cache keep it fast even with thousands of images
-- Windows, macOS and Linux (including WSL); prebuilt binaries on the [Releases page](https://github.com/equinox79/gls/releases)
-- Scriptable: `--json` for structured output, `-0` for `xargs -0`, and `-l` for an `ls -l` style listing
-- Messages in 10 languages (English, 日本語, 简体中文, 繁體中文, 한국어, Español, Français, Deutsch, Português (Brasil), Русский), chosen from your environment; more languages are easy to add (see [Languages](#languages))
+**`ls` for images.** List the images in a folder as thumbnails with file names, right in your terminal, and `Ctrl+click` a name to open the file.
 
 ![Animated demo of gls: a thumbnail list of six public-domain pictures appears row by row, then -vv details, half-block and ASCII art modes](docs/images/demo.gif)
 
 <sub>`gls -s m -v` in a terminal that supports an image protocol (real images, not characters), then `-vv`, `-m half` and `-m text`. The six sample pictures are in the public domain, see [docs/CREDITS.md](docs/CREDITS.md). Every frame was rendered from the real output of `gls`; this is not a screen recording, and the typing is simulated.</sub>
 
-**Ctrl+click a file name and it opens in your default viewer.** File names are terminal hyperlinks (OSC 8), so this works in Windows Terminal, iTerm2, WezTerm, Kitty, GNOME Terminal and VS Code (`Cmd+click` on macOS). In WSL the paths are converted so that Windows apps can open them.
+## Quick start
+
+```bash
+cargo install --git https://github.com/equinox79/gls   # or download a binary: see Install
+gls                  # thumbnails of the images in the current directory
+gls -l --thumbs      # a detailed list with a thumbnail on each line
+```
+
+## Features
+
+- **Real images in the terminal** through Sixel, Kitty or iTerm2 graphics. Terminals without them fall back automatically to **half-block** characters (TrueColor / 256 colors), then to **ASCII art**
+- **Many formats:** PNG, JPEG, GIF, WebP, TIFF, BMP, **SVG**, **video**, **PDF** and **HEIC**
+- **Clickable file names:** `Ctrl+click` opens the file in your default app (OSC 8 hyperlinks)
+- **Built for the `ls` workflow:** regex filter, sorting, recursion, EXIF orientation, `-vv` details, `-l` long listing (with `--thumbs`)
+- **Scriptable:** `--json` for structured output, `-0` for `xargs -0`
+- **Fast:** parallel decoding, read-ahead and a cache, even with thousands of images
+- **Windows, macOS and Linux** (including WSL), with messages in **10 languages**
+
+**Ctrl+click a file name and it opens in your default viewer.** File names are terminal hyperlinks (OSC 8), so this works in terminals that support them, such as Windows Terminal, iTerm2, WezTerm, Kitty, GNOME Terminal and VS Code (`Cmd+click` on macOS). In WSL the paths are converted so that Windows apps can open them. No links are added when the output is piped or redirected.
 
 ![Animated illustration of Ctrl+clicking a file name in the gls list: the name is underlined, a tooltip says "Ctrl + click to open", and an image viewer window opens with that picture](docs/images/demo-click.gif)
 
 <sub>This is an illustration (mock-up), not a screen recording: the list is the real output of `gls`, but the mouse pointer, the tooltip and the viewer window are drawn to show the idea. What actually opens is the app your OS uses for that file type (Photos, Preview, an image viewer and so on).</sub>
 
+### Why another image tool?
+
+Tools such as [chafa](https://hpjansson.org/chafa/), [viu](https://github.com/atanunq/viu), [timg](https://github.com/hzeller/timg) and [lsix](https://github.com/hackerb9/lsix) already show images in a terminal very well. gls is built around the way you use `ls`: a listing with names and sizes, filtering and sorting by name, date or EXIF time, recursion, a long format, names you can click, and output you can pipe into other commands.
+
+## Contents
+
+- [Install](#install)
+- [Usage](#usage)
+- [Options](#options)
+- [Rendering modes and fallback](#rendering-modes-and-fallback)
+- [Supported formats](#supported-formats)
+- [Status and known limitations](#status-and-known-limitations)
+- [Performance and cache](#performance-and-cache)
+- [Notes on environments](#notes-on-environments)
+- [Development](#development) · [Languages](#languages) · [License](#license)
+
 ## Install
+
 ### Option 1: download a binary (no Rust needed)
 
 Download the archive for your OS from the [Releases page](https://github.com/equinox79/gls/releases), unpack it, and put `gls` (`gls.exe` on Windows) in a folder on your `PATH`.
 
-| OS | File |
+> **Heads-up:** the first release has not been published yet. Until it appears on the Releases page, use Option 2.
+
+| OS | File (for version `v0.1.0`) |
 | --- | --- |
-| Windows (x64) | `gls-<version>-x86_64-pc-windows-msvc.zip` |
-| macOS (Apple silicon) | `gls-<version>-aarch64-apple-darwin.tar.gz` |
-| macOS (Intel) | `gls-<version>-x86_64-apple-darwin.tar.gz` |
-| Linux / WSL (x64) | `gls-<version>-x86_64-unknown-linux-gnu.tar.gz` |
-| Linux (ARM64) | `gls-<version>-aarch64-unknown-linux-gnu.tar.gz` |
+| Windows (x64) | `gls-v0.1.0-x86_64-pc-windows-msvc.zip` |
+| macOS (Apple silicon) | `gls-v0.1.0-aarch64-apple-darwin.tar.gz` |
+| macOS (Intel) | `gls-v0.1.0-x86_64-apple-darwin.tar.gz` |
+| Linux / WSL (x64) | `gls-v0.1.0-x86_64-unknown-linux-gnu.tar.gz` |
+| Linux (ARM64) | `gls-v0.1.0-aarch64-unknown-linux-gnu.tar.gz` |
+
+Copy and paste, for example on Linux (x64). Change `VERSION` and the target name for other platforms:
+
+```bash
+VERSION=0.1.0
+TARGET=x86_64-unknown-linux-gnu
+curl -L -o gls.tar.gz "https://github.com/equinox79/gls/releases/download/v$VERSION/gls-v$VERSION-$TARGET.tar.gz"
+tar xzf gls.tar.gz
+sudo install "gls-v$VERSION-$TARGET/gls" /usr/local/bin/
+```
+
+On Windows (PowerShell):
+
+```powershell
+$v = "0.1.0"
+$t = "x86_64-pc-windows-msvc"
+Invoke-WebRequest "https://github.com/equinox79/gls/releases/download/v$v/gls-v$v-$t.zip" -OutFile gls.zip
+Expand-Archive gls.zip -DestinationPath .
+# Copy gls-v$v-$t\gls.exe to a folder on your PATH
+```
 
 `SHA256SUMS` on the same page lists the checksums. The macOS binaries are not signed; if macOS refuses to open one, run `xattr -d com.apple.quarantine gls` once. The Linux builds need glibc 2.35 or newer (Ubuntu 22.04 and later).
 
@@ -161,6 +212,8 @@ gls ./*                                  # thumbnails of the images in the curre
 gls photos/ -s m                         # bigger thumbnails
 gls . -R -e '\.png$' --sort date -n 20   # PNGs in subfolders, newest 20
 gls ./* -vv                              # also show format, EXIF and other details under each name
+gls -l --thumbs                          # one card per file: thumbnail, name, size, dates, EXIF
+gls --json -R photos | jq '.[].name'     # structured output for scripts
 ```
 
 - Without arguments, `gls` lists the current directory. Pass several images to get a thumbnail list. Wildcards and directories work too (`*` works in PowerShell and cmd as well). Files that are not images are ignored.
@@ -195,8 +248,16 @@ gls ./* -vv                              # also show format, EXIF and other deta
 
 | Option | Description |
 | --- | --- |
-| `-l`, `--long` | Long listing like `ls -l`: one line per file with size, dimensions, megapixels, aspect ratio, format and color, modified date, EXIF capture time, camera, shooting settings (aperture, shutter speed, ISO, focal length; for video: length and codec) and whether GPS data is present. No thumbnails unless you add `--thumbs`. Columns with nothing to show are left out, and `-` marks a missing value. Filtering, sorting, `-R` and `-n` work as usual. The header and the links are added only on a terminal |
-| `--thumbs` | With `-l`, show a thumbnail of each image to the left of its details (see below). Implies `-l` |
+| `-l`, `--long` | Long listing like `ls -l`: one line per file, no thumbnails (see `--thumbs`) |
+| `--thumbs` | Show a thumbnail of each image to the left of its details. Implies `-l` |
+
+`-l` prints these columns, and leaves out the ones with nothing to show (`-` marks a missing value in the others):
+
+- size, dimensions, megapixels, aspect ratio, format and color, modified date
+- EXIF capture time, camera, shooting settings (aperture, shutter speed, ISO, focal length) and whether GPS data is present
+- for video: length and codec instead of shooting settings
+
+Filtering, sorting, `-R` and `-n` work as usual. The header and the links are added only on a terminal.
 
 ```
 $ gls -l
@@ -210,11 +271,11 @@ $ gls -l
 
 Photos with EXIF also get the capture time, camera, and shooting settings (e.g. `f/11 1/125s ISO100 16mm`) columns. This example is piped; on a terminal a bold header line is added.
 
-With `--thumbs`, each file becomes a small card instead: the thumbnail on the left, and on the right the name, then size / dimensions / format, then dates and EXIF (values that exist, one group per line). `--thumbs` includes `-l`, and `-s xs|s|m|l|xl` sets the card height (3/4/5/7/9 lines). It uses the same rendering as the thumbnail list, so it falls back to half blocks and ASCII art in the same way.
+With `--thumbs`, each file becomes a small card instead: the thumbnail on the left, and on the right the name, then size / dimensions / format, then dates and EXIF (values that exist, one group per line). `-s xs|s|m|l|xl` sets the card height (3/4/5/7/9 lines). It uses the same rendering as the thumbnail list, so it falls back to half blocks and ASCII art in the same way.
 
-```
-gls -l --thumbs -s m
-```
+![gls -l --thumbs -s m: six public-domain pictures, each with a thumbnail on the left and its name, size, dimensions, format and date on the right](docs/images/demo-thumbs.jpg)
+
+<sub>`gls -l --thumbs -s m`, rendered from the real output of `gls`.</sub>
 
 ### Scripting
 
@@ -253,6 +314,7 @@ gls -0 -R -e '\.png$' --sort date -n 20 | xargs -0 cp -t backup/
 Warnings and errors go to standard error, so they never get mixed into this output.
 
 ### Rendering
+
 | Option | Description |
 | --- | --- |
 | `-m`, `--mode <image\|half\|text>` | Rendering mode (default: `image`; falls back automatically on terminals that cannot use it, see below) |
@@ -263,6 +325,11 @@ Warnings and errors go to standard error, so they never get mixed into this outp
 | `-i`, `--invert` | Invert brightness (`text` mode) |
 | `--contrast <F>` / `--gamma <F>` | Contrast and gamma adjustment (default `1.0`) |
 | `--no-color` | No color (monochrome `text` mode) |
+
+### Output behavior
+
+| Option | Description |
+| --- | --- |
 | `--no-links` | Do not add hyperlinks to file names |
 | `--no-pager` | Do not pause even when the output does not fit the screen |
 | `--lang <CODE>` | Language of messages (`en`, `ja`, `zh-cn`, `zh-tw`, `ko`, `es`, `fr`, `de`, `pt-br`, `ru`). Default: detected from the environment, see [Languages](#languages) |
@@ -307,7 +374,7 @@ If your terminal is not detected, choose a protocol with `--protocol sixel` and 
 
 ## Supported formats
 
-- **Images:** PNG, JPEG, GIF, BMP, WebP, TIFF, ICO, TGA, QOI. EXIF orientation (JPEG and others) is applied.
+- **Images:** PNG, JPEG, GIF, BMP, WebP, TIFF, ICO, TGA, QOI. EXIF orientation (JPEG and others) is applied. An animated GIF shows its first frame.
 - **SVG:** rendered directly (no external tools; white background; `<text>` is not rendered).
 - **Video (mp4, mov, mkv, webm, avi, m4v, wmv, flv, mpg, 3gp), PDF (first page), HEIC / HEIF / AVIF:** a way to make thumbnails is required. These are tried in order:
   1. **The OS thumbnail:** on Windows, the same as Explorer (video works out of the box; PDF only if a PDF thumbnail handler such as Adobe Acrobat or PDF-XChange is installed; for HEIC install "HEIF Image Extensions" from the Microsoft Store). See [the tools for video, PDF and HEIC](#optional-tools-for-video-pdf-and-heic); on macOS, Quick Look
@@ -315,21 +382,44 @@ If your terminal is not detected, choose a protocol with `--protocol sixel` and 
 
   If none works, the cell shows "(load failed)" and a warning that names the missing tool is printed once.
 
-## File name links
+## Status and known limitations
 
-On supported terminals (Windows Terminal, iTerm2, WezTerm, Kitty, GNOME Terminal, VS Code and others), each file name is a link
-that opens in the default app with `Ctrl+click` (`Cmd+click` on macOS), using OSC 8 hyperlinks.
-No links are added when the output is not a terminal (redirected or piped).
+gls is young (version 0.1). Here is what has been checked, and what has not.
 
-In WSL, `/mnt/c/...` is converted to `C:/...` and other paths to `\\wsl.localhost\<distro>\...`, so they open in Windows apps.
+**Checked**
+- Windows 11 with Windows Terminal, in PowerShell and in WSL (Ubuntu): image display (Sixel), the pager, Ctrl+click on file names, the cache.
+- `-l`, `--json` and `-0` run on Windows and are covered by the automated tests.
+- The continuous integration builds and runs the tests on Linux, macOS and Windows. The tests do not draw to a real terminal.
 
-## Performance
+**Not checked in a real terminal yet** (reports are very welcome, please [open an issue](https://github.com/equinox79/gls/issues))
+- `--thumbs` with a real image protocol: the placement was checked with a terminal-emulation script only
+- iTerm2, WezTerm, Kitty, Ghostty, GNOME Terminal, foot, mlterm, the VS Code terminal
+- macOS Terminal.app (it has no image protocol, so `half` is used) and the macOS Quick Look thumbnails
+- Video and HEIC thumbnails, and the prebuilt binaries (no release has been published yet)
+
+**Known limitations**
+- RAW photos (CR2, NEF, ARW and so on) are not supported.
+- Color profiles (ICC) are ignored, so wide-gamut images may look different.
+- SVG text is not rendered. PDF shows the first page only. An animated GIF shows its first frame.
+- Image protocols may not work through tmux or SSH, and the terminal is detected from environment variables; use `--protocol` when it is wrong.
+- `-l` reads every file before it prints, so a long list on a slow file system (such as `/mnt/c` in WSL) takes a moment to appear.
+- A single image (`gls photo.jpg`) is not cached.
+- The translations other than English and Japanese are machine-translated.
+
+## Performance and cache
 
 - A list decodes and renders several images in parallel. It starts showing as soon as the first row is ready and reads a few rows ahead.
 - JPEG is decoded while scaling down to 1/2, 1/4 or 1/8. In a list, the EXIF thumbnail (about 160 px) is used when it is large enough, so the full image is not read at all.
 - Rendered output is cached. If the image path, modified time, size and display settings are the same, the next run does not decode the image again. In `image` mode, the downscaled thumbnails of video, PDF, HEIC/AVIF and SVG (the slow ones) are cached too, so ffmpeg and the like are not run again. Only lists are cached: a single image (`gls video.mp4`) is always rebuilt. Use `--cache-info` to see what is cached.
-  - Location: `%LOCALAPPDATA%\gls\cache` on Windows, `~/.cache/gls/cache` on Linux / macOS (`XDG_CACHE_HOME` takes precedence)
-  - Old cache entries are cleaned up once a day in the background at startup: entries unused for 30 days, and the oldest entries beyond a total of 256 MB. Change the limits with the options `--cache-days` and `--cache-max-mb` (applied right away) or the environment variables `GLS_CACHE_DAYS` and `GLS_CACHE_MAX_MB` (applied at the next daily cleanup). Options take precedence over the environment variables.
+
+<details>
+<summary>Cache location and cleanup</summary>
+
+- Location: `%LOCALAPPDATA%\gls\cache` on Windows, `~/.cache/gls/cache` on Linux / macOS (`XDG_CACHE_HOME` takes precedence).
+- The cache holds small thumbnails of your images. Use `--no-cache` to avoid writing it and `--clear-cache` to delete it.
+- Old cache entries are cleaned up once a day in the background at startup: entries unused for 30 days, and the oldest entries beyond a total of 256 MB. Change the limits with the options `--cache-days` and `--cache-max-mb` (applied right away) or the environment variables `GLS_CACHE_DAYS` and `GLS_CACHE_MAX_MB` (applied at the next daily cleanup). Options take precedence over the environment variables.
+
+</details>
 
 ## Notes on environments
 
@@ -351,15 +441,28 @@ Source layout:
 
 | File | Contents |
 | --- | --- |
-| `src/main.rs` | Arguments, expanding inputs, sorting, drawing the list, the pager |
+| `src/main.rs` | Arguments, expanding inputs, sorting, drawing the list and the cards, the pager |
 | `src/gfx.rs` | Sixel / Kitty / iTerm2 output and terminal detection |
 | `src/ext.rs` | SVG, video, PDF and HEIC (OS thumbnails, external tools) |
-| `src/info.rs` | Image info for `-v` / `-vv` |
+| `src/info.rs` | Image info for `-v` / `-vv` / `-l` |
+| `src/json.rs` | `--json` output |
 | `src/orient.rs`, `src/thumb.rs` | EXIF orientation and EXIF thumbnails |
 | `src/link.rs` | File name hyperlinks (OSC 8) |
 | `src/i18n.rs`, `locales/*.txt` | Language selection and message catalogs |
+| `tests/cli.rs`, `tests/data/` | Tests that run the real binary on small synthetic images |
+| `.github/workflows/` | `ci.yml` (format, lint, tests on 3 systems) and `release.yml` (binaries and GitHub releases) |
+| `scripts/package.sh` | Packs a release build into an archive (used by `release.yml`) |
+
+### Releasing (for maintainers)
+
+1. Set the new version in `Cargo.toml` (and run `cargo build` so that `Cargo.lock` follows), commit and push.
+2. Optional dry run: in the Actions tab choose **Release** → **Run workflow**. It builds all five platforms and keeps the archives as artifacts, without publishing.
+3. Push a tag that matches the version: `git tag v0.1.0 && git push origin v0.1.0`. The workflow checks that the tag equals the `Cargo.toml` version, runs the tests, builds Linux (x64, ARM64), macOS (Apple silicon, Intel) and Windows (x64), and publishes a GitHub release with the archives and `SHA256SUMS`.
 
 ## Languages
+
+<details>
+<summary>10 languages: English, 日本語, 简体中文, 繁體中文, 한국어, Español, Français, Deutsch, Português (Brasil), Русский</summary>
 
 Help, warnings, errors and the info labels are available in these languages. English is the default and the reference; the others were machine-translated, so corrections are very welcome (pull requests that fix a `locales/<code>.txt` file are the easiest).
 
@@ -372,6 +475,7 @@ Help, warnings, errors and the info labels are available in these languages. Eng
 | `ko` | 한국어 | `ru` | Русский |
 
 Regional names are understood: `pt_BR.UTF-8`, `zh-Hant-TW` or `zh_HK` pick the closest catalog (`pt` gives `pt-br`, `zh` and `zh-Hans` give `zh-cn`, `zh-HK` and `zh-Hant` give `zh-tw`).
+
 The language is chosen in this order:
 
 1. `--lang <code>` (e.g. `--lang ja`)
@@ -386,6 +490,8 @@ Anything not translated falls back to English. (`--help` also keeps clap's own w
 1. Copy `locales/en.txt` to `locales/<code>.txt` (lower case, e.g. `fr`, `zh-cn`) and translate the messages. Keep every `{placeholder}` as it is.
 2. Add one line to `CATALOGS` in `src/i18n.rs`: `("fr", include_str!("../locales/fr.txt")),`
 3. Run `cargo test`. It checks that every key and placeholder matches `en.txt`.
+
+</details>
 
 ## License
 

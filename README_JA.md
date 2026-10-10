@@ -2,40 +2,91 @@
 
 [English](README.md) | **日本語**
 
-**画像のための `ls`。** フォルダの画像を、ファイル名つきのサムネイル一覧としてターミナルに表示します。
-*`ls` for images — list and view images in your terminal as thumbnails.*
+[![CI](https://github.com/equinox79/gls/actions/workflows/ci.yml/badge.svg)](https://github.com/equinox79/gls/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-- 端末の画像プロトコル（**Sixel / Kitty / iTerm2**）で本物の画像を表示。非対応の端末では、**ハーフブロック**（TrueColor / 256色）、さらに**アスキーアート**へ自動でフォールバック
-- PNG・JPEG・GIF・WebP・TIFF・BMP・**SVG**・**動画**・**PDF**・**HEIC** に対応
-- 正規表現での絞り込み、並び替え、件数の制限、再帰、EXIF の向きの反映、`-vv` で EXIF などの詳細表示
-- ファイル名を `Ctrl+クリック` で既定のアプリで開ける（OSC 8 ハイパーリンク）
-- 並列デコード・先読み・キャッシュで、大量の画像でも速い
-- Windows / macOS / Linux（WSL を含む）。ビルド済みのバイナリを [Releases のページ](https://github.com/equinox79/gls/releases)で配布
-- スクリプトから使える: 構造化した出力の `--json`、`xargs -0` 向けの `-0`、`ls -l` 風の `-l`
-- メッセージは10言語（English・日本語・简体中文・繁體中文・한국어・Español・Français・Deutsch・Português (Brasil)・Русский）に対応し、環境から自動で選びます。言語は簡単に追加できます（[言語](#言語)を参照）
+**画像のための `ls`。** フォルダの画像を、ファイル名つきのサムネイル一覧としてターミナルに表示し、名前を `Ctrl+クリック` するとそのファイルを開けます。
+*`ls` for images — list and view images in your terminal as thumbnails.*
 
 ![gls のデモ動画: パブリックドメインの画像6枚のサムネイル一覧が1行ずつ現れ、続いて -vv の詳細表示、ハーフブロック、アスキーアートで表示する](docs/images/demo.gif)
 
 <sub>画像プロトコルに対応した端末での `gls -s m -v`（文字ではなく本物の画像）に続けて、`-vv`、`-m half`、`-m text`。サンプルの6枚はパブリックドメインです（[docs/CREDITS.md](docs/CREDITS.md)）。どのコマも `gls` の実際の出力から作ったもので、画面の録画ではありません（入力する様子は作り物です）。</sub>
 
-**ファイル名を Ctrl+クリックすると、既定のビューワーで開きます。** ファイル名は端末のハイパーリンク（OSC 8）なので、Windows Terminal、iTerm2、WezTerm、Kitty、GNOME Terminal、VS Code で使えます（macOS は `Cmd+クリック`）。WSL では、Windows のアプリで開けるようにパスを変換します。
+## クイックスタート
+
+```bash
+cargo install --git https://github.com/equinox79/gls   # またはバイナリをダウンロード（インストールを参照）
+gls                  # カレントディレクトリの画像を、サムネイル一覧で表示
+gls -l --thumbs      # 1行ごとにサムネイルが付いた、詳細な一覧
+```
+
+## 特徴
+
+- **端末の中に本物の画像を表示。** Sixel・Kitty・iTerm2 のグラフィックスを使います。使えない端末では、**ハーフブロック**（TrueColor / 256色）、さらに**アスキーアート**へ自動でフォールバック
+- **多くの形式に対応:** PNG・JPEG・GIF・WebP・TIFF・BMP・**SVG**・**動画**・**PDF**・**HEIC**
+- **ファイル名がリンク:** `Ctrl+クリック` で既定のアプリで開ける（OSC 8 ハイパーリンク）
+- **`ls` の使い方に合わせた作り:** 正規表現での絞り込み、並び替え、再帰、EXIF の向きの反映、`-vv` の詳細表示、`-l` の詳細一覧（`--thumbs` でサムネイル付き）
+- **スクリプトから使える:** 構造化した出力の `--json`、`xargs -0` 向けの `-0`
+- **速い:** 並列デコード・先読み・キャッシュで、何千枚の画像でも待たない
+- **Windows / macOS / Linux**（WSL を含む）。メッセージは **10言語**
+
+**ファイル名を Ctrl+クリックすると、既定のビューワーで開きます。** ファイル名は端末のハイパーリンク（OSC 8）なので、対応している端末（Windows Terminal、iTerm2、WezTerm、Kitty、GNOME Terminal、VS Code など）で使えます（macOS は `Cmd+クリック`）。WSL では、Windows のアプリで開けるようにパスを変換します。パイプやリダイレクトのときは、リンクを付けません。
 
 ![gls の一覧でファイル名を Ctrl+クリックするイメージ図: 名前に下線が出て、「Ctrl + click to open」とツールチップが出たあと、その画像を映したビューワーのウィンドウが開く](docs/images/demo-click.gif)
 
 <sub>これはイメージ図（作り物）で、画面の録画ではありません。一覧は `gls` の実際の出力ですが、マウスポインタ、ツールチップ、ビューワーのウィンドウは、動きを伝えるために描いたものです。実際に開くのは、その種類のファイルに OS が割り当てているアプリ（フォト、プレビュー、画像ビューアなど）です。</sub>
 
+### ほかの画像ツールとの違い
+
+端末で画像を見るツールは、[chafa](https://hpjansson.org/chafa/)、[viu](https://github.com/atanunq/viu)、[timg](https://github.com/hzeller/timg)、[lsix](https://github.com/hackerb9/lsix) など、すでによいものがあります。gls は、`ls` の使い方に合わせて作っています。名前とサイズの一覧、名前・日付・EXIF の時刻での絞り込みと並び替え、再帰、詳細表示、クリックできる名前、ほかのコマンドにつなげられる出力です。
+
+## 目次
+
+- [インストール](#インストール)
+- [使い方](#使い方)
+- [オプション](#オプション)
+- [描画モードとフォールバック](#描画モードとフォールバック)
+- [対応形式](#対応形式)
+- [現状と既知の制限](#現状と既知の制限)
+- [速さとキャッシュ](#速さとキャッシュ)
+- [環境による注意](#環境による注意)
+- [開発](#開発) ・ [言語](#言語) ・ [ライセンス](#ライセンス)
+
 ## インストール
+
 ### 方法1: ビルド済みのバイナリをダウンロードする（Rust は不要）
 
 [Releases のページ](https://github.com/equinox79/gls/releases)から、お使いの OS 用のアーカイブをダウンロードして展開し、`gls`（Windows は `gls.exe`）を `PATH` の通ったフォルダに置きます。
 
-| OS | ファイル |
+> **ご注意:** 最初のリリースは、まだ公開していません。Releases のページに出るまでは、方法2を使ってください。
+
+| OS | ファイル（バージョン `v0.1.0` の場合） |
 | --- | --- |
-| Windows（x64） | `gls-<バージョン>-x86_64-pc-windows-msvc.zip` |
-| macOS（Apple シリコン） | `gls-<バージョン>-aarch64-apple-darwin.tar.gz` |
-| macOS（Intel） | `gls-<バージョン>-x86_64-apple-darwin.tar.gz` |
-| Linux / WSL（x64） | `gls-<バージョン>-x86_64-unknown-linux-gnu.tar.gz` |
-| Linux（ARM64） | `gls-<バージョン>-aarch64-unknown-linux-gnu.tar.gz` |
+| Windows（x64） | `gls-v0.1.0-x86_64-pc-windows-msvc.zip` |
+| macOS（Apple シリコン） | `gls-v0.1.0-aarch64-apple-darwin.tar.gz` |
+| macOS（Intel） | `gls-v0.1.0-x86_64-apple-darwin.tar.gz` |
+| Linux / WSL（x64） | `gls-v0.1.0-x86_64-unknown-linux-gnu.tar.gz` |
+| Linux（ARM64） | `gls-v0.1.0-aarch64-unknown-linux-gnu.tar.gz` |
+
+コピーして貼り付けられる例です（Linux の x64）。ほかの環境では、`VERSION` とターゲット名を変えてください。
+
+```bash
+VERSION=0.1.0
+TARGET=x86_64-unknown-linux-gnu
+curl -L -o gls.tar.gz "https://github.com/equinox79/gls/releases/download/v$VERSION/gls-v$VERSION-$TARGET.tar.gz"
+tar xzf gls.tar.gz
+sudo install "gls-v$VERSION-$TARGET/gls" /usr/local/bin/
+```
+
+Windows（PowerShell）の場合:
+
+```powershell
+$v = "0.1.0"
+$t = "x86_64-pc-windows-msvc"
+Invoke-WebRequest "https://github.com/equinox79/gls/releases/download/v$v/gls-v$v-$t.zip" -OutFile gls.zip
+Expand-Archive gls.zip -DestinationPath .
+# gls-v$v-$t\gls.exe を、PATH の通ったフォルダにコピーします
+```
 
 同じページの `SHA256SUMS` に、チェックサムがあります。macOS のバイナリは署名していないので、開けないと言われたら、`xattr -d com.apple.quarantine gls` を一度実行してください。Linux 版には glibc 2.35 以上（Ubuntu 22.04 以降）が必要です。
 
@@ -67,9 +118,9 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh  # Rust
 winget install Rustlang.Rustup
 ```
 
-Windows の Rust には Visual Studio の C++ ビルドツールが必要です。入っていなければ `rustup` がインストールを案内するので、「C++ によるデスクトップ開発」を選んでください。
+Windows の Rust には、Visual Studio の C++ Build Tools が必要です。無ければ `rustup` が入れるか尋ねるので、「C++ によるデスクトップ開発」を選んでください。
 
-終わったら、`cargo` を PATH に通すためにターミナルを開き直してください。
+入れたあとは、新しいターミナルを開いて、`cargo` が `PATH` に通るようにします。
 
 #### 2. gls をインストールする
 
@@ -77,7 +128,7 @@ Windows の Rust には Visual Studio の C++ ビルドツールが必要です�
 cargo install --git https://github.com/equinox79/gls
 ```
 
-ソースから:
+ソースから入れる場合:
 
 ```bash
 git clone https://github.com/equinox79/gls
@@ -156,12 +207,14 @@ magick -version     # HEIC / AVIF（ImageMagick 7）
 ## 使い方
 
 ```bash
-gls photo.jpg                      # 1枚を表示
 gls                                # 引数なし: カレントディレクトリの画像を、サムネイル一覧で表示
+gls photo.jpg                      # 1枚を表示
 gls ./*                            # カレントディレクトリの画像を、サムネイル一覧で表示
 gls photos/ -s m                   # サムネイルを大きく
 gls . -R -e '\.png$' --sort date -n 20   # サブフォルダも含めて、PNG を新しい順に20枚
 gls ./* -vv                        # ファイル名の下に、形式・EXIF などの詳細も表示
+gls -l --thumbs                    # 1ファイル1枚のカード: サムネイル、名前、サイズ、日時、EXIF
+gls --json -R photos | jq '.[].name'   # スクリプト向けの構造化した出力
 ```
 
 - 引数なしなら、カレントディレクトリを一覧にします。画像を複数指定すると一覧になります。ワイルドカードやディレクトリも指定できます（PowerShell や cmd でも `*` が使えます）。画像以外のファイルは無視します。
@@ -196,8 +249,16 @@ gls ./* -vv                        # ファイル名の下に、形式・EXIF �
 
 | オプション | 説明 |
 | --- | --- |
-| `-l`, `--long` | `ls -l` のような詳細表示。1ファイル1行で、サイズ・縦横・画素数・縦横比・形式と色・更新日時・EXIF の撮影日時・カメラ・撮影設定（絞り・シャッター速度・ISO・焦点距離。動画は長さとコーデック）・GPS の有無を並べる。サムネイルは、`--thumbs` を付けたときだけ出す。表示するものがない列は省き、値がない項目は `-` にする。絞り込み・並び替え・`-R`・`-n` もそのまま使える。見出しとリンクは、端末に出すときだけ付く |
-| `--thumbs` | `-l` と合わせて、各画像のサムネイルを情報の左に表示する（下の説明を参照）。`-l` を含む |
+| `-l`, `--long` | `ls -l` のような詳細表示。1ファイル1行で、サムネイルは出さない（`--thumbs` を参照） |
+| `--thumbs` | 各画像のサムネイルを、情報の左に表示する。`-l` を含む |
+
+`-l` は次の列を出し、表示するものがない列は省きます（ほかの列で、値がない項目は `-` にします）。
+
+- サイズ、縦横、画素数、縦横比、形式と色、更新日時
+- EXIF の撮影日時、カメラ、撮影設定（絞り・シャッター速度・ISO・焦点距離）、GPS の有無
+- 動画は、撮影設定の代わりに、長さとコーデック
+
+絞り込み・並び替え・`-R`・`-n` もそのまま使えます。見出しとリンクは、端末に出すときだけ付きます。
 
 ```
 $ gls -l
@@ -211,11 +272,11 @@ $ gls -l
 
 EXIF のある写真では、さらに撮影日時・カメラ・撮影設定（例: `f/11 1/125s ISO100 16mm`）の列が付きます。この例はパイプ出力なので見出しがありません。端末に出すと、太字の見出し行が付きます。
 
-`--thumbs` を付けると、1ファイルが小さなカードになります。左にサムネイル、右に名前、続けてサイズ・縦横・形式、さらに日時と EXIF（あるものだけ。1グループ1行）を並べます。`--thumbs` は `-l` を含み、`-s xs|s|m|l|xl` でカードの高さ（3/4/5/7/9 行）を変えられます。サムネイル一覧と同じ描画なので、ハーフブロックやアスキーアートへのフォールバックも同じです。
+`--thumbs` を付けると、1ファイルが小さなカードになります。左にサムネイル、右に名前、続けてサイズ・縦横・形式、さらに日時と EXIF（あるものだけ。1グループ1行）を並べます。`-s xs|s|m|l|xl` でカードの高さ（3/4/5/7/9 行）を変えられます。サムネイル一覧と同じ描画なので、ハーフブロックやアスキーアートへのフォールバックも同じです。
 
-```
-gls -l --thumbs -s m
-```
+![gls -l --thumbs -s m: パブリックドメインの画像6枚。それぞれ左にサムネイル、右に名前・サイズ・縦横・形式・日付が並ぶ](docs/images/demo-thumbs.jpg)
+
+<sub>`gls -l --thumbs -s m`。`gls` の実際の出力から作った画像です。</sub>
 
 ### スクリプト向け
 
@@ -254,6 +315,7 @@ gls -0 -R -e '\.png$' --sort date -n 20 | xargs -0 cp -t backup/
 警告とエラーは標準エラー出力に出るので、この出力には混ざりません。
 
 ### 描画
+
 | オプション | 説明 |
 | --- | --- |
 | `-m`, `--mode <image\|half\|text>` | 描画モード（既定: `image`。使えない端末では下記のとおり自動でフォールバック） |
@@ -264,6 +326,11 @@ gls -0 -R -e '\.png$' --sort date -n 20 | xargs -0 cp -t backup/
 | `-i`, `--invert` | 明暗を反転（`text` モード） |
 | `--contrast <F>` / `--gamma <F>` | コントラスト・ガンマの補正（既定 `1.0`） |
 | `--no-color` | カラーを使わない（モノクロの `text` モードになる） |
+
+### 出力の動作
+
+| オプション | 説明 |
+| --- | --- |
 | `--no-links` | ファイル名にハイパーリンクを付けない |
 | `--no-pager` | 画面に収まらなくても止まらない |
 | `--lang <コード>` | メッセージの言語（`en`、`ja`、`zh-cn`、`zh-tw`、`ko`、`es`、`fr`、`de`、`pt-br`、`ru`）。省略時は環境から判定。[言語](#言語)を参照 |
@@ -308,7 +375,7 @@ gls -0 -R -e '\.png$' --sort date -n 20 | xargs -0 cp -t backup/
 
 ## 対応形式
 
-- **画像:** PNG・JPEG・GIF・BMP・WebP・TIFF・ICO・TGA・QOI。JPEG などの EXIF の向きは反映します。
+- **画像:** PNG・JPEG・GIF・BMP・WebP・TIFF・ICO・TGA・QOI。JPEG などの EXIF の向きは反映します。アニメーション GIF は最初のコマを表示します。
 - **SVG:** そのまま描画します（外部ツール不要。白背景。`<text>` の文字は描画されません）。
 - **動画（mp4, mov, mkv, webm, avi, m4v, wmv, flv, mpg, 3gp）・PDF（1ページ目）・HEIC / HEIF / AVIF:** サムネイルを作れる環境が必要です。次の順に試します。
   1. **OS のサムネイル** — Windows はエクスプローラーと同じもの（動画は標準で、PDF は Adobe Acrobat や PDF-XChange のような PDF のサムネイルを作る仕組みが入っている場合だけ、HEIC は Microsoft Store の「HEIF 画像拡張機能」を入れると対応）。入れるツールは[動画・PDF・HEIC 用のツール](#必要なら-動画pdfheic-用のツール)を参照、macOS は Quick Look
@@ -316,21 +383,44 @@ gls -0 -R -e '\.png$' --sort date -n 20 | xargs -0 cp -t backup/
 
   どれも使えないときは、そのセルを「(読み込み失敗)」にして、必要なツールを案内する警告を1回だけ出します。
 
-## ファイル名のリンク
+## 現状と既知の制限
 
-対応端末（Windows Terminal、iTerm2、WezTerm、Kitty、GNOME Terminal、VS Code など）では、ファイル名が
-`Ctrl+クリック`（macOS は `Cmd+クリック`）で既定のアプリで開けるリンクになります（OSC 8 ハイパーリンク）。
-出力が端末でないとき（リダイレクト・パイプ）は付けません。
+gls はまだ若いツール（バージョン 0.1）です。確認できていることと、できていないことを書きます。
 
-WSL では、`/mnt/c/...` を `C:/...` に、それ以外を `\\wsl.localhost\<ディストリビューション>\...` 形式に変換して、Windows 側のアプリで開きます。
+**確認できていること**
+- Windows 11 の Windows Terminal（PowerShell と WSL の Ubuntu）: 画像の表示（Sixel）、ページャ、ファイル名の Ctrl+クリック、キャッシュ。
+- `-l`、`--json`、`-0` は Windows で動かしていて、自動テストの対象です。
+- 継続的インテグレーションで、Linux・macOS・Windows でビルドとテストを実行しています。テストは、実際の端末には描画しません。
 
-## 速さ
+**まだ実際の端末で確認できていないこと**（報告をとても歓迎します。[issue を立てて](https://github.com/equinox79/gls/issues)ください）
+- `--thumbs` を、実際の画像プロトコルで表示したときの位置（端末の動きを再現するスクリプトでしか確認していません）
+- iTerm2、WezTerm、Kitty、Ghostty、GNOME Terminal、foot、mlterm、VS Code のターミナル
+- macOS の Terminal.app（画像プロトコルがないので `half` になります）と、macOS の Quick Look のサムネイル
+- 動画と HEIC のサムネイル、ビルド済みのバイナリ（まだリリースを公開していません）
+
+**既知の制限**
+- RAW 写真（CR2、NEF、ARW など）には対応していません。
+- 色のプロファイル（ICC）は見ていないので、広い色域の画像は、色が違って見えることがあります。
+- SVG の文字は描画しません。PDF は1ページ目だけです。アニメーション GIF は最初のコマだけです。
+- 画像プロトコルは、tmux や SSH 越しでは動かないことがあります。端末は環境変数から判定するので、外れたときは `--protocol` で指定してください。
+- `-l` は、全ファイルを読み終えてから出力するので、WSL の `/mnt/c` のように遅い場所で長い一覧を出すと、表示までに少し待ちます。
+- 1枚だけの指定（`gls photo.jpg`）は、キャッシュしません。
+- 英語と日本語以外の翻訳は、機械翻訳です。
+
+## 速さとキャッシュ
 
 - 一覧は複数枚を並列にデコード・描画します。最初の1行ができたらすぐ表示を始め、数行先まで先読みします。
 - JPEG は 1/2・1/4・1/8 に縮小しながらデコードします。一覧では、足りる大きさなら EXIF サムネイル（約160px）を使い、本体を読まずに済ませます。
 - 描画結果をキャッシュします。画像のパス・更新日時・サイズと、表示設定が同じなら、2回目以降はデコードしません。`image` モードでは、時間のかかる動画・PDF・HEIC/AVIF・SVG の縮小サムネイルもキャッシュするので、ffmpeg などを再び起動しません。キャッシュするのは一覧のときだけで、1枚だけの指定（`gls video.mp4`）は毎回作り直します。何がキャッシュされているかは `--cache-info` で見られます。
-  - 保存先: Windows は `%LOCALAPPDATA%\gls\cache`、Linux / macOS は `~/.cache/gls/cache`（`XDG_CACHE_HOME` 優先）
-  - 古いキャッシュは、1日に1回、起動時にバックグラウンドで整理します。最後に使われてから 30 日を過ぎたものと、合計 256 MB を超えた分（古い順）を削除します。オプション `--cache-days` と `--cache-max-mb`（すぐ反映）、または環境変数 `GLS_CACHE_DAYS` と `GLS_CACHE_MAX_MB`（次の1日1回の整理で反映）で変えられます。オプションが環境変数より優先されます。
+
+<details>
+<summary>キャッシュの場所と整理</summary>
+
+- 保存先: Windows は `%LOCALAPPDATA%\gls\cache`、Linux / macOS は `~/.cache/gls/cache`（`XDG_CACHE_HOME` 優先）。
+- キャッシュには、画像の小さなサムネイルが残ります。書き込みたくないときは `--no-cache`、消すときは `--clear-cache` を使ってください。
+- 古いキャッシュは、1日に1回、起動時にバックグラウンドで整理します。最後に使われてから 30 日を過ぎたものと、合計 256 MB を超えた分（古い順）を削除します。オプション `--cache-days` と `--cache-max-mb`（すぐ反映）、または環境変数 `GLS_CACHE_DAYS` と `GLS_CACHE_MAX_MB`（次の1日1回の整理で反映）で変えられます。オプションが環境変数より優先されます。
+
+</details>
 
 ## 環境による注意
 
@@ -352,15 +442,28 @@ cargo clippy --all-targets -- -D warnings
 
 | ファイル | 内容 |
 | --- | --- |
-| `src/main.rs` | 引数、入力の展開、並び替え、一覧の描画、ページャ |
+| `src/main.rs` | 引数、入力の展開、並び替え、一覧とカードの描画、ページャ |
 | `src/gfx.rs` | Sixel / Kitty / iTerm2 の出力と端末の判定 |
 | `src/ext.rs` | SVG・動画・PDF・HEIC の取得（OS のサムネイル、外部ツール） |
-| `src/info.rs` | `-v` / `-vv` の画像情報 |
+| `src/info.rs` | `-v` / `-vv` / `-l` の画像情報 |
+| `src/json.rs` | `--json` の出力 |
 | `src/orient.rs`, `src/thumb.rs` | EXIF の向き、EXIF サムネイル |
 | `src/link.rs` | ファイル名のハイパーリンク（OSC 8） |
 | `src/i18n.rs`, `locales/*.txt` | 言語の選択とメッセージの辞書 |
+| `tests/cli.rs`, `tests/data/` | 小さな合成画像で、実際のバイナリを動かすテスト |
+| `.github/workflows/` | `ci.yml`（整形・lint・3つの OS でのテスト）と `release.yml`（バイナリと GitHub のリリース） |
+| `scripts/package.sh` | リリースビルドをアーカイブにまとめる（`release.yml` が使う） |
+
+### リリースの手順（メンテナ向け）
+
+1. `Cargo.toml` のバージョンを上げます（`cargo build` を実行して `Cargo.lock` も追従させます）。コミットして push します。
+2. 任意の予行演習: Actions のタブで **Release** → **Run workflow** を選びます。5つの環境でビルドして、アーカイブを成果物として残します。公開はしません。
+3. バージョンに合うタグを push します: `git tag v0.1.0 && git push origin v0.1.0`。ワークフローが、タグと `Cargo.toml` のバージョンが同じことを確かめ、テストを実行し、Linux（x64、ARM64）、macOS（Apple シリコン、Intel）、Windows（x64）をビルドして、アーカイブと `SHA256SUMS` を付けた GitHub のリリースを公開します。
 
 ## 言語
+
+<details>
+<summary>10言語: English・日本語・简体中文・繁體中文・한국어・Español・Français・Deutsch・Português (Brasil)・Русский</summary>
 
 ヘルプ・警告・エラー・画像情報のラベルは、次の言語に対応しています。English が既定で、訳の基準です。日本語以外の訳は機械翻訳なので、修正はとても歓迎です（`locales/<コード>.txt` を直す PR がいちばん簡単です）。
 
@@ -373,6 +476,7 @@ cargo clippy --all-targets -- -D warnings
 | `ko` | 한국어 | `ru` | Русский |
 
 地域つきの名前も扱えます。`pt_BR.UTF-8`、`zh-Hant-TW`、`zh_HK` などは、いちばん近い辞書を選びます（`pt` は `pt-br`、`zh` と `zh-Hans` は `zh-cn`、`zh-HK` と `zh-Hant` は `zh-tw` になります）。
+
 言語は次の順で決まります。
 
 1. `--lang <コード>`（例: `--lang ja`）
@@ -387,6 +491,8 @@ cargo clippy --all-targets -- -D warnings
 1. `locales/en.txt` を `locales/<コード>.txt`（小文字、例: `fr`、`zh-cn`）にコピーして訳します。`{placeholder}` はそのまま残します。
 2. `src/i18n.rs` の `CATALOGS` に1行足します: `("fr", include_str!("../locales/fr.txt")),`
 3. `cargo test` を実行します。すべてのキーと `{placeholder}` が `en.txt` と合っているか確かめます。
+
+</details>
 
 ## ライセンス
 
