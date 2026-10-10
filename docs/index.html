@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gls: ls, with pictures</title>
+<meta name="description" content="gls is an ls-style lister that shows thumbnails of images, videos and PDFs in your terminal. Ctrl+click a name to open the file. Windows, macOS and Linux.">
+<meta name="color-scheme" content="dark light">
+<meta property="og:type" content="website">
+<meta property="og:title" content="gls: ls, with pictures">
+<meta property="og:description" content="List images, videos and PDFs as thumbnails in your terminal. Ctrl+click a name to open it.">
+<meta property="og:url" content="https://equinox79.github.io/gls/">
+<meta property="og:image" content="https://equinox79.github.io/gls/images/demo-thumbs.jpg">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230e1116'/%3E%3Ctext x='32' y='42' font-family='monospace' font-size='30' font-weight='700' text-anchor='middle' fill='%2358a6ff'%3Els%3C/text%3E%3C/svg%3E">
+<script>
+  // Pick the language before the page is drawn: ?lang=, the saved choice, then the browser language.
+  (function () {
+    var lang = "en";
+    try {
+      var q = new URLSearchParams(location.search).get("lang");
+      var saved = localStorage.getItem("gls-lang");
+      var nav = (navigator.languages && navigator.languages[0]) || navigator.language || "en";
+      lang = q === "ja" || q === "en" ? q : saved === "ja" || saved === "en" ? saved : /^ja\b/i.test(nav) ? "ja" : "en";
+    } catch (e) {}
+    document.documentElement.lang = lang;
+  })();
+</script>
+<style>
+  :root {
+    --bg: #0e1116;
+    --surface: #161b22;
+    --border: #2a313c;
+    --text: #e6edf3;
+    --muted: #9aa7b4;
+    --accent: #58a6ff;
+    --on-accent: #0b1220;
+    --code-bg: #0b0f14;
+    --radius: 12px;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", "Noto Sans JP", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #ffffff;
+      --surface: #f6f8fa;
+      --border: #d0d7de;
+      --text: #1f2328;
+      --muted: #59636e;
+      --accent: #0969da;
+      --on-accent: #ffffff;
+      --code-bg: #eef1f4;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.65 var(--sans);
+    -webkit-text-size-adjust: 100%;
+  }
+  /* Show only the chosen language */
+  html[lang="ja"] .en { display: none !important; }
+  html:not([lang="ja"]) .ja { display: none !important; }
+
+  a { color: var(--accent); }
+  a:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+  .skip { position: absolute; left: -999px; top: 8px; background: var(--accent); color: var(--on-accent); padding: 8px 12px; border-radius: 8px; z-index: 10; }
+  .skip:focus { left: 8px; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+
+  header.top { border-bottom: 1px solid var(--border); }
+  header.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 12px; padding-bottom: 12px; }
+  .brand { font: 700 20px/1 var(--mono); color: var(--text); text-decoration: none; }
+  .brand span { color: var(--accent); }
+  nav.links { display: flex; align-items: center; gap: 6px 18px; flex-wrap: wrap; justify-content: flex-end; }
+  nav.links a { color: var(--muted); text-decoration: none; font-size: 15px; }
+  nav.links a:hover { color: var(--text); }
+  .lang { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
+  .lang button { background: none; border: 0; color: var(--muted); padding: 5px 12px; font: 600 13px var(--sans); cursor: pointer; }
+  .lang button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+
+  .hero { text-align: center; padding: 56px 0 28px; }
+  .hero h1 { margin: 0; font: 800 clamp(34px, 7vw, 60px)/1.1 var(--mono); letter-spacing: -0.02em; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero p.lead { max-width: 640px; margin: 18px auto 0; font-size: clamp(17px, 2.4vw, 20px); color: var(--muted); }
+  .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 28px; }
+  .btn { display: inline-block; padding: 11px 20px; border-radius: 10px; font-weight: 700; text-decoration: none; border: 1px solid var(--border); color: var(--text); background: var(--surface); }
+  .btn.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .btn:hover { filter: brightness(1.08); }
+
+  figure.shot { margin: 28px 0 0; }
+  figure.shot img { display: block; width: 100%; height: auto; border: 1px solid var(--border); border-radius: var(--radius); background: #0c0c0c; }
+  figure.shot figcaption { margin-top: 10px; font-size: 14px; color: var(--muted); }
+
+  section { padding: 44px 0 8px; }
+  section > .wrap > h2 { margin: 0 0 6px; font-size: clamp(24px, 4vw, 32px); line-height: 1.25; }
+  section > .wrap > p.sub { margin: 0 0 22px; color: var(--muted); }
+
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 18px 16px; }
+  .card h3 { margin: 0 0 6px; font-size: 18px; }
+  .card p { margin: 0; color: var(--muted); font-size: 15px; }
+
+  .two { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); align-items: start; }
+  .stack { display: grid; gap: 8px; grid-template-columns: minmax(0, 1fr); }
+  .block h3 { margin: 0 0 8px; font-size: 18px; }
+  .block p { margin: 0 0 10px; color: var(--muted); }
+  .code { position: relative; margin: 0 0 14px; }
+  pre { margin: 0; padding: 14px 16px; background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; overflow-x: auto; font: 14px/1.6 var(--mono); }
+  .copy { position: absolute; top: 8px; right: 8px; background: var(--surface); color: var(--muted); border: 1px solid var(--border); border-radius: 8px; padding: 3px 10px; font: 600 12px var(--sans); cursor: pointer; }
+  .copy:hover { color: var(--text); }
+  code { font-family: var(--mono); font-size: 0.92em; }
+  p code, li code { background: var(--code-bg); border: 1px solid var(--border); border-radius: 6px; padding: 1px 6px; }
+
+  ul.plain { margin: 0; padding-left: 20px; color: var(--muted); }
+  ul.plain li { margin: 6px 0; }
+  .note { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 10px; padding: 14px 16px; color: var(--muted); }
+
+  footer { margin-top: 56px; border-top: 1px solid var(--border); padding: 26px 0 40px; color: var(--muted); font-size: 14px; }
+  footer .wrap { display: flex; gap: 8px 22px; flex-wrap: wrap; justify-content: space-between; }
+  @media (max-width: 560px) {
+    .hero { padding-top: 36px; }
+    nav.links a.hide-sm { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#main"><span class="en">Skip to content</span><span class="ja">本文へ移動</span></a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#"><span>g</span>ls</a>
+    <nav class="links" aria-label="Site">
+      <a class="hide-sm" href="#install"><span class="en">Install</span><span class="ja">インストール</span></a>
+      <a class="hide-sm" href="#usage"><span class="en">Usage</span><span class="ja">使い方</span></a>
+      <a href="https://github.com/equinox79/gls">GitHub</a>
+      <span class="lang" role="group" aria-label="Language">
+        <button type="button" data-set-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-set-lang="ja" aria-pressed="false">日本語</button>
+      </span>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+    <div class="hero">
+      <h1><em>ls</em>, with pictures.</h1>
+      <p class="lead">
+        <span class="en">An <code>ls</code>-style lister that shows thumbnails of images, videos and PDFs in your terminal. <code>Ctrl+click</code> a name to open the file.</span>
+        <span class="ja">画像・動画・PDF のサムネイルを表示する、<code>ls</code> 風のファイル一覧ツール。名前を <code>Ctrl+クリック</code> でファイルを開けます。</span>
+      </p>
+      <div class="cta">
+        <a class="btn primary" href="https://github.com/equinox79/gls/releases/latest"><span class="en">Download the latest release</span><span class="ja">最新版をダウンロード</span></a>
+        <a class="btn" href="https://github.com/equinox79/gls"><span class="en">View on GitHub</span><span class="ja">GitHub で見る</span></a>
+      </div>
+    </div>
+
+    <figure class="shot">
+      <img src="images/demo.gif" width="900" height="704"
+           alt="Animated demo of gls: a thumbnail list of six public-domain pictures appears row by row, then -vv details, half-block and ASCII art modes"
+           data-alt-en="Animated demo of gls: a thumbnail list of six public-domain pictures appears row by row, then -vv details, half-block and ASCII art modes"
+           data-alt-ja="gls のデモ動画: パブリックドメインの画像6枚のサムネイル一覧が1行ずつ現れ、続いて -vv の詳細表示、ハーフブロック、アスキーアートで表示する">
+      <figcaption>
+        <span class="en">Every frame was rendered from the real output of <code>gls</code>. This is not a screen recording, and the typing is simulated. The sample pictures are in the public domain.</span>
+        <span class="ja">どのコマも <code>gls</code> の実際の出力から作っています。画面の録画ではなく、入力する様子は作り物です。サンプルの画像はパブリックドメインです。</span>
+      </figcaption>
+    </figure>
+  </div>
+
+  <section id="features">
+    <div class="wrap">
+      <h2><span class="en">What it does</span><span class="ja">できること</span></h2>
+      <p class="sub"><span class="en">The way you use <code>ls</code>, with pictures.</span><span class="ja"><code>ls</code> の使い方のまま、絵が見えます。</span></p>
+      <div class="grid">
+        <div class="card">
+          <h3><span class="en">Real images in the terminal</span><span class="ja">端末の中に本物の画像</span></h3>
+          <p><span class="en">Sixel, Kitty or iTerm2 graphics. Terminals without them fall back automatically to half-block characters, then to ASCII art.</span><span class="ja">Sixel・Kitty・iTerm2 のグラフィックスで表示。使えない端末では、ハーフブロック、さらにアスキーアートへ自動で切り替わります。</span></p>
+        </div>
+        <div class="card">
+          <h3><span class="en">Many formats</span><span class="ja">多くの形式</span></h3>
+          <p><span class="en">PNG, JPEG, GIF, WebP, TIFF, BMP, SVG, video, PDF and HEIC.</span><span class="ja">PNG・JPEG・GIF・WebP・TIFF・BMP・SVG・動画・PDF・HEIC に対応。</span></p>
+        </div>
+        <div class="card">
+          <h3><span class="en">Clickable file names</span><span class="ja">クリックできるファイル名</span></h3>
+          <p><span class="en">Names are terminal hyperlinks. <code>Ctrl+click</code> (<code>Cmd+click</code> on macOS) opens the file in your default app.</span><span class="ja">名前は端末のリンクです。<code>Ctrl+クリック</code>（macOS は <code>Cmd+クリック</code>）で、既定のアプリで開きます。</span></p>
+        </div>
+        <div class="card">
+          <h3><span class="en">Made for the <code>ls</code> workflow</span><span class="ja"><code>ls</code> の使い方に合わせて</span></h3>
+          <p><span class="en">Regex filter, sort by name, date or EXIF time, recursion, <code>-vv</code> details, and <code>-l</code>: one card per file with the thumbnail and its EXIF.</span><span class="ja">正規表現での絞り込み、名前・日付・EXIF の時刻での並び替え、再帰、<code>-vv</code> の詳細表示、<code>-l</code>（サムネイルと EXIF つきのカード）。</span></p>
+        </div>
+        <div class="card">
+          <h3><span class="en">Scriptable</span><span class="ja">スクリプトから使える</span></h3>
+          <p><span class="en"><code>--json</code> for structured output and <code>-0</code> for <code>xargs -0</code>. When piped, <code>-l</code> prints a plain one-line-per-file table.</span><span class="ja">構造化した出力の <code>--json</code>、<code>xargs -0</code> 向けの <code>-0</code>。パイプのときは、<code>-l</code> は1ファイル1行の表になります。</span></p>
+        </div>
+        <div class="card">
+          <h3><span class="en">Fast, and everywhere</span><span class="ja">速く、どこでも</span></h3>
+          <p><span class="en">Parallel decoding, read-ahead and a thumbnail cache. Windows, macOS and Linux (including WSL), with messages in 10 languages.</span><span class="ja">並列デコード、先読み、サムネイルのキャッシュ。Windows・macOS・Linux（WSL を含む）で動き、メッセージは10言語です。</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="show">
+    <div class="wrap two">
+      <figure class="shot" style="margin:0">
+        <img src="images/demo-click.gif" width="900" height="704" loading="lazy"
+             alt="Animated illustration of Ctrl+clicking a file name in the gls list: the name is underlined, a tooltip says &quot;Ctrl + click to open&quot;, and an image viewer window opens with that picture"
+             data-alt-en="Animated illustration of Ctrl+clicking a file name in the gls list: the name is underlined, a tooltip says &quot;Ctrl + click to open&quot;, and an image viewer window opens with that picture"
+             data-alt-ja="gls の一覧でファイル名を Ctrl+クリックするイメージ図: 名前に下線が出て、「Ctrl + click to open」とツールチップが出たあと、その画像を映したビューワーのウィンドウが開く">
+        <figcaption>
+          <span class="en"><strong>Ctrl+click opens the file.</strong> This is an illustration (a mock-up), not a screen recording: the list is the real output of <code>gls</code>, but the pointer, the tooltip and the viewer window are drawn. What really opens is the app your OS uses for that file type.</span>
+          <span class="ja"><strong>Ctrl+クリックでファイルが開きます。</strong>これはイメージ図（作り物）で、画面の録画ではありません。一覧は <code>gls</code> の実際の出力ですが、ポインタ、ツールチップ、ビューワーは描いたものです。実際に開くのは、その種類のファイルに OS が割り当てているアプリです。</span>
+        </figcaption>
+      </figure>
+      <figure class="shot" style="margin:0">
+        <img src="images/demo-thumbs.jpg" width="1036" height="734" loading="lazy"
+             alt="gls -l -s m: six public-domain pictures, each with a thumbnail on the left and its name, size, dimensions, format and date on the right"
+             data-alt-en="gls -l -s m: six public-domain pictures, each with a thumbnail on the left and its name, size, dimensions, format and date on the right"
+             data-alt-ja="gls -l -s m: パブリックドメインの画像6枚。それぞれ左にサムネイル、右に名前・サイズ・縦横・形式・日付が並ぶ">
+        <figcaption>
+          <span class="en"><strong><code>gls -l</code></strong>: a card per file, with the thumbnail on the left. Rendered from the real output of <code>gls</code>.</span>
+          <span class="ja"><strong><code>gls -l</code></strong>: 1ファイル1枚のカード。左にサムネイルが付きます。<code>gls</code> の実際の出力から作った画像です。</span>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="wrap">
+      <h2><span class="en">Install</span><span class="ja">インストール</span></h2>
+      <p class="sub"><span class="en">Download a prebuilt binary (no Rust needed), or build it with <code>cargo</code>.</span><span class="ja">ビルド済みのバイナリをダウンロードする（Rust は不要）か、<code>cargo</code> でビルドします。</span></p>
+      <div class="stack">
+        <div class="block">
+          <h3>macOS / Linux</h3>
+          <div class="code"><button class="copy" type="button" data-copy><span class="en">Copy</span><span class="ja">コピー</span></button><pre>VERSION=0.1.1
+TARGET=aarch64-apple-darwin
+# other targets: x86_64-apple-darwin, x86_64-unknown-linux-gnu, aarch64-unknown-linux-gnu
+curl -L -O "https://github.com/equinox79/gls/releases/download/v$VERSION/gls-v$VERSION-$TARGET.tar.gz"
+tar xzf "gls-v$VERSION-$TARGET.tar.gz"
+mkdir -p ~/.local/bin &amp;&amp; cp "gls-v$VERSION-$TARGET/gls" ~/.local/bin/</pre></div>
+          <p><span class="en">Then put <code>~/.local/bin</code> on your <code>PATH</code>. The steps for bash and zsh are in the README.</span><span class="ja">そのあと、<code>~/.local/bin</code> を <code>PATH</code> に通します。bash と zsh の手順は README にあります。</span></p>
+        </div>
+        <div class="block">
+          <h3>Windows (PowerShell)</h3>
+          <div class="code"><button class="copy" type="button" data-copy><span class="en">Copy</span><span class="ja">コピー</span></button><pre>$v = "0.1.1"
+$t = "x86_64-pc-windows-msvc"
+Invoke-WebRequest "https://github.com/equinox79/gls/releases/download/v$v/gls-v$v-$t.zip" -OutFile gls.zip
+Expand-Archive gls.zip -DestinationPath .</pre></div>
+          <p><span class="en">Then copy <code>gls.exe</code> to a folder on your <code>PATH</code>. The README has a PowerShell recipe for that.</span><span class="ja">そのあと、<code>gls.exe</code> を <code>PATH</code> の通ったフォルダにコピーします。README に、PowerShell での手順があります。</span></p>
+        </div>
+        <div class="block">
+          <h3><span class="en">With Rust</span><span class="ja">Rust を使う場合</span></h3>
+          <div class="code"><button class="copy" type="button" data-copy><span class="en">Copy</span><span class="ja">コピー</span></button><pre>cargo install --git https://github.com/equinox79/gls</pre></div>
+          <p><span class="en">The version in these commands is an example: the newest one is on the <a href="https://github.com/equinox79/gls/releases/latest">Releases page</a>, with a checksum file.</span><span class="ja">コマンドのバージョンは例です。最新のバージョンとチェックサムは、<a href="https://github.com/equinox79/gls/releases/latest">Releases のページ</a>にあります。</span></p>
+        </div>
+      </div>
+      <p class="note" style="margin-top:18px"><span class="en">Video, PDF and HEIC thumbnails may need a few extra tools on some systems (for example <code>ffmpeg</code> on Linux). The <a href="https://github.com/equinox79/gls#optional-tools-for-video-pdf-and-heic">README</a> lists what each OS needs, with install commands. The macOS binaries are not signed.</span><span class="ja">動画・PDF・HEIC のサムネイルには、環境によって追加のツール（たとえば Linux の <code>ffmpeg</code>）が要ります。必要なものとインストールのコマンドは、OS ごとに <a href="https://github.com/equinox79/gls/blob/main/README_JA.md">README</a> にあります。macOS のバイナリは署名していません。</span></p>
+    </div>
+  </section>
+
+  <section id="usage">
+    <div class="wrap">
+      <h2><span class="en">Usage</span><span class="ja">使い方</span></h2>
+      <div class="code"><button class="copy" type="button" data-copy><span class="en">Copy</span><span class="ja">コピー</span></button><pre>gls                                      # thumbnails of the current directory
+gls photo.jpg                            # show one image
+gls photos/ -s m                         # bigger thumbnails
+gls . -R -e '\.png$' --sort date -n 20   # PNGs in subfolders, newest 20
+gls ./* -vv                              # format, EXIF and more under each name
+gls -l                                   # one card per file: thumbnail, name, size, dates, EXIF
+gls -l --thumbs-off                      # the same details as a plain table
+gls --json -R photos | jq '.[].name'     # structured output for scripts
+gls -0 -R -e '\.jpg$' | xargs -0 ls -l   # safe with spaces in file names</pre></div>
+      <p style="color:var(--muted)"><span class="en">All options are in the <a href="https://github.com/equinox79/gls#options">README</a>, and <code>gls --help</code> shows them in your language.</span><span class="ja">すべてのオプションは <a href="https://github.com/equinox79/gls/blob/main/README_JA.md#オプション">README</a> にあります。<code>gls --help</code> は、お使いの言語で説明を出します。</span></p>
+    </div>
+  </section>
+
+  <section id="status">
+    <div class="wrap">
+      <h2><span class="en">What has been checked</span><span class="ja">確認できていること</span></h2>
+      <p class="sub"><span class="en">gls is young (version 0.1). Here is what has, and has not, been tried on real machines.</span><span class="ja">gls はまだ若いツールです（バージョン 0.1）。実機で試したことと、まだのことです。</span></p>
+      <div class="two">
+        <div class="block">
+          <h3><span class="en">Tried</span><span class="ja">試したもの</span></h3>
+          <ul class="plain">
+            <li><span class="en">Windows Terminal (Sixel) on Windows 11, including PDF thumbnails and Japanese file names</span><span class="ja">Windows 11 の Windows Terminal（Sixel）。PDF のサムネイルと日本語のファイル名も</span></li>
+            <li><span class="en">Ghostty on a Mac with Apple silicon (Kitty graphics): real images</span><span class="ja">Apple シリコンの Mac の Ghostty（Kitty のグラフィックス）: 本物の画像</span></li>
+            <li><span class="en">The downloaded binaries for Windows x64, Linux x64 and macOS Apple silicon</span><span class="ja">ダウンロードしたバイナリ: Windows x64、Linux x64、macOS Apple シリコン</span></li>
+          </ul>
+        </div>
+        <div class="block">
+          <h3><span class="en">Not yet</span><span class="ja">まだのもの</span></h3>
+          <ul class="plain">
+            <li><span class="en">The binaries for macOS Intel and Linux ARM64 (they build and pass the tests in CI)</span><span class="ja">macOS Intel と Linux ARM64 のバイナリ（CI でビルドとテストは通っています）</span></li>
+            <li><span class="en">iTerm2, WezTerm, Kitty, GNOME Terminal, foot, mlterm and the VS Code terminal</span><span class="ja">iTerm2、WezTerm、Kitty、GNOME Terminal、foot、mlterm、VS Code のターミナル</span></li>
+            <li><span class="en">Video and HEIC thumbnails</span><span class="ja">動画と HEIC のサムネイル</span></li>
+          </ul>
+        </div>
+      </div>
+      <p style="margin-top:16px;color:var(--muted)"><span class="en">Known limitations (RAW photos, color profiles, tmux and so on) are in the <a href="https://github.com/equinox79/gls#status-and-known-limitations">README</a>. Reports are welcome: please <a href="https://github.com/equinox79/gls/issues/new">open an issue</a>.</span><span class="ja">既知の制限（RAW 写真、色のプロファイル、tmux など）は <a href="https://github.com/equinox79/gls/blob/main/README_JA.md#現状と既知の制限">README</a> にあります。報告は歓迎です。<a href="https://github.com/equinox79/gls/issues/new">issue</a> を立ててください。</span></p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>MIT License · <a href="https://github.com/equinox79/gls/blob/main/LICENSE">LICENSE</a> · <a href="https://github.com/equinox79/gls/blob/main/docs/CREDITS.md"><span class="en">Picture credits</span><span class="ja">画像のクレジット</span></a></span>
+    <span><a href="https://github.com/equinox79/gls">GitHub</a> · <a href="https://github.com/equinox79/gls/releases">Releases</a> · <a href="https://github.com/equinox79/gls/issues">Issues</a></span>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var buttons = document.querySelectorAll("[data-set-lang]");
+
+    function apply(lang) {
+      root.lang = lang;
+      buttons.forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.setLang === lang)); });
+      document.querySelectorAll("img[data-alt-" + lang + "]").forEach(function (img) {
+        img.alt = img.getAttribute("data-alt-" + lang);
+      });
+      document.title = lang === "ja" ? "gls: 絵が見える ls" : "gls: ls, with pictures";
+    }
+    buttons.forEach(function (b) {
+      b.addEventListener("click", function () {
+        apply(b.dataset.setLang);
+        try { localStorage.setItem("gls-lang", b.dataset.setLang); } catch (e) {}
+      });
+    });
+    apply(root.lang === "ja" ? "ja" : "en");
+
+    // Copy buttons
+    document.querySelectorAll("[data-copy]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var pre = btn.parentElement.querySelector("pre");
+        var text = pre.innerText;
+        var done = function () {
+          var old = btn.innerHTML;
+          btn.textContent = root.lang === "ja" ? "コピーしました" : "Copied";
+          setTimeout(function () { btn.innerHTML = old; }, 1400);
+        };
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).then(done, function () {});
+        } else {
+          var ta = document.createElement("textarea");
+          ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+          document.body.appendChild(ta); ta.select();
+          try { document.execCommand("copy"); done(); } catch (e) {}
+          document.body.removeChild(ta);
+        }
+      });
+    });
+  })();
+</script>
+</body>
+</html>
