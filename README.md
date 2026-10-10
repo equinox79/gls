@@ -17,8 +17,13 @@
 
 <sub>`gls -s m -v` in a terminal that supports an image protocol (real images, not characters), then `-vv`, `-m half` and `-m text`. The six sample pictures are in the public domain, see [docs/CREDITS.md](docs/CREDITS.md). Every frame was rendered from the real output of `gls`; this is not a screen recording, and the typing is simulated.</sub>
 
-## Install
+**Ctrl+click a file name and it opens in your default viewer.** File names are terminal hyperlinks (OSC 8), so this works in Windows Terminal, iTerm2, WezTerm, Kitty, GNOME Terminal and VS Code (`Cmd+click` on macOS). In WSL the paths are converted so that Windows apps can open them.
 
+![Animated illustration of Ctrl+clicking a file name in the gls list: the name is underlined, a tooltip says "Ctrl + click to open", and an image viewer window opens with that picture](docs/images/demo-click.gif)
+
+<sub>This is an illustration (mock-up), not a screen recording: the list is the real output of `gls`, but the mouse pointer, the tooltip and the viewer window are drawn to show the idea. What actually opens is the app your OS uses for that file type (Photos, Preview, an image viewer and so on).</sub>
+
+## Install
 ### Option 1: download a binary (no Rust needed)
 
 Download the archive for your OS from the [Releases page](https://github.com/equinox79/gls/releases), unpack it, and put `gls` (`gls.exe` on Windows) in a folder on your `PATH`.
