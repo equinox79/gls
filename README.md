@@ -84,11 +84,79 @@ $v = "0.1.1"
 $t = "x86_64-pc-windows-msvc"
 Invoke-WebRequest "https://github.com/equinox79/gls/releases/download/v$v/gls-v$v-$t.zip" -OutFile gls.zip
 Expand-Archive gls.zip -DestinationPath .
-# Copy gls-v$v-$t\gls.exe to a folder on your PATH
+# Next: put gls.exe on your PATH (see "Put gls.exe on your PATH" below)
 ```
 
 `SHA256SUMS` on the same page lists the checksums. The macOS binaries are not signed. Downloaded with the `curl` command above, the Apple silicon one ran without a prompt; a file downloaded in a browser may be blocked by macOS: then run `xattr -d com.apple.quarantine gls` once. The Linux builds need glibc 2.35 or newer (Ubuntu 22.04 and later).
 
+**Put `gls` on your `PATH` (macOS and Linux, bash or zsh)**
+
+The `sudo install` command above puts `gls` in `/usr/local/bin`, which is already on your `PATH`. Without `sudo`, use a folder in your home directory such as `~/.local/bin`:
+
+```bash
+mkdir -p ~/.local/bin
+```
+
+```bash
+cp "gls-v$VERSION-$TARGET/gls" ~/.local/bin/
+```
+
+Then add that folder to your `PATH` (run it once). Find out which shell you use with `echo $SHELL`.
+
+zsh (the default on macOS):
+
+```bash
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+```
+
+bash (on macOS use `~/.bash_profile` instead of `~/.bashrc`):
+
+```bash
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+```
+
+Open a new terminal (or run `source ~/.zshrc` / `source ~/.bashrc`) and check:
+
+```bash
+gls --version
+```
+
+If it prints something else, or "command not found", look at which `gls` your shell finds:
+
+```bash
+which -a gls
+```
+
+On a Mac with Homebrew's `coreutils`, `/opt/homebrew/bin/gls` is GNU `ls`. Because the line above puts `~/.local/bin` first, this `gls` wins; to keep GNU `ls` as `gls`, call this one by its full path or give it another name.
+
+**Put `gls.exe` on your `PATH` (Windows, PowerShell)**
+
+Run this in the same PowerShell window as above (it uses `$v` and `$t`). It copies `gls.exe` to a folder in your profile and adds that folder to your user `PATH`. No administrator rights are needed.
+
+```powershell
+$dir = "$env:LOCALAPPDATA\Programs\gls"
+New-Item -ItemType Directory -Force $dir | Out-Null
+Copy-Item "gls-v$v-$t\gls.exe" $dir
+```
+
+```powershell
+$old = [string][Environment]::GetEnvironmentVariable("Path", "User")
+if (($old -split ';') -notcontains $dir) { [Environment]::SetEnvironmentVariable("Path", (($old.TrimEnd(';'), $dir | Where-Object { $_ }) -join ';'), "User") }
+```
+
+Open a new terminal (windows that are already open do not see the change), then check:
+
+```powershell
+gls --version
+```
+
+To use it right away in the current window, without opening a new one:
+
+```powershell
+$env:Path += ";$dir"
+```
+
+Prefer the Settings screen? Open the Start menu, search for "Edit environment variables for your account", select `Path`, choose Edit, then New, and paste the folder (for example `C:\Users\you\AppData\Local\Programs\gls`).
 To see video, PDF or HEIC thumbnails you may need a few extra tools: see [Optional: tools for video, PDF and HEIC](#optional-tools-for-video-pdf-and-heic) below.
 
 ### Option 2: build from source
@@ -134,6 +202,8 @@ git clone https://github.com/equinox79/gls
 cd gls
 cargo install --path .
 ```
+
+`cargo install` puts `gls` in `~/.cargo/bin`, which the Rust installer already added to your `PATH`. If your shell says "command not found", add `~/.cargo/bin` the same way as in "Put `gls` on your `PATH`" under Option 1 (use `~/.cargo/bin` instead of `~/.local/bin`).
 
 To see video, PDF or HEIC thumbnails you may need a few extra tools: see the next section, [Optional: tools for video, PDF and HEIC](#optional-tools-for-video-pdf-and-heic).
 

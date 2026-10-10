@@ -85,11 +85,79 @@ $v = "0.1.1"
 $t = "x86_64-pc-windows-msvc"
 Invoke-WebRequest "https://github.com/equinox79/gls/releases/download/v$v/gls-v$v-$t.zip" -OutFile gls.zip
 Expand-Archive gls.zip -DestinationPath .
-# gls-v$v-$t\gls.exe を、PATH の通ったフォルダにコピーします
+# 次に、gls.exe に PATH を通します（下の「gls.exe に PATH を通す」を参照）
 ```
 
 同じページの `SHA256SUMS` に、チェックサムがあります。macOS のバイナリは署名していません。上の `curl` のコマンドでダウンロードした Apple シリコン版は、確認なしで動きました。ブラウザでダウンロードしたファイルは、macOS に止められることがあります。そのときは、`xattr -d com.apple.quarantine gls` を一度実行してください。Linux 版には glibc 2.35 以上（Ubuntu 22.04 以降）が必要です。
 
+**`gls` に `PATH` を通す（macOS・Linux、bash・zsh）**
+
+上の `sudo install` のコマンドは、`gls` を `/usr/local/bin` に置きます。ここは、すでに `PATH` に入っています。`sudo` を使わないときは、ホームの下の `~/.local/bin` などに置きます。
+
+```bash
+mkdir -p ~/.local/bin
+```
+
+```bash
+cp "gls-v$VERSION-$TARGET/gls" ~/.local/bin/
+```
+
+次に、そのフォルダを `PATH` に足します（1回だけ実行してください）。使っているシェルは、`echo $SHELL` で分かります。
+
+zsh（macOS の標準）:
+
+```bash
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+```
+
+bash（macOS では `~/.bashrc` ではなく `~/.bash_profile`）:
+
+```bash
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+```
+
+新しいターミナルを開く（または `source ~/.zshrc` / `source ~/.bashrc` を実行する）と、反映されます。確認します。
+
+```bash
+gls --version
+```
+
+ほかのものが出たり、「command not found」と出たりしたら、シェルが見つけている `gls` を調べます。
+
+```bash
+which -a gls
+```
+
+Homebrew の `coreutils` を入れた Mac では、`/opt/homebrew/bin/gls` が GNU の `ls` です。上の行は `~/.local/bin` を先頭に置くので、この `gls` が優先されます。GNU の `ls` を `gls` のまま使いたいときは、こちらをフルパスで呼ぶか、別の名前にしてください。
+
+**`gls.exe` に `PATH` を通す（Windows、PowerShell）**
+
+上と同じ PowerShell のウィンドウで実行してください（`$v` と `$t` を使います）。`gls.exe` をプロファイルの下のフォルダにコピーして、そのフォルダをユーザーの `PATH` に足します。管理者の権限は要りません。
+
+```powershell
+$dir = "$env:LOCALAPPDATA\Programs\gls"
+New-Item -ItemType Directory -Force $dir | Out-Null
+Copy-Item "gls-v$v-$t\gls.exe" $dir
+```
+
+```powershell
+$old = [string][Environment]::GetEnvironmentVariable("Path", "User")
+if (($old -split ';') -notcontains $dir) { [Environment]::SetEnvironmentVariable("Path", (($old.TrimEnd(';'), $dir | Where-Object { $_ }) -join ';'), "User") }
+```
+
+新しいターミナルを開いてから（すでに開いているウィンドウには、変更が届きません）、確認します。
+
+```powershell
+gls --version
+```
+
+新しいウィンドウを開かずに、いまのウィンドウですぐ使いたいときは、次のとおりです。
+
+```powershell
+$env:Path += ";$dir"
+```
+
+設定の画面から行うこともできます。スタートメニューで「アカウントの環境変数を編集」を検索して開き、`Path` を選んで、「編集」、「新規」の順に押し、フォルダ（例: `C:\Users\あなた\AppData\Local\Programs\gls`）を貼り付けます。
 動画・PDF・HEIC のサムネイルを見るには、追加のツールが必要な場合があります。下の[必要なら: 動画・PDF・HEIC 用のツール](#必要なら-動画pdfheic-用のツール)を参照してください。
 
 ### 方法2: ソースからビルドする
@@ -135,6 +203,8 @@ git clone https://github.com/equinox79/gls
 cd gls
 cargo install --path .
 ```
+
+`cargo install` は、`gls` を `~/.cargo/bin` に置きます。ここは、Rust のインストーラーが `PATH` に足してくれています。シェルが「command not found」と言うときは、方法1の「`gls` に `PATH` を通す」と同じやり方で `~/.cargo/bin` を足してください（`~/.local/bin` を `~/.cargo/bin` に読み替えます）。
 
 動画・PDF・HEIC のサムネイルを見るには、追加のツールが必要な場合があります。次の節[必要なら: 動画・PDF・HEIC 用のツール](#必要なら-動画pdfheic-用のツール)を参照してください。
 
