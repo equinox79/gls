@@ -4,6 +4,7 @@
 
 [![CI](https://github.com/equinox79/gls/actions/workflows/ci.yml/badge.svg)](https://github.com/equinox79/gls/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/equinox79/gls)](https://github.com/equinox79/gls/releases/latest)
 
 **`ls` for images.** List the images in a folder as thumbnails with file names, right in your terminal, and `Ctrl+click` a name to open the file.
 
@@ -56,8 +57,6 @@ Tools such as [chafa](https://hpjansson.org/chafa/), [viu](https://github.com/at
 ### Option 1: download a binary (no Rust needed)
 
 Download the archive for your OS from the [Releases page](https://github.com/equinox79/gls/releases), unpack it, and put `gls` (`gls.exe` on Windows) in a folder on your `PATH`.
-
-> **Heads-up:** the first release has not been published yet. Until it appears on the Releases page, use Option 2.
 
 | OS | File (for version `v0.1.0`) |
 | --- | --- |
@@ -395,7 +394,7 @@ gls is young (version 0.1). Here is what has been checked, and what has not.
 - `--thumbs` with a real image protocol: the placement was checked with a terminal-emulation script only
 - iTerm2, WezTerm, Kitty, Ghostty, GNOME Terminal, foot, mlterm, the VS Code terminal
 - macOS Terminal.app (it has no image protocol, so `half` is used) and the macOS Quick Look thumbnails
-- Video and HEIC thumbnails, and the prebuilt binaries (no release has been published yet)
+- Video and HEIC thumbnails, and running the prebuilt binaries of v0.1.0 on every platform (the release is published and its download links work, but the packaged binaries have not been run on all of them)
 
 **Known limitations**
 - RAW photos (CR2, NEF, ARW and so on) are not supported.

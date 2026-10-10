@@ -4,6 +4,7 @@
 
 [![CI](https://github.com/equinox79/gls/actions/workflows/ci.yml/badge.svg)](https://github.com/equinox79/gls/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/equinox79/gls)](https://github.com/equinox79/gls/releases/latest)
 
 **画像のための `ls`。** フォルダの画像を、ファイル名つきのサムネイル一覧としてターミナルに表示し、名前を `Ctrl+クリック` するとそのファイルを開けます。
 *`ls` for images — list and view images in your terminal as thumbnails.*
@@ -57,8 +58,6 @@ gls -l --thumbs      # 1行ごとにサムネイルが付いた、詳細な一�
 ### 方法1: ビルド済みのバイナリをダウンロードする（Rust は不要）
 
 [Releases のページ](https://github.com/equinox79/gls/releases)から、お使いの OS 用のアーカイブをダウンロードして展開し、`gls`（Windows は `gls.exe`）を `PATH` の通ったフォルダに置きます。
-
-> **ご注意:** 最初のリリースは、まだ公開していません。Releases のページに出るまでは、方法2を使ってください。
 
 | OS | ファイル（バージョン `v0.1.0` の場合） |
 | --- | --- |
@@ -396,7 +395,7 @@ gls はまだ若いツール（バージョン 0.1）です。確認できてい
 - `--thumbs` を、実際の画像プロトコルで表示したときの位置（端末の動きを再現するスクリプトでしか確認していません）
 - iTerm2、WezTerm、Kitty、Ghostty、GNOME Terminal、foot、mlterm、VS Code のターミナル
 - macOS の Terminal.app（画像プロトコルがないので `half` になります）と、macOS の Quick Look のサムネイル
-- 動画と HEIC のサムネイル、ビルド済みのバイナリ（まだリリースを公開していません）
+- 動画と HEIC のサムネイル、v0.1.0 のビルド済みバイナリを、すべての環境で動かすこと（リリースは公開済みで、ダウンロードのリンクも使えますが、パッケージ化したバイナリを、すべての環境では動かしていません）
 
 **既知の制限**
 - RAW 写真（CR2、NEF、ARW など）には対応していません。
