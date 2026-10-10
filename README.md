@@ -33,6 +33,8 @@ Download the archive for your OS from the [Releases page](https://github.com/equ
 
 `SHA256SUMS` on the same page lists the checksums. The macOS binaries are not signed; if macOS refuses to open one, run `xattr -d com.apple.quarantine gls` once. The Linux builds need glibc 2.35 or newer (Ubuntu 22.04 and later).
 
+To see video, PDF or HEIC thumbnails you may need a few extra tools: see [Optional: tools for video, PDF and HEIC](#optional-tools-for-video-pdf-and-heic) below.
+
 ### Option 2: build from source
 
 #### 1. Set up Rust and a C linker
@@ -89,16 +91,45 @@ Images and SVG work without anything else. Video, PDF and HEIC/AVIF need a way t
 
 If a tool is missing, the cell shows "(load failed)" and **one warning that names the missing tool** is printed. You do not need all of them: install only what you use.
 
-**Install commands**
+**Install commands** (copy and paste; each block is only what that platform needs)
 
-| Platform | Command |
-| --- | --- |
-| macOS (Homebrew) | `brew install ffmpeg mupdf poppler imagemagick` (all optional: Quick Look already handles the thumbnails) |
-| Windows (winget) | `winget install Gyan.FFmpeg` (video details) and `winget install oschwartz10612.Poppler` (PDF: provides `pdftoppm`). ImageMagick: `winget install ImageMagick.ImageMagick` |
-| Windows (Scoop) | `scoop install ffmpeg mupdf` (`mupdf` provides `mutool`) |
-| Debian / Ubuntu / WSL | `sudo apt install ffmpeg mupdf-tools poppler-utils` |
-| Fedora | `sudo dnf install ffmpeg-free mupdf poppler-utils ImageMagick` (for all codecs, use `ffmpeg` from RPM Fusion) |
-| Arch | `sudo pacman -S ffmpeg mupdf-tools poppler imagemagick` |
+macOS (Homebrew), all optional because Quick Look already makes the thumbnails:
+
+```bash
+brew install ffmpeg mupdf poppler imagemagick
+```
+
+Windows (winget):
+
+```powershell
+winget install Gyan.FFmpeg                # video thumbnails and video details (ffmpeg, ffprobe)
+winget install oschwartz10612.Poppler     # PDF thumbnails (pdftoppm)
+winget install ImageMagick.ImageMagick    # HEIC / AVIF, and PDF as a last resort
+```
+
+Windows (Scoop):
+
+```powershell
+scoop install ffmpeg mupdf                # mupdf provides mutool (PDF)
+```
+
+Debian / Ubuntu / WSL:
+
+```bash
+sudo apt install ffmpeg mupdf-tools poppler-utils
+```
+
+Fedora (for all video codecs, take `ffmpeg` from RPM Fusion instead of `ffmpeg-free`):
+
+```bash
+sudo dnf install ffmpeg-free mupdf poppler-utils ImageMagick
+```
+
+Arch:
+
+```bash
+sudo pacman -S ffmpeg mupdf-tools poppler imagemagick
+```
 
 Open a new terminal afterwards so that the commands are on `PATH`, then check that they are found:
 

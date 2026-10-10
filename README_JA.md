@@ -34,6 +34,8 @@
 
 同じページの `SHA256SUMS` に、チェックサムがあります。macOS のバイナリは署名していないので、開けないと言われたら、`xattr -d com.apple.quarantine gls` を一度実行してください。Linux 版には glibc 2.35 以上（Ubuntu 22.04 以降）が必要です。
 
+動画・PDF・HEIC のサムネイルを見るには、追加のツールが必要な場合があります。下の[必要なら: 動画・PDF・HEIC 用のツール](#必要なら-動画pdfheic-用のツール)を参照してください。
+
 ### 方法2: ソースからビルドする
 
 #### 1. Rust とリンカを用意する
@@ -90,16 +92,45 @@ cargo install --path .
 
 ツールが足りないと、そのセルには「(読み込み失敗)」と出て、**足りないツールの名前を挙げた警告が1回だけ**出ます。全部を入れる必要はありません。使うものだけ入れてください。
 
-**インストールのコマンド**
+**インストールのコマンド**（コピーして貼り付けられます。ブロックごとに、その環境で必要なものだけを入れています）
 
-| 環境 | コマンド |
-| --- | --- |
-| macOS（Homebrew） | `brew install ffmpeg mupdf poppler imagemagick`（どれも任意。サムネイルは Quick Look が作ります） |
-| Windows（winget） | `winget install Gyan.FFmpeg`（動画の詳細）と `winget install oschwartz10612.Poppler`（PDF。`pdftoppm` が入ります）。ImageMagick は `winget install ImageMagick.ImageMagick` |
-| Windows（Scoop） | `scoop install ffmpeg mupdf`（`mupdf` に `mutool` が入っています） |
-| Debian / Ubuntu / WSL | `sudo apt install ffmpeg mupdf-tools poppler-utils` |
-| Fedora | `sudo dnf install ffmpeg-free mupdf poppler-utils ImageMagick`（すべてのコーデックが必要なら、RPM Fusion の `ffmpeg`） |
-| Arch | `sudo pacman -S ffmpeg mupdf-tools poppler imagemagick` |
+macOS（Homebrew）。サムネイルは Quick Look が作るので、どれも任意です:
+
+```bash
+brew install ffmpeg mupdf poppler imagemagick
+```
+
+Windows（winget）:
+
+```powershell
+winget install Gyan.FFmpeg                # 動画のサムネイルと動画の詳細（ffmpeg、ffprobe）
+winget install oschwartz10612.Poppler     # PDF のサムネイル（pdftoppm）
+winget install ImageMagick.ImageMagick    # HEIC / AVIF、PDF の最後の手段
+```
+
+Windows（Scoop）:
+
+```powershell
+scoop install ffmpeg mupdf                # mupdf に mutool（PDF）が入っています
+```
+
+Debian / Ubuntu / WSL:
+
+```bash
+sudo apt install ffmpeg mupdf-tools poppler-utils
+```
+
+Fedora（動画のコーデックをすべて使うなら、`ffmpeg-free` ではなく RPM Fusion の `ffmpeg`）:
+
+```bash
+sudo dnf install ffmpeg-free mupdf poppler-utils ImageMagick
+```
+
+Arch:
+
+```bash
+sudo pacman -S ffmpeg mupdf-tools poppler imagemagick
+```
 
 入れたあとは、新しいターミナルを開いて `PATH` に通ったことを確認します。
 
