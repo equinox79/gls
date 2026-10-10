@@ -88,7 +88,7 @@ Expand-Archive gls.zip -DestinationPath .
 # gls-v$v-$t\gls.exe を、PATH の通ったフォルダにコピーします
 ```
 
-同じページの `SHA256SUMS` に、チェックサムがあります。macOS のバイナリは署名していないので、開けないと言われたら、`xattr -d com.apple.quarantine gls` を一度実行してください。Linux 版には glibc 2.35 以上（Ubuntu 22.04 以降）が必要です。
+同じページの `SHA256SUMS` に、チェックサムがあります。macOS のバイナリは署名していません。上の `curl` のコマンドでダウンロードした Apple シリコン版は、確認なしで動きました。ブラウザでダウンロードしたファイルは、macOS に止められることがあります。そのときは、`xattr -d com.apple.quarantine gls` を一度実行してください。Linux 版には glibc 2.35 以上（Ubuntu 22.04 以降）が必要です。
 
 動画・PDF・HEIC のサムネイルを見るには、追加のツールが必要な場合があります。下の[必要なら: 動画・PDF・HEIC 用のツール](#必要なら-動画pdfheic-用のツール)を参照してください。
 
@@ -392,13 +392,14 @@ gls はまだ若いツール（バージョン 0.1）です。確認できてい
 - Windows 11 の Windows Terminal（PowerShell と WSL の Ubuntu）: 画像の表示（Sixel）、ページャ、ファイル名の Ctrl+クリック、キャッシュ。
 - `-l`、`--json`、`-0` は Windows で動かしていて、自動テストの対象です。
 - v0.1.1 のビルド済みバイナリのうち、**Windows x64** と **Linux x64** は、リリースからダウンロードして、`SHA256SUMS` と一致することを確かめ、動かしました（`--version`、サムネイル一覧、`-l`、`--json`、`-0`、日本語のメッセージ。Linux 版は WSL の Ubuntu 24.04）。
+- v0.1.1 のビルド済みバイナリのうち、**macOS の Apple シリコン**（`aarch64-apple-darwin`）は、`curl` でダウンロードして、**Ghostty** で動かし、サムネイル一覧が本物の画像（Kitty のグラフィックスプロトコル）で正しく表示されました。macOS に止められたり、確認を求められたりはしませんでした。
 - 継続的インテグレーションで、Linux・macOS・Windows でビルドとテストを実行しています。テストは、実際の端末には描画しません。
 
 **まだ実際の端末で確認できていないこと**（報告をとても歓迎します。[issue を立てて](https://github.com/equinox79/gls/issues)ください）
 - `-l` のカードを、実際の画像プロトコルで表示したときの位置（端末の動きを再現するスクリプトでしか確認していません）
-- iTerm2、WezTerm、Kitty、Ghostty、GNOME Terminal、foot、mlterm、VS Code のターミナル
+- iTerm2、WezTerm、Kitty、GNOME Terminal、foot、mlterm、VS Code のターミナル
 - macOS の Terminal.app（画像プロトコルがないので `half` になります）と、macOS の Quick Look のサムネイル
-- ビルド済みバイナリのうち、**macOS**（Apple シリコンと Intel）と **Linux ARM64**: CI でビルドとテストは通っていますが、ダウンロードしたアーカイブを動かした人はまだいません。macOS での結果は、特に歓迎します。macOS のバージョン、使ったアーカイブ、端末、`./gls --version` と画像のフォルダでの表示を、[issue](https://github.com/equinox79/gls/issues/new) で教えてください
+- ビルド済みバイナリのうち、**macOS の Intel** と **Linux ARM64**: CI でビルドとテストは通っていますが、ダウンロードしたアーカイブを動かした人はまだいません。結果は歓迎します。お使いの環境、使ったアーカイブ、端末、`./gls --version` と画像のフォルダでの表示を、[issue](https://github.com/equinox79/gls/issues/new) で教えてください
 - 動画と HEIC のサムネイル
 
 **既知の制限**
