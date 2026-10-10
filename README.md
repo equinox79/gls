@@ -6,7 +6,8 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/equinox79/gls)](https://github.com/equinox79/gls/releases/latest)
 
-**`ls` for images.** List the images in a folder as thumbnails with file names, right in your terminal, and `Ctrl+click` a name to open the file.
+**`ls`, with pictures.**
+An `ls`-style lister that shows thumbnails of images, videos and PDFs in your terminal. `Ctrl+click` a name to open the file.
 
 ![Animated demo of gls: a thumbnail list of six public-domain pictures appears row by row, then -vv details, half-block and ASCII art modes](docs/images/demo.gif)
 
@@ -17,7 +18,7 @@
 ```bash
 cargo install --git https://github.com/equinox79/gls   # or download a binary: see Install
 gls                  # thumbnails of the images in the current directory
-gls -l --thumbs      # a detailed list with a thumbnail on each line
+gls -l               # a detailed list with a thumbnail on each line
 ```
 
 ## Features
@@ -25,7 +26,7 @@ gls -l --thumbs      # a detailed list with a thumbnail on each line
 - **Real images in the terminal** through Sixel, Kitty or iTerm2 graphics. Terminals without them fall back automatically to **half-block** characters (TrueColor / 256 colors), then to **ASCII art**
 - **Many formats:** PNG, JPEG, GIF, WebP, TIFF, BMP, **SVG**, **video**, **PDF** and **HEIC**
 - **Clickable file names:** `Ctrl+click` opens the file in your default app (OSC 8 hyperlinks)
-- **Built for the `ls` workflow:** regex filter, sorting, recursion, EXIF orientation, `-vv` details, `-l` long listing (with `--thumbs`)
+- **Built for the `ls` workflow:** regex filter, sorting, recursion, EXIF orientation, `-vv` details, `-l` long listing with thumbnails
 - **Scriptable:** `--json` for structured output, `-0` for `xargs -0`
 - **Fast:** parallel decoding, read-ahead and a cache, even with thousands of images
 - **Windows, macOS and Linux** (including WSL), with messages in **10 languages**
@@ -211,7 +212,8 @@ gls ./*                                  # thumbnails of the images in the curre
 gls photos/ -s m                         # bigger thumbnails
 gls . -R -e '\.png$' --sort date -n 20   # PNGs in subfolders, newest 20
 gls ./* -vv                              # also show format, EXIF and other details under each name
-gls -l --thumbs                          # one card per file: thumbnail, name, size, dates, EXIF
+gls -l                                   # one card per file: thumbnail, name, size, dates, EXIF
+gls -l --thumbs-off                      # the same details as a plain table, one line per file
 gls --json -R photos | jq '.[].name'     # structured output for scripts
 ```
 
@@ -247,8 +249,8 @@ gls --json -R photos | jq '.[].name'     # structured output for scripts
 
 | Option | Description |
 | --- | --- |
-| `-l`, `--long` | Long listing like `ls -l`: one line per file, no thumbnails (see `--thumbs`) |
-| `--thumbs` | Show a thumbnail of each image to the left of its details. Implies `-l` |
+| `-l`, `--long` | Long listing like `ls -l`. On a terminal, one card per file with a thumbnail on the left and the details on the right (see below). When piped or redirected, one plain line per file |
+| `--thumbs-off` | With `-l`, do not show thumbnails: print the one-line-per-file table even on a terminal. Needs `-l` |
 
 `-l` prints these columns, and leaves out the ones with nothing to show (`-` marks a missing value in the others):
 
@@ -259,7 +261,7 @@ gls --json -R photos | jq '.[].name'     # structured output for scripts
 Filtering, sorting, `-R` and `-n` work as usual. The header and the links are added only on a terminal.
 
 ```
-$ gls -l
+$ gls -l --thumbs-off
 273.8KB   960x966  0.9MP  0.99:1  JPEG RGB 8bit  2026-10-08 11:24  apollo11-aldrin.jpg
 230.3KB   960x960  0.9MP  1:1     JPEG RGB 8bit  2026-10-08 11:24  blue-marble.jpg
  62.9KB   960x960  0.9MP  1:1     JPEG RGB 8bit  2026-10-08 11:24  earthrise.jpg
@@ -268,19 +270,19 @@ $ gls -l
 341.8KB   960x760  0.7MP  24:19   JPEG RGB 8bit  2026-10-08 11:24  starry-night.jpg
 ```
 
-Photos with EXIF also get the capture time, camera, and shooting settings (e.g. `f/11 1/125s ISO100 16mm`) columns. This example is piped; on a terminal a bold header line is added.
+Photos with EXIF also get the capture time, camera, and shooting settings (e.g. `f/11 1/125s ISO100 16mm`) columns. This is the table you get with `--thumbs-off` or when the output is piped; on a terminal a bold header line is added.
 
-With `--thumbs`, each file becomes a small card instead: the thumbnail on the left, and on the right the name, then size / dimensions / format, then dates and EXIF (values that exist, one group per line). `-s xs|s|m|l|xl` sets the card height (3/4/5/7/9 lines). It uses the same rendering as the thumbnail list, so it falls back to half blocks and ASCII art in the same way.
+On a terminal, `-l` shows each file as a small card: the thumbnail on the left, and on the right the name, then size / dimensions / format, then dates and EXIF (values that exist, one group per line). `-s xs|s|m|l|xl` sets the card height (3/4/5/7/9 lines). It uses the same rendering as the thumbnail list, so it falls back to half blocks and ASCII art in the same way. When the output is piped or redirected, or with `--thumbs-off`, you get the table above instead.
 
-![gls -l --thumbs -s m: six public-domain pictures, each with a thumbnail on the left and its name, size, dimensions, format and date on the right](docs/images/demo-thumbs.jpg)
+![gls -l -s m: six public-domain pictures, each with a thumbnail on the left and its name, size, dimensions, format and date on the right](docs/images/demo-thumbs.jpg)
 
-<sub>`gls -l --thumbs -s m`, rendered from the real output of `gls`.</sub>
+<sub>`gls -l -s m`, rendered from the real output of `gls`.</sub>
 
 ### Scripting
 
 | Option | Description |
 | --- | --- |
-| `--json` | Print the matching files as JSON and exit: one array with one object per file. Filtering, sorting, `-R` and `-n` work as usual. Cannot be combined with `-l` / `--thumbs` / `-0` |
+| `--json` | Print the matching files as JSON and exit: one array with one object per file. Filtering, sorting, `-R` and `-n` work as usual. Cannot be combined with `-l` / `-0` |
 | `-0`, `--null` | Print only the matching file paths, separated by NUL characters (like `find -print0`), and exit. For `xargs -0`. Paths are written byte for byte |
 
 ```
@@ -391,7 +393,7 @@ gls is young (version 0.1). Here is what has been checked, and what has not.
 - The continuous integration builds and runs the tests on Linux, macOS and Windows. The tests do not draw to a real terminal.
 
 **Not checked in a real terminal yet** (reports are very welcome, please [open an issue](https://github.com/equinox79/gls/issues))
-- `--thumbs` with a real image protocol: the placement was checked with a terminal-emulation script only
+- The `-l` cards with a real image protocol: the placement was checked with a terminal-emulation script only
 - iTerm2, WezTerm, Kitty, Ghostty, GNOME Terminal, foot, mlterm, the VS Code terminal
 - macOS Terminal.app (it has no image protocol, so `half` is used) and the macOS Quick Look thumbnails
 - Video and HEIC thumbnails, and running the prebuilt binaries of v0.1.0 on every platform (the release is published and its download links work, but the packaged binaries have not been run on all of them)

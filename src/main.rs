@@ -362,8 +362,13 @@ struct Args {
     #[arg(short = 'l', long)]
     long: bool,
 
-    /// With -l, show a thumbnail of each image next to its details
-    #[arg(long)]
+    /// With -l, do not show thumbnails: print the one-line-per-file table
+    #[arg(long, requires = "long", conflicts_with = "thumbs")]
+    thumbs_off: bool,
+
+    /// Show thumbnails with -l even when the output is not a terminal (implies -l).
+    /// Thumbnails are the default on a terminal now; this stays for scripts written for 0.1.0
+    #[arg(long, hide = true)]
     thumbs: bool,
 
     /// Print the matching files as JSON and exit (for scripts)
@@ -2126,7 +2131,12 @@ fn main() {
         json_listing(&files);
         return;
     }
-    if args.long && !args.thumbs {
+    // -l は、端末ではサムネイル付きのカード、パイプやリダイレクトでは1ファイル1行の表にする
+    // （--thumbs-off で端末でも表にする。隠しオプションの --thumbs は、出力先にかかわらずカードにする）
+    let long = args.long || args.thumbs;
+    let cards =
+        long && !args.thumbs_off && (args.thumbs || io::IsTerminal::is_terminal(&io::stdout()));
+    if long && !cards {
         long_listing(&files, &args, depth > 0);
         return;
     }
@@ -2207,8 +2217,8 @@ fn main() {
     let single_width = args.width.unwrap_or(size.single_width());
 
     let pager = !args.no_pager;
-    if args.thumbs {
-        // サムネイル付きの詳細表示（--thumbs は -l を含む）
+    if cards {
+        // サムネイル付きの詳細表示
         let term = terminal_width().saturating_sub(1);
         let count = files.len();
         let rx = spawn_long_thumbs(files, opts, size.thumb_rows(), term);

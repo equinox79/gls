@@ -2,7 +2,7 @@
 # `\n` is a line break; {name} is a placeholder that must appear in every language.
 
 # ---- --help text (help.<option name>)
-help.about = `ls` for images: shows images in the terminal with an image protocol (Sixel / Kitty / iTerm2), half-block characters or ASCII art.\nGive several images (wildcards and directories work) to get a thumbnail list with file names.
+help.about = `ls`, with pictures.\nAn `ls`-style lister that shows thumbnails of images, videos and PDFs in your terminal, with Sixel / Kitty / iTerm2 graphics, half-block characters or ASCII art.\nGive several files, directories or wildcards to get a thumbnail list with file names.
 help.images = Image files, directories or wildcards (e.g. ./*). Defaults to the current directory
 help.regexp = Filter by file name (without the directory part) with a regular expression. Repeat to match any of several patterns. Example: -e "\.png$" -e "(?i)^img_\d+" ((?i) ignores case)
 help.recursive = Also search subdirectories (hidden directories are skipped). The parent directory name is shown before the file name
@@ -30,8 +30,8 @@ help.protocol = Image protocol for --mode image. auto detects it from environmen
 help.cell_size = Pixel size of one character cell (e.g. 10x20). Adjust it when images and text are misaligned with Sixel
 help.grid = Grid of a list (COLSxROWS per page); long lists are split into pages. By default as many columns as fit the terminal width (2 rows); 3x2 when only --width is given
 help.verbose = Show image info under each name. -v: pixel size and file size; -vv: also format, color, megapixels, aspect ratio, modified date and EXIF (camera and shooting settings)
-help.long = Long listing, like ls -l: one line per file with size, dimensions, format, dates, camera and shooting settings (EXIF) and more. Columns with nothing to show are left out
-help.thumbs = With -l, also show a thumbnail of each image to the left of its details (use -s to change the size). Implies -l
+help.long = Long listing, like ls -l: size, dimensions, format, dates, camera and shooting settings (EXIF) and more for each file, with a thumbnail on a terminal. When piped, one plain line per file. Columns with nothing to show are left out
+help.thumbs_off = With -l, do not show thumbnails: print the plain one-line-per-file table (this is also what you get when the output is piped)
 help.json = Print the matching files as JSON (an array with one object per file: path, size, dimensions, format, dates, EXIF) and exit. For scripts
 help.null = Print only the matching file paths, separated by NUL characters (for xargs -0), and exit
 help.lang = Message language (e.g. en, ja). Default: detected from the environment

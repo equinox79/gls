@@ -2,7 +2,7 @@
 # `\n` es un salto de línea; {name} es un marcador que debe aparecer igual que en en.txt.
 
 # ---- texto de --help (help.<nombre de la opción>)
-help.about = `ls` para imágenes: muestra imágenes en el terminal con un protocolo de imagen (Sixel / Kitty / iTerm2), con caracteres de medio bloque o como arte ASCII.\nIndica varias imágenes (se admiten comodines y directorios) para obtener una lista de miniaturas con los nombres de archivo.
+help.about = `ls`, con imágenes.\nUn listador al estilo de `ls` que muestra miniaturas de imágenes, vídeos y PDF en el terminal, con gráficos Sixel / Kitty / iTerm2, caracteres de medio bloque o arte ASCII.\nIndica varios archivos, directorios o comodines para obtener una lista de miniaturas con los nombres de archivo.
 help.images = Archivos de imagen, directorios o comodines (p. ej. ./*). Por defecto, el directorio actual
 help.regexp = Filtra por nombre de archivo (sin la parte del directorio) con una expresión regular. Repítelo para aceptar cualquiera de varios patrones. Ejemplo: -e "\.png$" -e "(?i)^img_\d+" ((?i) ignora mayúsculas y minúsculas)
 help.recursive = Busca también en los subdirectorios (se omiten los directorios ocultos). El nombre del directorio padre se muestra antes del nombre del archivo
@@ -30,8 +30,8 @@ help.protocol = Protocolo de imagen para --mode image. auto lo detecta a partir 
 help.cell_size = Tamaño en píxeles de una celda de carácter (p. ej. 10x20). Ajústalo si las imágenes y el texto no se alinean con Sixel
 help.grid = Cuadrícula de una lista (COLSxROWS por página); las listas largas se dividen en páginas. Por defecto, tantas columnas como quepan en el ancho del terminal (2 filas); 3x2 si solo se indica --width
 help.verbose = Muestra información de la imagen bajo cada nombre. -v: tamaño en píxeles y tamaño del archivo; -vv: además formato, color, megapíxeles, relación de aspecto, fecha de modificación y EXIF (cámara y ajustes de disparo)
-help.long = Listado largo, como ls -l: una línea por archivo con tamaño, dimensiones, formato, fechas, cámara y ajustes de disparo (EXIF) y más. Se omiten las columnas sin nada que mostrar
-help.thumbs = Con -l, muestra además una miniatura de cada imagen a la izquierda de sus detalles (usa -s para cambiar el tamaño). Implica -l
+help.long = Listado largo, como ls -l: para cada archivo, tamaño, dimensiones, formato, fechas, cámara y ajustes de disparo (EXIF) y más, con una miniatura en el terminal. Si la salida se redirige, una línea simple por archivo. Se omiten las columnas sin nada que mostrar
+help.thumbs_off = Con -l, no muestra miniaturas: imprime solo la tabla de una línea por archivo (es también lo que se obtiene cuando la salida se redirige por una tubería)
 help.json = Imprime los archivos coincidentes como JSON (una matriz con un objeto por archivo: ruta, tamaño, dimensiones, formato, fechas, EXIF) y termina. Para scripts
 help.null = Imprime solo las rutas de los archivos coincidentes, separadas por caracteres NUL (para xargs -0), y termina
 help.lang = Idioma de los mensajes (p. ej. en, ja). Por defecto: se detecta a partir del entorno

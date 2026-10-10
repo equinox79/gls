@@ -403,6 +403,48 @@ fn json_and_null_do_not_combine_with_other_listings() {
 }
 
 #[test]
+fn long_listing_defaults_to_cards_on_a_terminal_and_a_table_when_piped() {
+    let dir = data_dir();
+    // このテストでは出力がパイプなので、-l は1ファイル1行の表になる（thumbnails は端末のときの既定）
+    let piped = gls(&["-l", dir.to_str().unwrap()]);
+    assert_eq!(stdout(&piped).lines().count(), 4, "{}", stdout(&piped));
+    // --thumbs-off も同じ表（端末でも表にする）
+    let off = gls(&["-l", "--thumbs-off", dir.to_str().unwrap()]);
+    assert_eq!(stdout(&off), stdout(&piped));
+    // 隠しオプションの --thumbs は、パイプでもカードにする（0.1.0 向けのスクリプトのため）
+    let cards = gls(&["-l", "--thumbs", "-s", "xs", dir.to_str().unwrap()]);
+    assert_eq!(
+        stdout(&cards).lines().count(),
+        12,
+        "xs のカードは3行 × 4ファイル"
+    );
+}
+
+#[test]
+fn thumbs_off_needs_long_and_conflicts_with_thumbs() {
+    let dir = data_dir();
+    assert!(!gls(&["--thumbs-off", dir.to_str().unwrap()])
+        .status
+        .success());
+    assert!(
+        !gls(&["-l", "--thumbs", "--thumbs-off", dir.to_str().unwrap()])
+            .status
+            .success()
+    );
+}
+
+#[test]
+fn help_lists_thumbs_off_and_hides_the_old_thumbs() {
+    let o = gls_lang(None, &["--lang", "en", "--help"]);
+    let help = stdout(&o);
+    assert!(help.contains("--thumbs-off"), "{help}");
+    assert!(
+        !help.contains("--thumbs\n") && !help.contains("--thumbs "),
+        "{help}"
+    );
+}
+
+#[test]
 fn missing_file_is_an_error() {
     let o = gls(&["no-such-file.png"]);
     assert!(!o.status.success());

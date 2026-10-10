@@ -2,7 +2,7 @@
 # `\n` ist ein Zeilenumbruch; {name} ist ein Platzhalter, der wie in en.txt vorkommen muss.
 
 # ---- --help-Texte (help.<Optionsname>)
-help.about = `ls` für Bilder: zeigt Bilder im Terminal über ein Bildprotokoll (Sixel / Kitty / iTerm2), mit Halbblock-Zeichen oder als ASCII-Art.\nMehrere Bilder (Platzhalter und Verzeichnisse sind möglich) ergeben eine Vorschauliste mit Dateinamen.
+help.about = `ls`, mit Bildern.\nEin Auflistungswerkzeug im Stil von `ls`, das im Terminal Vorschaubilder von Bildern, Videos und PDFs zeigt, mit Sixel-/Kitty-/iTerm2-Grafik, Halbblock-Zeichen oder ASCII-Art.\nMehrere Dateien, Verzeichnisse oder Platzhalter ergeben eine Vorschauliste mit Dateinamen.
 help.images = Bilddateien, Verzeichnisse oder Platzhalter (z. B. ./*). Standard: das aktuelle Verzeichnis
 help.regexp = Nach Dateiname (ohne Verzeichnisteil) mit einem regulären Ausdruck filtern. Mehrfach angeben, damit eines von mehreren Mustern passt. Beispiel: -e "\.png$" -e "(?i)^img_\d+" ((?i) ignoriert Groß-/Kleinschreibung)
 help.recursive = Auch Unterverzeichnisse durchsuchen (versteckte Verzeichnisse werden übersprungen). Der Name des übergeordneten Verzeichnisses steht vor dem Dateinamen
@@ -30,8 +30,8 @@ help.protocol = Bildprotokoll für --mode image. auto erkennt es anhand von Umge
 help.cell_size = Pixelgröße einer Zeichenzelle (z. B. 10x20). Anpassen, wenn Bilder und Text bei Sixel nicht übereinanderliegen
 help.grid = Raster einer Liste (COLSxROWS pro Seite); lange Listen werden auf Seiten verteilt. Standard: so viele Spalten, wie in die Terminalbreite passen (2 Zeilen); 3x2, wenn nur --width angegeben ist
 help.verbose = Bildinfos unter jedem Namen anzeigen. -v: Pixelgröße und Dateigröße; -vv: zusätzlich Format, Farbe, Megapixel, Seitenverhältnis, Änderungsdatum und EXIF (Kamera und Aufnahmeeinstellungen)
-help.long = Lange Ausgabe wie bei ls -l: eine Zeile pro Datei mit Größe, Abmessungen, Format, Datum, Kamera und Aufnahmeeinstellungen (EXIF) und mehr. Spalten ohne Inhalt entfallen
-help.thumbs = Zeigt zusätzlich zu -l eine Vorschau jedes Bildes links neben den Angaben (Größe mit -s ändern). Impliziert -l
+help.long = Lange Ausgabe wie bei ls -l: je Datei Größe, Abmessungen, Format, Datum, Kamera und Aufnahmeeinstellungen (EXIF) und mehr, im Terminal mit Vorschaubild. In einer Pipe: eine schlichte Zeile pro Datei. Spalten ohne Inhalt entfallen
+help.thumbs_off = Zeigt mit -l keine Vorschaubilder, sondern nur die Tabelle mit einer Zeile pro Datei (das gilt auch, wenn die Ausgabe in eine Pipe geleitet wird)
 help.json = Gibt die passenden Dateien als JSON aus (ein Array mit einem Objekt pro Datei: Pfad, Größe, Abmessungen, Format, Datum, EXIF) und beendet das Programm. Für Skripte
 help.null = Gibt nur die Pfade der passenden Dateien aus, getrennt durch NUL-Zeichen (für xargs -0), und beendet das Programm
 help.lang = Sprache der Meldungen (z. B. en, ja). Standard: aus der Umgebung erkannt
