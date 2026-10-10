@@ -390,13 +390,15 @@ gls is young (version 0.1). Here is what has been checked, and what has not.
 **Checked**
 - Windows 11 with Windows Terminal, in PowerShell and in WSL (Ubuntu): image display (Sixel), the pager, Ctrl+click on file names, the cache.
 - `-l`, `--json` and `-0` run on Windows and are covered by the automated tests.
+- The v0.1.1 prebuilt binaries for **Windows x64** and **Linux x64** were downloaded from the release, matched `SHA256SUMS`, and ran (`--version`, a thumbnail list, `-l`, `--json`, `-0`, the Japanese messages; the Linux one on Ubuntu 24.04 in WSL).
 - The continuous integration builds and runs the tests on Linux, macOS and Windows. The tests do not draw to a real terminal.
 
 **Not checked in a real terminal yet** (reports are very welcome, please [open an issue](https://github.com/equinox79/gls/issues))
 - The `-l` cards with a real image protocol: the placement was checked with a terminal-emulation script only
 - iTerm2, WezTerm, Kitty, Ghostty, GNOME Terminal, foot, mlterm, the VS Code terminal
 - macOS Terminal.app (it has no image protocol, so `half` is used) and the macOS Quick Look thumbnails
-- Video and HEIC thumbnails, and running the prebuilt binaries on every platform (the release is published and its download links work, but the packaged binaries have not been run on all of them)
+- The prebuilt binaries for **macOS** (Apple silicon and Intel) and **Linux ARM64**: they build and pass the tests in CI, but nobody has run the downloaded archives yet. macOS results are especially welcome: please [open an issue](https://github.com/equinox79/gls/issues/new) with your macOS version, the archive you used, the terminal, and what `./gls --version` and a folder of images showed
+- Video and HEIC thumbnails
 
 **Known limitations**
 - RAW photos (CR2, NEF, ARW and so on) are not supported.
