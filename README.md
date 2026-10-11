@@ -49,6 +49,7 @@ Tools such as [chafa](https://hpjansson.org/chafa/), [viu](https://github.com/at
 - [Rendering modes and fallback](#rendering-modes-and-fallback)
 - [Supported formats](#supported-formats)
 - [Status and known limitations](#status-and-known-limitations)
+- [Releases](#releases)
 - [Performance and cache](#performance-and-cache)
 - [Notes on environments](#notes-on-environments)
 - [Development](#development) · [Languages](#languages) · [License](#license)
@@ -490,6 +491,30 @@ gls is young (version 0.1). Here is what has been checked, and what has not.
 - A single image (`gls photo.jpg`) is not cached.
 - The translations other than English and Japanese are machine-translated.
 
+## Releases
+
+The three newest releases. Archives and checksums are on the [Releases page](https://github.com/equinox79/gls/releases).
+
+### v0.2.0 (2026-10-11)
+
+- **RAW photos.** gls shows the JPEG preview stored inside the file: ARW, DNG, CR2, CR3, NEF, ORF, PEF, RW2, RAF and more. `-l` and `--json` give the size, the camera and the shooting settings. No new dependencies. What was tried, and what was not, is in [Supported formats](#supported-formats) and [Status and known limitations](#status-and-known-limitations).
+- **`gls --version` shows the build**, for example `gls 0.2.0 (0906d44 2026-10-11)`: the commit hash and its date.
+- A landing page on GitHub Pages (English and Japanese): https://equinox79.github.io/gls/
+
+### v0.1.1 (2026-10-10)
+
+- **`-l` shows thumbnail cards by default.** `--thumbs-off` gives the one-line-per-file table (it is also the output when piped).
+- New tagline: "ls, with pictures."
+
+### v0.1.0 (2026-10-10)
+
+The first release, with binaries for Windows x64, Linux (x64, ARM64) and macOS (Apple silicon, Intel).
+
+- Thumbnails of images, SVG, video, PDF and HEIC/AVIF in a terminal (Sixel, Kitty, iTerm2, half blocks, ASCII art), with file name links that open the file in the default viewer (Ctrl+click).
+- `-l` long listing (size, pixels, format, dates, EXIF), `-v` / `-vv`, `--sort`, `-R`, `-e` and a pager.
+- `--json` and `-0` for scripts.
+- A render cache and a thumbnail cache for slow kinds (video, PDF, HEIC, SVG), with `--cache-info`, `--cache-max-mb` and `--cache-days`.
+- Messages in 10 languages.
 ## Performance and cache
 
 - A list decodes and renders several images in parallel. It starts showing as soon as the first row is ready and reads a few rows ahead.

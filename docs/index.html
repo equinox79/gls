@@ -136,6 +136,7 @@
     <nav class="links" aria-label="Site">
       <a class="hide-sm" href="#install"><span class="en">Install</span><span class="ja">インストール</span></a>
       <a class="hide-sm" href="#usage"><span class="en">Usage</span><span class="ja">使い方</span></a>
+      <a class="hide-sm" href="#releases"><span class="en">Releases</span><span class="ja">リリース</span></a>
       <a href="https://github.com/equinox79/gls">GitHub</a>
       <span class="lang" role="group" aria-label="Language">
         <button type="button" data-set-lang="en" aria-pressed="true">EN</button>
@@ -281,7 +282,7 @@ gls -0 -R -e '\.jpg$' | xargs -0 ls -l   # safe with spaces in file names</pre><
   <section id="status">
     <div class="wrap">
       <h2><span class="en">What has been checked</span><span class="ja">確認できていること</span></h2>
-      <p class="sub"><span class="en">gls is young (version 0.1). Here is what has, and has not, been tried on real machines.</span><span class="ja">gls はまだ若いツールです（バージョン 0.1）。実機で試したことと、まだのことです。</span></p>
+      <p class="sub"><span class="en">gls is young (version 0.2). Here is what has, and has not, been tried on real machines.</span><span class="ja">gls はまだ若いツールです（バージョン 0.2）。実機で試したことと、まだのことです。</span></p>
       <div class="two">
         <div class="block">
           <h3><span class="en">Tried</span><span class="ja">試したもの</span></h3>
@@ -303,6 +304,34 @@ gls -0 -R -e '\.jpg$' | xargs -0 ls -l   # safe with spaces in file names</pre><
         </div>
       </div>
       <p style="margin-top:16px;color:var(--muted)"><span class="en">Known limitations (RAW photos, color profiles, tmux and so on) are in the <a href="https://github.com/equinox79/gls#status-and-known-limitations">README</a>. Reports are welcome: please <a href="https://github.com/equinox79/gls/issues/new">open an issue</a>.</span><span class="ja">既知の制限（RAW 写真、色のプロファイル、tmux など）は <a href="https://github.com/equinox79/gls/blob/main/README_JA.md#現状と既知の制限">README</a> にあります。報告は歓迎です。<a href="https://github.com/equinox79/gls/issues/new">issue</a> を立ててください。</span></p>
+    </div>
+  </section>
+  <section id="releases">
+    <div class="wrap">
+      <h2><span class="en">Releases</span><span class="ja">リリース情報</span></h2>
+      <p class="sub"><span class="en">The three newest. Archives and checksums are on the <a href="https://github.com/equinox79/gls/releases">Releases page</a>.</span><span class="ja">最新の3つです。アーカイブとチェックサムは <a href="https://github.com/equinox79/gls/releases">Releases のページ</a>にあります。</span></p>
+      <div class="block">
+        <h3>v0.2.0 <span style="color:var(--muted);font-weight:400">· 2026-10-11</span></h3>
+        <ul class="plain">
+          <li><span class="en"><strong>RAW photos:</strong> the embedded JPEG preview of ARW, DNG, CR2, CR3, NEF, ORF, PEF, RW2, RAF and more, with size, camera and settings in <code>-l</code> and <code>--json</code></span><span class="ja"><strong>RAW 写真:</strong> ARW・DNG・CR2・CR3・NEF・ORF・PEF・RW2・RAF などの、埋め込みの JPEG プレビュー。<code>-l</code> と <code>--json</code> に、大きさ、カメラ、撮影設定</span></li>
+          <li><span class="en"><code>gls --version</code> shows the build (commit and date)</span><span class="ja"><code>gls --version</code> にビルド（コミットと日付）が出る</span></li>
+          <li><span class="en">This page</span><span class="ja">この紹介ページ</span></li>
+        </ul>
+      </div>
+      <div class="block" style="margin-top:14px">
+        <h3>v0.1.1 <span style="color:var(--muted);font-weight:400">· 2026-10-10</span></h3>
+        <ul class="plain">
+          <li><span class="en"><code>-l</code> shows thumbnail cards by default; <code>--thumbs-off</code> gives the plain table</span><span class="ja"><code>-l</code> は標準でサムネイルのカードを表示。<code>--thumbs-off</code> で表だけ</span></li>
+          <li><span class="en">New tagline: "ls, with pictures."</span><span class="ja">キャッチコピーを「ls, with pictures.」に</span></li>
+        </ul>
+      </div>
+      <div class="block" style="margin-top:14px">
+        <h3>v0.1.0 <span style="color:var(--muted);font-weight:400">· 2026-10-10</span></h3>
+        <ul class="plain">
+          <li><span class="en">First release, with binaries for Windows, Linux (x64, ARM64) and macOS (Apple silicon, Intel)</span><span class="ja">最初のリリース。Windows、Linux（x64、ARM64）、macOS（Apple シリコン、Intel）のバイナリ</span></li>
+          <li><span class="en">Thumbnails of images, SVG, video, PDF and HEIC/AVIF; <code>-l</code>, <code>-v</code>, <code>--json</code>, <code>-0</code>; caches; 10 languages</span><span class="ja">画像・SVG・動画・PDF・HEIC/AVIF のサムネイル、<code>-l</code>、<code>-v</code>、<code>--json</code>、<code>-0</code>、キャッシュ、10 言語</span></li>
+        </ul>
+      </div>
     </div>
   </section>
 </main>
