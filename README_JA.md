@@ -4,7 +4,8 @@
 
 [![CI](https://github.com/equinox79/gls/actions/workflows/ci.yml/badge.svg)](https://github.com/equinox79/gls/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Release](+
+[![Release](https://img.shields.io/github/v/release/equinox79/gls)](https://github.com/equinox79/gls/releases/latest)
+![対応 OS: Windows, macOS, Linux, WSL](https://img.shields.io/badge/%E5%AF%BE%E5%BF%9COS-Windows%20%C2%B7%20macOS%20%C2%B7%20Linux%20%C2%B7%20WSL-informational)
 
 
 **絵が見える `ls`。**
