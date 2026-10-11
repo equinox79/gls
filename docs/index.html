@@ -120,7 +120,10 @@
   ul.plain li { margin: 6px 0; }
   .note { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 10px; padding: 14px 16px; color: var(--muted); }
 
-  footer { margin-top: 56px; border-top: 1px solid var(--border); padding: 26px 0 40px; color: var(--muted); font-size: 14px; }
+  .platforms { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 18px 0 0; padding: 0; }
+.platforms li { border: 1px solid var(--border); border-radius: 999px; padding: 4px 14px; font-weight: 600; font-size: 14px; }
+.plat-note { margin: 10px auto 0; color: var(--muted); font-size: 14px; text-align: center; }
+footer { margin-top: 56px; border-top: 1px solid var(--border); padding: 26px 0 40px; color: var(--muted); font-size: 14px; }
   footer .wrap { display: flex; gap: 8px 22px; flex-wrap: wrap; justify-content: space-between; }
   @media (max-width: 560px) {
     .hero { padding-top: 36px; }
@@ -156,6 +159,8 @@
         <span class="en">An <code>ls</code>-style lister that shows thumbnails of images, videos and PDFs in your terminal. <code>Ctrl+click</code> a name to open the file.</span>
         <span class="ja">画像・動画・PDF のサムネイルを表示する、<code>ls</code> 風のファイル一覧ツール。名前を <code>Ctrl+クリック</code> でファイルを開けます。</span>
       </p>
+      <ul class="platforms" aria-label="Platforms"><li>Windows</li><li>macOS</li><li>Linux</li><li>WSL</li></ul>
+      <p class="plat-note"><span class="en">Prebuilt binaries for Windows (x64), macOS (Apple silicon, Intel) and Linux (x64, ARM64). WSL uses the Linux one.</span><span class="ja">ビルド済みのバイナリ: Windows（x64）、macOS（Apple シリコン、Intel）、Linux（x64、ARM64）。WSL では Linux 版を使います。</span></p>
       <div class="cta">
         <a class="btn primary" href="https://github.com/equinox79/gls/releases/latest"><span class="en">Download the latest release</span><span class="ja">最新版をダウンロード</span></a>
         <a class="btn" href="https://github.com/equinox79/gls"><span class="en">View on GitHub</span><span class="ja">GitHub で見る</span></a>

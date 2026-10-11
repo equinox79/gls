@@ -4,11 +4,14 @@
 
 [![CI](https://github.com/equinox79/gls/actions/workflows/ci.yml/badge.svg)](https://github.com/equinox79/gls/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Release](https://img.shields.io/github/v/release/equinox79/gls)](https://github.com/equinox79/gls/releases/latest)
+[![Release](+
+
 
 **絵が見える `ls`。**
 画像・動画・PDF のサムネイルを表示する、`ls` 風のファイル一覧ツール。名前を `Ctrl+クリック` でファイルを開けます。
 *`ls`, with pictures.*
+
+**Windows・macOS・Linux・WSL で動きます。** ビルド済みのバイナリは、Windows（x64）、macOS（Apple シリコン、Intel）、Linux（x64、ARM64）向けです。WSL では Linux 版を使います。1つのコマンドで最新版を入れられます（[インストール](#インストール)を参照）。
 
 ![gls のデモ動画: パブリックドメインの画像6枚のサムネイル一覧が1行ずつ現れ、続いて -vv の詳細表示、ハーフブロック、アスキーアートで表示する](docs/images/demo.gif)
 

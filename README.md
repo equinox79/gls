@@ -5,9 +5,12 @@
 [![CI](https://github.com/equinox79/gls/actions/workflows/ci.yml/badge.svg)](https://github.com/equinox79/gls/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/equinox79/gls)](https://github.com/equinox79/gls/releases/latest)
+![Platforms: Windows, macOS, Linux, WSL](https://img.shields.io/badge/platforms-Windows%20%C2%B7%20macOS%20%C2%B7%20Linux%20%C2%B7%20WSL-informational)
 
 **`ls`, with pictures.**
 An `ls`-style lister that shows thumbnails of images, videos and PDFs in your terminal. `Ctrl+click` a name to open the file.
+
+**Works on Windows, macOS, Linux and WSL.** Prebuilt binaries: Windows (x64), macOS (Apple silicon, Intel) and Linux (x64, ARM64); WSL uses the Linux one. One command installs the newest release: see [Install](#install).
 
 ![Animated demo of gls: a thumbnail list of six public-domain pictures appears row by row, then -vv details, half-block and ASCII art modes](docs/images/demo.gif)
 
