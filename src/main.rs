@@ -242,7 +242,7 @@ fn parse_grid(s: &str) -> Result<Grid, String> {
 #[derive(Parser, Debug)]
 #[command(
     name = "gls",
-    version,
+    version = env!("GLS_VERSION"),
     about = "画像をターミナルに表示する `ls`。画像プロトコル（Sixel / Kitty / iTerm2）・ハーフブロック・アスキーアートで描画します。\n複数の画像（ワイルドカード・ディレクトリ可）を指定すると、ファイル名つきのサムネイル一覧で表示します。"
 )]
 struct Args {

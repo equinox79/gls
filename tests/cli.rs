@@ -560,3 +560,16 @@ fn missing_file_is_an_error() {
     let o = gls(&["no-such-file.png"]);
     assert!(!o.status.success());
 }
+
+#[test]
+fn version_shows_the_package_version_and_build() {
+    let out = stdout(&gls(&["--version"]));
+    let line = out.trim();
+    let want = format!("gls {}", env!("CARGO_PKG_VERSION"));
+    assert!(line.starts_with(&want), "{line}");
+    // With git available the build id follows in parentheses: "(e54d775 2026-10-11)".
+    if line.len() > want.len() {
+        assert!(line[want.len()..].starts_with(" ("), "{line}");
+        assert!(line.ends_with(')'), "{line}");
+    }
+}
