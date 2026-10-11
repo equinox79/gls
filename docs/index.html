@@ -1,4 +1,4 @@
-<!doctype html>
+15617 <!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -239,26 +239,18 @@
       <div class="stack">
         <div class="block">
           <h3>macOS / Linux</h3>
-          <div class="code"><button class="copy" type="button" data-copy><span class="en">Copy</span><span class="ja">コピー</span></button><pre>VERSION=0.1.1
-TARGET=aarch64-apple-darwin
-# other targets: x86_64-apple-darwin, x86_64-unknown-linux-gnu, aarch64-unknown-linux-gnu
-curl -L -O "https://github.com/equinox79/gls/releases/download/v$VERSION/gls-v$VERSION-$TARGET.tar.gz"
-tar xzf "gls-v$VERSION-$TARGET.tar.gz"
-mkdir -p ~/.local/bin &amp;&amp; cp "gls-v$VERSION-$TARGET/gls" ~/.local/bin/</pre></div>
-          <p><span class="en">Then put <code>~/.local/bin</code> on your <code>PATH</code>. The steps for bash and zsh are in the README.</span><span class="ja">そのあと、<code>~/.local/bin</code> を <code>PATH</code> に通します。bash と zsh の手順は README にあります。</span></p>
+          <div class="code"><button class="copy" type="button" data-copy><span class="en">Copy</span><span class="ja">コピー</span></button><pre>curl -fsSL https://raw.githubusercontent.com/equinox79/gls/main/install.sh | sh</pre></div>
+          <p><span class="en">Installs the newest release to <code>~/.local/bin</code>, after checking its checksum. Then put that folder on your <code>PATH</code>: the steps for bash and zsh are in the README, which also has the manual download and notes for Linux (CPU type, SSH).</span><span class="ja">最新のリリースを、チェックサムを確かめて <code>~/.local/bin</code> に入れます。そのあと、そのフォルダを <code>PATH</code> に通します。bash と zsh の手順は README にあります。手で入れる方法と、Linux での注意（CPU の種類、SSH）も、README にあります。</span></p>
         </div>
         <div class="block">
           <h3>Windows (PowerShell)</h3>
-          <div class="code"><button class="copy" type="button" data-copy><span class="en">Copy</span><span class="ja">コピー</span></button><pre>$v = "0.1.1"
-$t = "x86_64-pc-windows-msvc"
-Invoke-WebRequest "https://github.com/equinox79/gls/releases/download/v$v/gls-v$v-$t.zip" -OutFile gls.zip
-Expand-Archive gls.zip -DestinationPath .</pre></div>
-          <p><span class="en">Then copy <code>gls.exe</code> to a folder on your <code>PATH</code>. The README has a PowerShell recipe for that.</span><span class="ja">そのあと、<code>gls.exe</code> を <code>PATH</code> の通ったフォルダにコピーします。README に、PowerShell での手順があります。</span></p>
+          <div class="code"><button class="copy" type="button" data-copy><span class="en">Copy</span><span class="ja">コピー</span></button><pre>irm https://raw.githubusercontent.com/equinox79/gls/main/install.ps1 | iex</pre></div>
+          <p><span class="en">Installs the newest release to <code>%LOCALAPPDATA%\Programs\gls</code>, after checking its checksum, and adds that folder to your user <code>PATH</code>. Open a new terminal afterwards.</span><span class="ja">最新のリリースを、チェックサムを確かめて <code>%LOCALAPPDATA%\Programs\gls</code> に入れ、そのフォルダをユーザーの <code>PATH</code> に追加します。そのあと、新しい端末を開いてください。</span></p>
         </div>
         <div class="block">
           <h3><span class="en">With Rust</span><span class="ja">Rust を使う場合</span></h3>
           <div class="code"><button class="copy" type="button" data-copy><span class="en">Copy</span><span class="ja">コピー</span></button><pre>cargo install --git https://github.com/equinox79/gls</pre></div>
-          <p><span class="en">The version in these commands is an example: the newest one is on the <a href="https://github.com/equinox79/gls/releases/latest">Releases page</a>, with a checksum file.</span><span class="ja">コマンドのバージョンは例です。最新のバージョンとチェックサムは、<a href="https://github.com/equinox79/gls/releases/latest">Releases のページ</a>にあります。</span> <span class="en">Check the install with <code>gls --version</code>: it shows the version and the build, for example <code>gls 0.2.0 (cbc9ef9 2026-10-11)</code>.</span><span class="ja"><code>gls --version</code> で、バージョンとビルド（例: <code>gls 0.2.0 (cbc9ef9 2026-10-11)</code>）を確かめられます。</span></p>
+          <p><span class="en">The scripts are short: read <a href="https://github.com/equinox79/gls/blob/main/install.sh">install.sh</a> and <a href="https://github.com/equinox79/gls/blob/main/install.ps1">install.ps1</a> first if you like. To download by hand, see the <a href="https://github.com/equinox79/gls/releases/latest">Releases page</a>, which has a checksum file.</span><span class="ja">スクリプトは短いので、気になる方は先に <a href="https://github.com/equinox79/gls/blob/main/install.sh">install.sh</a> と <a href="https://github.com/equinox79/gls/blob/main/install.ps1">install.ps1</a> を読んでください。手でダウンロードする場合は、チェックサムのある <a href="https://github.com/equinox79/gls/releases/latest">Releases のページ</a>をどうぞ。</span> <span class="en">Check the install with <code>gls --version</code>: it shows the version and the build, for example <code>gls 0.2.0 (cbc9ef9 2026-10-11)</code>.</span><span class="ja"><code>gls --version</code> で、バージョンとビルド（例: <code>gls 0.2.0 (cbc9ef9 2026-10-11)</code>）を確かめられます。</span></p>
         </div>
       </div>
       <p class="note" style="margin-top:18px"><span class="en">Video, PDF and HEIC thumbnails may need a few extra tools on some systems (for example <code>ffmpeg</code> on Linux). The <a href="https://github.com/equinox79/gls#optional-tools-for-video-pdf-and-heic">README</a> lists what each OS needs, with install commands. The macOS binaries are not signed.</span><span class="ja">動画・PDF・HEIC のサムネイルには、環境によって追加のツール（たとえば Linux の <code>ffmpeg</code>）が要ります。必要なものとインストールのコマンドは、OS ごとに <a href="https://github.com/equinox79/gls/blob/main/README_JA.md">README</a> にあります。macOS のバイナリは署名していません。</span></p>

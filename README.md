@@ -58,20 +58,37 @@ Tools such as [chafa](https://hpjansson.org/chafa/), [viu](https://github.com/at
 
 ### Option 1: download a binary (no Rust needed)
 
+**The quickest way: the install script.** It looks up the newest release, picks the file for your OS and CPU, checks the checksum, and puts gls in place, so these commands do not change when a new version comes out. Read the script first if you like: [install.sh](install.sh), [install.ps1](install.ps1).
+
+Linux and macOS (installs to `~/.local/bin`):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/equinox79/gls/main/install.sh | sh
+```
+
+Windows (PowerShell; installs to `%LOCALAPPDATA%\Programs\gls` and adds that folder to your user `PATH`):
+
+```powershell
+irm https://raw.githubusercontent.com/equinox79/gls/main/install.ps1 | iex
+```
+
+To choose a version or a folder, set `GLS_VERSION` (for example `0.2.0`) or `GLS_INSTALL_DIR` first, for example `GLS_VERSION=0.2.0 sh install.sh`. On Windows, `GLS_NO_MODIFY_PATH=1` leaves your `PATH` alone. On Linux, check the notes under "Notes for Linux" below.
+
+Or do it by hand:
 Download the archive for your OS from the [Releases page](https://github.com/equinox79/gls/releases), unpack it, and put `gls` (`gls.exe` on Windows) in a folder on your `PATH`.
 
-| OS | File (for version `v0.1.1`) |
+| OS | File (for version `v0.2.0`) |
 | --- | --- |
-| Windows (x64) | `gls-v0.1.1-x86_64-pc-windows-msvc.zip` |
-| macOS (Apple silicon) | `gls-v0.1.1-aarch64-apple-darwin.tar.gz` |
-| macOS (Intel) | `gls-v0.1.1-x86_64-apple-darwin.tar.gz` |
-| Linux / WSL (x64) | `gls-v0.1.1-x86_64-unknown-linux-gnu.tar.gz` |
-| Linux (ARM64) | `gls-v0.1.1-aarch64-unknown-linux-gnu.tar.gz` |
+| Windows (x64) | `gls-v0.2.0-x86_64-pc-windows-msvc.zip` |
+| macOS (Apple silicon) | `gls-v0.2.0-aarch64-apple-darwin.tar.gz` |
+| macOS (Intel) | `gls-v0.2.0-x86_64-apple-darwin.tar.gz` |
+| Linux / WSL (x64) | `gls-v0.2.0-x86_64-unknown-linux-gnu.tar.gz` |
+| Linux (ARM64) | `gls-v0.2.0-aarch64-unknown-linux-gnu.tar.gz` |
 
 Copy and paste, for example on Linux (x64). Change `VERSION` and the target name for other platforms:
 
 ```bash
-VERSION=0.1.1
+VERSION=0.2.0
 TARGET=x86_64-unknown-linux-gnu
 curl -L -o gls.tar.gz "https://github.com/equinox79/gls/releases/download/v$VERSION/gls-v$VERSION-$TARGET.tar.gz"
 tar xzf gls.tar.gz
@@ -81,7 +98,7 @@ sudo install "gls-v$VERSION-$TARGET/gls" /usr/local/bin/
 On Windows (PowerShell):
 
 ```powershell
-$v = "0.1.1"
+$v = "0.2.0"
 $t = "x86_64-pc-windows-msvc"
 Invoke-WebRequest "https://github.com/equinox79/gls/releases/download/v$v/gls-v$v-$t.zip" -OutFile gls.zip
 Expand-Archive gls.zip -DestinationPath .
@@ -90,6 +107,12 @@ Expand-Archive gls.zip -DestinationPath .
 
 `SHA256SUMS` on the same page lists the checksums. The macOS binaries are not signed. Downloaded with the `curl` command above, the Apple silicon one ran without a prompt; a file downloaded in a browser may be blocked by macOS: then run `xattr -d com.apple.quarantine gls` once. The Linux builds need glibc 2.35 or newer (Ubuntu 22.04 and later).
 
+**Notes for Linux**
+
+- **Pick the file for your CPU.** Run `uname -m`: `x86_64` is the x64 file, `aarch64` (a Raspberry Pi 4/5 with a 64-bit OS, an ARM server) is the ARM64 file. Setting `TARGET` wrong gives "cannot execute binary file".
+- **glibc 2.35 or newer is needed** (Ubuntu 22.04, Debian 12, Fedora and later). On Alpine (musl) or an older distribution the binary will not start: build from source with `cargo install` instead (Option 2).
+- **Over SSH you may see characters instead of pictures.** gls finds your terminal from environment variables that SSH does not pass on, so it falls back to half blocks. Name the protocol your own terminal supports, for example `gls --protocol sixel` (Windows Terminal), `--protocol kitty` (Ghostty, Kitty) or `--protocol iterm2` (iTerm2, WezTerm). Inside tmux or screen images usually do not get through. This has not been tried over SSH by the author.
+- **Video, PDF and HEIC thumbnails need extra tools** such as `ffmpeg` (see [Optional: tools for video, PDF and HEIC](#optional-tools-for-video-pdf-and-heic)).
 **Put `gls` on your `PATH` (macOS and Linux, bash or zsh)**
 
 The `sudo install` command above puts `gls` in `/usr/local/bin`, which is already on your `PATH`. Without `sudo`, use a folder in your home directory such as `~/.local/bin`:

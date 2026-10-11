@@ -59,20 +59,37 @@ gls -l               # 1行ごとにサムネイルが付いた、詳細な一�
 
 ### 方法1: ビルド済みのバイナリをダウンロードする（Rust は不要）
 
+**いちばん手軽なのは、インストールスクリプトです。** 最新のリリースを調べ、OS と CPU に合うファイルを選び、チェックサムを確かめて、`gls` を置きます。新しいバージョンが出ても、コマンドは変わりません。先にスクリプトを読んで確かめたい場合は、[install.sh](install.sh)、[install.ps1](install.ps1) をどうぞ。
+
+Linux と macOS（`~/.local/bin` に入ります）:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/equinox79/gls/main/install.sh | sh
+```
+
+Windows（PowerShell。`%LOCALAPPDATA%\Programs\gls` に入り、そのフォルダがユーザーの `PATH` に追加されます）:
+
+```powershell
+irm https://raw.githubusercontent.com/equinox79/gls/main/install.ps1 | iex
+```
+
+バージョンやフォルダを選ぶには、先に `GLS_VERSION`（例: `0.2.0`）や `GLS_INSTALL_DIR` を設定します。たとえば `GLS_VERSION=0.2.0 sh install.sh` です。Windows では、`GLS_NO_MODIFY_PATH=1` で `PATH` を変えません。Linux では、下の「Linux での注意」も読んでください。
+
+手で入れる場合:
 [Releases のページ](https://github.com/equinox79/gls/releases)から、お使いの OS 用のアーカイブをダウンロードして展開し、`gls`（Windows は `gls.exe`）を `PATH` の通ったフォルダに置きます。
 
-| OS | ファイル（バージョン `v0.1.1` の場合） |
+| OS | ファイル（バージョン `v0.2.0` の場合） |
 | --- | --- |
-| Windows（x64） | `gls-v0.1.1-x86_64-pc-windows-msvc.zip` |
-| macOS（Apple シリコン） | `gls-v0.1.1-aarch64-apple-darwin.tar.gz` |
-| macOS（Intel） | `gls-v0.1.1-x86_64-apple-darwin.tar.gz` |
-| Linux / WSL（x64） | `gls-v0.1.1-x86_64-unknown-linux-gnu.tar.gz` |
-| Linux（ARM64） | `gls-v0.1.1-aarch64-unknown-linux-gnu.tar.gz` |
+| Windows（x64） | `gls-v0.2.0-x86_64-pc-windows-msvc.zip` |
+| macOS（Apple シリコン） | `gls-v0.2.0-aarch64-apple-darwin.tar.gz` |
+| macOS（Intel） | `gls-v0.2.0-x86_64-apple-darwin.tar.gz` |
+| Linux / WSL（x64） | `gls-v0.2.0-x86_64-unknown-linux-gnu.tar.gz` |
+| Linux（ARM64） | `gls-v0.2.0-aarch64-unknown-linux-gnu.tar.gz` |
 
 コピーして貼り付けられる例です（Linux の x64）。ほかの環境では、`VERSION` とターゲット名を変えてください。
 
 ```bash
-VERSION=0.1.1
+VERSION=0.2.0
 TARGET=x86_64-unknown-linux-gnu
 curl -L -o gls.tar.gz "https://github.com/equinox79/gls/releases/download/v$VERSION/gls-v$VERSION-$TARGET.tar.gz"
 tar xzf gls.tar.gz
@@ -82,7 +99,7 @@ sudo install "gls-v$VERSION-$TARGET/gls" /usr/local/bin/
 Windows（PowerShell）の場合:
 
 ```powershell
-$v = "0.1.1"
+$v = "0.2.0"
 $t = "x86_64-pc-windows-msvc"
 Invoke-WebRequest "https://github.com/equinox79/gls/releases/download/v$v/gls-v$v-$t.zip" -OutFile gls.zip
 Expand-Archive gls.zip -DestinationPath .
@@ -91,6 +108,12 @@ Expand-Archive gls.zip -DestinationPath .
 
 同じページの `SHA256SUMS` に、チェックサムがあります。macOS のバイナリは署名していません。上の `curl` のコマンドでダウンロードした Apple シリコン版は、確認なしで動きました。ブラウザでダウンロードしたファイルは、macOS に止められることがあります。そのときは、`xattr -d com.apple.quarantine gls` を一度実行してください。Linux 版には glibc 2.35 以上（Ubuntu 22.04 以降）が必要です。
 
+**Linux での注意**
+
+- **CPU に合ったファイルを選んでください。** `uname -m` を実行して、`x86_64` なら x64 のファイル、`aarch64`（64 ビット OS の Raspberry Pi 4/5、ARM のサーバー）なら ARM64 のファイルです。`TARGET` を間違えると、「cannot execute binary file」と出ます。
+- **glibc 2.35 以上が必要です**（Ubuntu 22.04、Debian 12、Fedora 以降）。Alpine（musl）や古いディストリビューションでは、バイナリが起動しません。その場合は、`cargo install` でソースからビルドしてください（方法 2）。
+- **SSH 越しだと、画像ではなく文字で表示されることがあります。** gls は、環境変数から端末を判定しますが、SSH はそれらを渡さないので、ハーフブロックになります。手元の端末が対応するプロトコルを指定してください。たとえば `gls --protocol sixel`（Windows Terminal）、`--protocol kitty`（Ghostty、Kitty）、`--protocol iterm2`（iTerm2、WezTerm）です。tmux や screen の中では、たいてい画像が届きません。作者は、SSH 越しでは試していません。
+- **動画・PDF・HEIC のサムネイルには、`ffmpeg` などの追加のツールが要ります**（[必要なら: 動画・PDF・HEIC 用のツール](#必要なら-動画pdfheic-用のツール)を参照）。
 **`gls` に `PATH` を通す（macOS・Linux、bash・zsh）**
 
 上の `sudo install` のコマンドは、`gls` を `/usr/local/bin` に置きます。ここは、すでに `PATH` に入っています。`sudo` を使わないときは、ホームの下の `~/.local/bin` などに置きます。
