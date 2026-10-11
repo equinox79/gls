@@ -122,6 +122,8 @@ echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 gls --version
 ```
 
+バージョンと、ビルドに使ったコミットが出ます（例: `gls 0.1.1 (cbc9ef9 2026-10-11)`）。
+
 ほかのものが出たり、「command not found」と出たりしたら、シェルが見つけている `gls` を調べます。
 
 ```bash
@@ -405,6 +407,7 @@ gls -0 -R -e '\.png$' --sort date -n 20 | xargs -0 cp -t backup/
 | `--no-links` | ファイル名にハイパーリンクを付けない |
 | `--no-pager` | 画面に収まらなくても止まらない |
 | `--lang <コード>` | メッセージの言語（`en`、`ja`、`zh-cn`、`zh-tw`、`ko`、`es`、`fr`、`de`、`pt-br`、`ru`）。省略時は環境から判定。[言語](#言語)を参照 |
+| `-V`, `--version` | バージョンとビルドを表示（例: `gls 0.1.1 (cbc9ef9 2026-10-11)`。コミットのハッシュとその日付）。ハッシュの後ろの `-dirty` は、コミットしていない変更を含んでビルドしたことを表します。git がない環境（ソースのアーカイブからの `cargo install` など）では、バージョンだけが出ます。不具合を報告するときは、これも書いてください |
 
 ### キャッシュ
 
@@ -533,6 +536,7 @@ GLS_RAW_SAMPLES=tests/local cargo test real_raw_files -- --ignored --nocapture
 | `src/gfx.rs` | Sixel / Kitty / iTerm2 の出力と端末の判定 |
 | `src/ext.rs` | SVG・動画・PDF・HEIC の取得（OS のサムネイル、外部ツール） |
 | `src/raw.rs` | RAW 写真: 埋め込みの JPEG のプレビュー（TIFF 系、Canon の CR3、Fujifilm の RAF）を探し、カメラと撮影データを読む |
+| `build.rs` | `gls --version` にコミットのハッシュと日付を入れる |
 | `src/info.rs` | `-v` / `-vv` / `-l` の画像情報 |
 | `src/json.rs` | `--json` の出力 |
 | `src/orient.rs`, `src/thumb.rs` | EXIF の向き、EXIF サムネイル |

@@ -121,6 +121,8 @@ Open a new terminal (or run `source ~/.zshrc` / `source ~/.bashrc`) and check:
 gls --version
 ```
 
+It prints the version and the build (the commit it was built from), for example `gls 0.1.1 (cbc9ef9 2026-10-11)`.
+
 If it prints something else, or "command not found", look at which `gls` your shell finds:
 
 ```bash
@@ -404,6 +406,7 @@ Warnings and errors go to standard error, so they never get mixed into this outp
 | `--no-links` | Do not add hyperlinks to file names |
 | `--no-pager` | Do not pause even when the output does not fit the screen |
 | `--lang <CODE>` | Language of messages (`en`, `ja`, `zh-cn`, `zh-tw`, `ko`, `es`, `fr`, `de`, `pt-br`, `ru`). Default: detected from the environment, see [Languages](#languages) |
+| `-V`, `--version` | Show the version and the build, for example `gls 0.1.1 (cbc9ef9 2026-10-11)`: the commit hash and its date. `-dirty` after the hash means it was built from uncommitted changes. Without git (for example `cargo install` from a source archive) only the version is shown. Please include it when you report a problem |
 
 ### Cache
 
@@ -532,6 +535,7 @@ Source layout:
 | `src/gfx.rs` | Sixel / Kitty / iTerm2 output and terminal detection |
 | `src/ext.rs` | SVG, video, PDF and HEIC (OS thumbnails, external tools) |
 | `src/raw.rs` | RAW photos: finds the embedded JPEG preview (TIFF-based files, Canon CR3, Fujifilm RAF) and reads the camera and shooting data |
+| `build.rs` | Puts the commit hash and date into `gls --version` |
 | `src/info.rs` | Image info for `-v` / `-vv` / `-l` |
 | `src/json.rs` | `--json` output |
 | `src/orient.rs`, `src/thumb.rs` | EXIF orientation and EXIF thumbnails |
