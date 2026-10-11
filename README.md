@@ -72,23 +72,23 @@ Windows (PowerShell; installs to `%LOCALAPPDATA%\Programs\gls` and adds that fol
 irm https://raw.githubusercontent.com/equinox79/gls/main/install.ps1 | iex
 ```
 
-To choose a version or a folder, set `GLS_VERSION` (for example `0.2.0`) or `GLS_INSTALL_DIR` first, for example `GLS_VERSION=0.2.0 sh install.sh`. On Windows, `GLS_NO_MODIFY_PATH=1` leaves your `PATH` alone. On Linux, check the notes under "Notes for Linux" below.
+To choose a version or a folder, set `GLS_VERSION` (for example `0.2.0`) or `GLS_INSTALL_DIR` first, for example `GLS_VERSION=0.2.1 sh install.sh`. On Windows, `GLS_NO_MODIFY_PATH=1` leaves your `PATH` alone. On Linux, check the notes under "Notes for Linux" below.
 
 Or do it by hand:
 Download the archive for your OS from the [Releases page](https://github.com/equinox79/gls/releases), unpack it, and put `gls` (`gls.exe` on Windows) in a folder on your `PATH`.
 
-| OS | File (for version `v0.2.0`) |
+| OS | File (for version `v0.2.1`) |
 | --- | --- |
-| Windows (x64) | `gls-v0.2.0-x86_64-pc-windows-msvc.zip` |
-| macOS (Apple silicon) | `gls-v0.2.0-aarch64-apple-darwin.tar.gz` |
-| macOS (Intel) | `gls-v0.2.0-x86_64-apple-darwin.tar.gz` |
-| Linux / WSL (x64) | `gls-v0.2.0-x86_64-unknown-linux-gnu.tar.gz` |
-| Linux (ARM64) | `gls-v0.2.0-aarch64-unknown-linux-gnu.tar.gz` |
+| Windows (x64) | `gls-v0.2.1-x86_64-pc-windows-msvc.zip` |
+| macOS (Apple silicon) | `gls-v0.2.1-aarch64-apple-darwin.tar.gz` |
+| macOS (Intel) | `gls-v0.2.1-x86_64-apple-darwin.tar.gz` |
+| Linux / WSL (x64) | `gls-v0.2.1-x86_64-unknown-linux-gnu.tar.gz` |
+| Linux (ARM64) | `gls-v0.2.1-aarch64-unknown-linux-gnu.tar.gz` |
 
 Copy and paste, for example on Linux (x64). Change `VERSION` and the target name for other platforms:
 
 ```bash
-VERSION=0.2.0
+VERSION=0.2.1
 TARGET=x86_64-unknown-linux-gnu
 curl -L -o gls.tar.gz "https://github.com/equinox79/gls/releases/download/v$VERSION/gls-v$VERSION-$TARGET.tar.gz"
 tar xzf gls.tar.gz
@@ -98,7 +98,7 @@ sudo install "gls-v$VERSION-$TARGET/gls" /usr/local/bin/
 On Windows (PowerShell):
 
 ```powershell
-$v = "0.2.0"
+$v = "0.2.1"
 $t = "x86_64-pc-windows-msvc"
 Invoke-WebRequest "https://github.com/equinox79/gls/releases/download/v$v/gls-v$v-$t.zip" -OutFile gls.zip
 Expand-Archive gls.zip -DestinationPath .
@@ -518,6 +518,12 @@ gls is young (version 0.1). Here is what has been checked, and what has not.
 
 The three newest releases. Archives and checksums are on the [Releases page](https://github.com/equinox79/gls/releases).
 
+### v0.2.1 (2026-10-12)
+
+- **Install scripts.** One command installs the newest release, with a checksum check: `install.sh` (Linux, macOS) and `install.ps1` (Windows). See [Install](#install).
+- Notes for Linux in the README: the CPU type, glibc 2.35, SSH.
+- The program itself is the same as v0.2.0.
+
 ### v0.2.0 (2026-10-11)
 
 - **RAW photos.** gls shows the JPEG preview stored inside the file: ARW, DNG, CR2, CR3, NEF, ORF, PEF, RW2, RAF and more. `-l` and `--json` give the size, the camera and the shooting settings. No new dependencies. What was tried, and what was not, is in [Supported formats](#supported-formats) and [Status and known limitations](#status-and-known-limitations).
@@ -529,15 +535,6 @@ The three newest releases. Archives and checksums are on the [Releases page](htt
 - **`-l` shows thumbnail cards by default.** `--thumbs-off` gives the one-line-per-file table (it is also the output when piped).
 - New tagline: "ls, with pictures."
 
-### v0.1.0 (2026-10-10)
-
-The first release, with binaries for Windows x64, Linux (x64, ARM64) and macOS (Apple silicon, Intel).
-
-- Thumbnails of images, SVG, video, PDF and HEIC/AVIF in a terminal (Sixel, Kitty, iTerm2, half blocks, ASCII art), with file name links that open the file in the default viewer (Ctrl+click).
-- `-l` long listing (size, pixels, format, dates, EXIF), `-v` / `-vv`, `--sort`, `-R`, `-e` and a pager.
-- `--json` and `-0` for scripts.
-- A render cache and a thumbnail cache for slow kinds (video, PDF, HEIC, SVG), with `--cache-info`, `--cache-max-mb` and `--cache-days`.
-- Messages in 10 languages.
 ## Performance and cache
 
 - A list decodes and renders several images in parallel. It starts showing as soon as the first row is ready and reads a few rows ahead.

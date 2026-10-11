@@ -73,23 +73,23 @@ Windows（PowerShell。`%LOCALAPPDATA%\Programs\gls` に入り、そのフォル
 irm https://raw.githubusercontent.com/equinox79/gls/main/install.ps1 | iex
 ```
 
-バージョンやフォルダを選ぶには、先に `GLS_VERSION`（例: `0.2.0`）や `GLS_INSTALL_DIR` を設定します。たとえば `GLS_VERSION=0.2.0 sh install.sh` です。Windows では、`GLS_NO_MODIFY_PATH=1` で `PATH` を変えません。Linux では、下の「Linux での注意」も読んでください。
+バージョンやフォルダを選ぶには、先に `GLS_VERSION`（例: `0.2.0`）や `GLS_INSTALL_DIR` を設定します。たとえば `GLS_VERSION=0.2.1 sh install.sh` です。Windows では、`GLS_NO_MODIFY_PATH=1` で `PATH` を変えません。Linux では、下の「Linux での注意」も読んでください。
 
 手で入れる場合:
 [Releases のページ](https://github.com/equinox79/gls/releases)から、お使いの OS 用のアーカイブをダウンロードして展開し、`gls`（Windows は `gls.exe`）を `PATH` の通ったフォルダに置きます。
 
-| OS | ファイル（バージョン `v0.2.0` の場合） |
+| OS | ファイル（バージョン `v0.2.1` の場合） |
 | --- | --- |
-| Windows（x64） | `gls-v0.2.0-x86_64-pc-windows-msvc.zip` |
-| macOS（Apple シリコン） | `gls-v0.2.0-aarch64-apple-darwin.tar.gz` |
-| macOS（Intel） | `gls-v0.2.0-x86_64-apple-darwin.tar.gz` |
-| Linux / WSL（x64） | `gls-v0.2.0-x86_64-unknown-linux-gnu.tar.gz` |
-| Linux（ARM64） | `gls-v0.2.0-aarch64-unknown-linux-gnu.tar.gz` |
+| Windows（x64） | `gls-v0.2.1-x86_64-pc-windows-msvc.zip` |
+| macOS（Apple シリコン） | `gls-v0.2.1-aarch64-apple-darwin.tar.gz` |
+| macOS（Intel） | `gls-v0.2.1-x86_64-apple-darwin.tar.gz` |
+| Linux / WSL（x64） | `gls-v0.2.1-x86_64-unknown-linux-gnu.tar.gz` |
+| Linux（ARM64） | `gls-v0.2.1-aarch64-unknown-linux-gnu.tar.gz` |
 
 コピーして貼り付けられる例です（Linux の x64）。ほかの環境では、`VERSION` とターゲット名を変えてください。
 
 ```bash
-VERSION=0.2.0
+VERSION=0.2.1
 TARGET=x86_64-unknown-linux-gnu
 curl -L -o gls.tar.gz "https://github.com/equinox79/gls/releases/download/v$VERSION/gls-v$VERSION-$TARGET.tar.gz"
 tar xzf gls.tar.gz
@@ -99,7 +99,7 @@ sudo install "gls-v$VERSION-$TARGET/gls" /usr/local/bin/
 Windows（PowerShell）の場合:
 
 ```powershell
-$v = "0.2.0"
+$v = "0.2.1"
 $t = "x86_64-pc-windows-msvc"
 Invoke-WebRequest "https://github.com/equinox79/gls/releases/download/v$v/gls-v$v-$t.zip" -OutFile gls.zip
 Expand-Archive gls.zip -DestinationPath .
@@ -519,6 +519,12 @@ gls はまだ若いツール（バージョン 0.1）です。確認できてい
 
 最新の3つのリリースです。アーカイブとチェックサムは [Releases のページ](https://github.com/equinox79/gls/releases)にあります。
 
+### v0.2.1（2026-10-12）
+
+- **インストールスクリプト。** 1つのコマンドで、最新のリリースを、チェックサムを確かめて入れます。`install.sh`（Linux、macOS）と `install.ps1`（Windows）です。[インストール](#インストール)を参照。
+- README に、Linux での注意（CPU の種類、glibc 2.35、SSH）を足しました。
+- プログラム自体は、v0.2.0 と同じです。
+
 ### v0.2.0（2026-10-11）
 
 - **RAW 写真に対応。** ファイルの中に入っている JPEG のプレビューを表示します。ARW・DNG・CR2・CR3・NEF・ORF・PEF・RW2・RAF などです。`-l` と `--json` には、大きさ、カメラ、撮影設定が出ます。新しい依存はありません。試したものと試していないものは、[対応形式](#対応形式)と[現状と既知の制限](#現状と既知の制限)にあります。
@@ -530,15 +536,6 @@ gls はまだ若いツール（バージョン 0.1）です。確認できてい
 - **`-l` は、標準でサムネイルのカードを表示します。** `--thumbs-off` で、1ファイル1行の表になります（パイプのときも、この表です）。
 - キャッチコピーを「ls, with pictures.」（絵が見える ls。）にしました。
 
-### v0.1.0（2026-10-10）
-
-最初のリリースです。バイナリは、Windows x64、Linux（x64、ARM64）、macOS（Apple シリコン、Intel）向けです。
-
-- 画像、SVG、動画、PDF、HEIC/AVIF のサムネイルを、端末に表示します（Sixel、Kitty、iTerm2、ハーフブロック、アスキーアート）。ファイル名のリンクを Ctrl+クリックすると、既定のビューアで開きます。
-- `-l` の詳細表示（サイズ、画素数、形式、日時、EXIF）、`-v` / `-vv`、`--sort`、`-R`、`-e`、ページャ。
-- スクリプト向けの `--json` と `-0`。
-- 描画のキャッシュと、時間のかかる種類（動画・PDF・HEIC・SVG）のサムネイルのキャッシュ。`--cache-info`、`--cache-max-mb`、`--cache-days` もあります。
-- 10 言語のメッセージ。
 ## 速さとキャッシュ
 
 - 一覧は複数枚を並列にデコード・描画します。最初の1行ができたらすぐ表示を始め、数行先まで先読みします。
