@@ -81,6 +81,9 @@ thumb.failed = 無法產生縮圖
 tool.video = 產生影片縮圖需要 ffmpeg（請安裝並加入 PATH）
 tool.pdf = 產生 PDF 縮圖需要 mutool（MuPDF）、pdftoppm（poppler）或 ImageMagick
 tool.heif = 產生 HEIC/AVIF 縮圖需要 ImageMagick（magick）或 ffmpeg
+raw.not_tiff = 不是以 TIFF 為基礎的 RAW 檔案
+raw.no_preview = 此 RAW 檔案沒有內嵌的 JPEG 預覽圖
+raw.bad_preview = 無法解碼內嵌的預覽圖
 
 # ---- 詳細清單 (-l) 的欄位標題
 long.size = 大小

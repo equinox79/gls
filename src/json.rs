@@ -39,6 +39,7 @@ fn kind_name(path: &Path) -> &'static str {
         Some(Kind::Video) => "video",
         Some(Kind::Pdf) => "pdf",
         Some(Kind::Heif) => "heif",
+        Some(Kind::Raw) => "raw",
     }
 }
 

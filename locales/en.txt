@@ -81,6 +81,9 @@ thumb.failed = Could not create a thumbnail
 tool.video = Making video thumbnails requires ffmpeg (install it and add it to PATH)
 tool.pdf = Making PDF thumbnails requires mutool (MuPDF), pdftoppm (poppler) or ImageMagick
 tool.heif = Making HEIC/AVIF thumbnails requires ImageMagick (magick) or ffmpeg
+raw.not_tiff = Not a TIFF-based RAW file
+raw.no_preview = This RAW file has no embedded JPEG preview
+raw.bad_preview = The embedded preview could not be decoded
 
 # ---- long listing (-l) column titles
 long.size = Size

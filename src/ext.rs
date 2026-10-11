@@ -1,6 +1,7 @@
-//! `image` クレートで読めない形式（SVG・動画・PDF・HEIC/AVIF）のサムネイル取得
+//! `image` クレートで読めない形式（SVG・動画・PDF・HEIC/AVIF・RAW）のサムネイル取得
 //!
 //! - SVG: resvg で直接ラスタライズ（外部ツール不要）
+//! - RAW（ARW・DNG など）: 埋め込みのプレビュー JPEG を取り出す（`raw.rs`。外部ツール不要）
 //! - 動画・PDF・HEIC/AVIF:
 //!   - Windows: エクスプローラーと同じサムネイル（シェルのサムネイルプロバイダ）を使う
 //!   - macOS: Quick Look（QuickLookThumbnailing フレームワーク）を使う
@@ -18,6 +19,8 @@ pub enum Kind {
     Pdf,
     Svg,
     Heif,
+    /// RAW 写真（ARW・DNG など）。埋め込みのプレビューを使う（`raw.rs`）
+    Raw,
 }
 
 const VIDEO_EXTS: &[&str] = &[
@@ -39,6 +42,8 @@ pub fn kind(path: &Path) -> Option<Kind> {
         Some(Kind::Pdf)
     } else if ext == "svg" {
         Some(Kind::Svg)
+    } else if crate::raw::is_raw_ext(&ext) {
+        Some(Kind::Raw)
     } else {
         None
     }
@@ -50,6 +55,7 @@ pub fn label(kind: Kind) -> &'static str {
         Kind::Pdf => "PDF",
         Kind::Svg => "SVG",
         Kind::Heif => "HEIF",
+        Kind::Raw => "RAW",
     }
 }
 
@@ -229,7 +235,7 @@ fn via_tools(path: &Path, kind: Kind, longest: u32) -> Result<RgbImage, String> 
                 .or_else(|| pdftoppm(&p, &n, &mut missing))
                 .or_else(|| tried("magick", run_png("magick", &magick(true)), &mut missing))
         }
-        Kind::Svg => None,
+        Kind::Svg | Kind::Raw => None,
     };
     if let Some(img) = result {
         return Ok(img);
@@ -239,7 +245,7 @@ fn via_tools(path: &Path, kind: Kind, longest: u32) -> Result<RgbImage, String> 
         Kind::Video => 1,
         Kind::Heif => 2,
         Kind::Pdf => 3,
-        Kind::Svg => 0,
+        Kind::Svg | Kind::Raw => 0,
     };
     if missing.len() >= all_missing {
         Err(format!("{MISSING_PREFIX}{}", tool_hint(kind)))
@@ -286,7 +292,7 @@ fn tool_hint(kind: Kind) -> &'static str {
         Kind::Video => t!("tool.video"),
         Kind::Pdf => t!("tool.pdf"),
         Kind::Heif => t!("tool.heif"),
-        Kind::Svg => "",
+        Kind::Svg | Kind::Raw => "",
     }
 }
 
@@ -453,6 +459,7 @@ fn os_thumbnail(_path: &Path, _longest: u32) -> Option<RgbImage> {
 pub fn load(path: &Path, kind: Kind, longest: u32) -> Result<RgbImage, String> {
     match kind {
         Kind::Svg => render_svg(path, longest),
+        Kind::Raw => crate::raw::load_preview(path, longest),
         _ => match os_thumbnail(path, longest) {
             Some(img) => Ok(img),
             None => via_tools(path, kind, longest),

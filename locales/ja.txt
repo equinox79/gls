@@ -81,6 +81,9 @@ thumb.failed = サムネイルを作れませんでした
 tool.video = 動画のサムネイルを作るには ffmpeg が必要です（インストールして PATH に通してください）
 tool.pdf = PDF のサムネイルを作るには mutool（MuPDF）か pdftoppm（poppler）か ImageMagick が必要です
 tool.heif = HEIC/AVIF のサムネイルを作るには ImageMagick（magick）か ffmpeg が必要です
+raw.not_tiff = TIFF 形式の RAW ファイルではありません
+raw.no_preview = この RAW ファイルには JPEG のプレビューが入っていません
+raw.bad_preview = 埋め込みのプレビューをデコードできませんでした
 
 # ---- 詳細表示（-l）の列の見出し
 long.size = サイズ

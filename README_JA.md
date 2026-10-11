@@ -25,7 +25,7 @@ gls -l               # 1行ごとにサムネイルが付いた、詳細な一�
 ## 特徴
 
 - **端末の中に本物の画像を表示。** Sixel・Kitty・iTerm2 のグラフィックスを使います。使えない端末では、**ハーフブロック**（TrueColor / 256色）、さらに**アスキーアート**へ自動でフォールバック
-- **多くの形式に対応:** PNG・JPEG・GIF・WebP・TIFF・BMP・**SVG**・**動画**・**PDF**・**HEIC**
+- **多くの形式に対応:** PNG・JPEG・GIF・WebP・TIFF・BMP・**SVG**・**動画**・**PDF**・**HEIC**、それに **RAW 写真**（ARW・CR3・DNG・NEF・RAF など。ファイルの中のプレビュー）
 - **ファイル名がリンク:** `Ctrl+クリック` で既定のアプリで開ける（OSC 8 ハイパーリンク）
 - **`ls` の使い方に合わせた作り:** 正規表現での絞り込み、並び替え、再帰、EXIF の向きの反映、`-vv` の詳細表示、`-l` の詳細一覧（サムネイル付き）
 - **スクリプトから使える:** 構造化した出力の `--json`、`xargs -0` 向けの `-0`
@@ -368,7 +368,7 @@ $ gls --json tests/data/gradient.png
 | キー | 意味 |
 | --- | --- |
 | `path`, `name` | gls が見つけたパスと、ファイル名 |
-| `type` | `image`、`svg`、`video`、`pdf`、`heif` のどれか |
+| `type` | `image`、`svg`、`video`、`pdf`、`heif`、`raw` のどれか |
 | `bytes`, `width`, `height`, `megapixels`, `aspect` | 数値（`aspect` は `16:9` のような文字列）。動画・PDF・HEIC は大きさを読まないので `null` |
 | `format`, `color` | 例: `JPEG`、`RGB 8bit` |
 | `modified` | 更新日時（RFC 3339） |
@@ -448,6 +448,10 @@ gls -0 -R -e '\.png$' --sort date -n 20 | xargs -0 cp -t backup/
 
 - **画像:** PNG・JPEG・GIF・BMP・WebP・TIFF・ICO・TGA・QOI。JPEG などの EXIF の向きは反映します。アニメーション GIF は最初のコマを表示します。
 - **SVG:** そのまま描画します（外部ツール不要。白背景。`<text>` の文字は描画されません）。
+- **RAW 写真（ARW・SR2・SRF・DNG・CR2・CR3・NEF・NRW・PEF・ORF・RW2・RAF・3FR・ERF・MEF）:** ファイルの中に入っている JPEG のプレビューを表示します。外部ツールは要りません。ファイルの構造とプレビューだけを読むので、80 MB のファイルでも速いです（多くのファイルで 10〜25 ミリ秒ほど）。RAW の現像はしません。見えるのは、カメラ（や変換ソフト）が作ったプレビューで、向きは反映します。`-l` と `--json` には、画像の大きさ、EXIF、撮影設定が出ます。
+  - 読める入れ物は3種類です。TIFF 系（ARW・DNG・CR2・NEF・ORF・PEF・RW2 など）、Canon の CR3（`PRVW` の箱）、Fujifilm の RAF（ヘッダ）。古い NEF や ORF のように、プレビューがメーカー独自のデータの中に隠れているときは、ファイルの先頭を走査して探します。
+  - 本物のファイルで確かめたのは、Sony の ARW、DNG（DxO が作ったもの）、Canon の CR2 と CR3、Nikon の NEF、Fujifilm の RAF、Panasonic の RW2、Olympus の ORF、Pentax の PEF です。SR2・SRF・NRW・3FR・ERF・MEF は、TIFF 系と同じ読み方ですが、試していません。
+  - プレビューが入っていない RAW ファイルは、「(読み込み失敗)」と出ます。RAF と RW2 では、本来の大きさが、gls の読む場所にないので、プレビューの大きさが出ることがあります。
 - **動画（mp4, mov, mkv, webm, avi, m4v, wmv, flv, mpg, 3gp）・PDF（1ページ目）・HEIC / HEIF / AVIF:** サムネイルを作れる環境が必要です。次の順に試します。
   1. **OS のサムネイル** — Windows はエクスプローラーと同じもの（動画は標準で、PDF は Adobe Acrobat や PDF-XChange のような PDF のサムネイルを作る仕組みが入っている場合だけ、HEIC は Microsoft Store の「HEIF 画像拡張機能」を入れると対応）。入れるツールは[動画・PDF・HEIC 用のツール](#必要なら-動画pdfheic-用のツール)を参照、macOS は Quick Look
   2. **外部ツール**（PATH に通っていれば使います） — 動画は `ffmpeg`、PDF は `mutool` → `pdftoppm` → ImageMagick、HEIC/AVIF は ImageMagick（`magick`）→ `ffmpeg`
@@ -464,6 +468,7 @@ gls はまだ若いツール（バージョン 0.1）です。確認できてい
 - v0.1.1 のビルド済みバイナリのうち、**Windows x64** と **Linux x64** は、リリースからダウンロードして、`SHA256SUMS` と一致することを確かめ、動かしました（`--version`、サムネイル一覧、`-l`、`--json`、`-0`、日本語のメッセージ。Linux 版は WSL の Ubuntu 24.04）。
 - v0.1.1 のビルド済みバイナリのうち、**macOS の Apple シリコン**（`aarch64-apple-darwin`）は、`curl` でダウンロードして、**Ghostty** で動かし、サムネイル一覧が本物の画像（Kitty のグラフィックスプロトコル）で正しく表示されました。macOS に止められたり、確認を求められたりはしませんでした。
 - `gls -l`（サムネイルのカード）を、**Windows Terminal**（Sixel）で、画像と PDF が混ざったフォルダに対して実行: サムネイルと文字が揃って並び、PDF のサムネイルと日本語のファイル名も表示され、名前はリンクとして表示されました。
+- **RAW 写真:** Sony の ARW（ILCE-6000、24 MB）と、同じ写真から DxO で作った DNG（79 MB）、それに raw.pixls.us の、パブリックドメイン（CC0）の公開サンプル8つ: Canon の CR2（EOS 40D）と CR3（EOS R6、R6 Mark III）、Nikon の NEF（D2H）、Fujifilm の RAF（FinePix S5000）、Panasonic の RW2（DMC-LX7）、Olympus の ORF（E-3）、Pentax の PEF（K10D）。プレビューがサムネイル一覧に表示され、`-l` と `--json` に、大きさ、形式、カメラが出ました。Windows で実行し、プレビューの読み込みは、どれも 25 ミリ秒未満（プレビューが 6000x4000 の DNG だけ 80 ミリ秒）でした。
 - 継続的インテグレーションで、Linux・macOS・Windows でビルドとテストを実行しています。テストは、実際の端末には描画しません。
 
 **まだ実際の端末で確認できていないこと**（報告をとても歓迎します。[issue を立てて](https://github.com/equinox79/gls/issues)ください）
@@ -471,10 +476,11 @@ gls はまだ若いツール（バージョン 0.1）です。確認できてい
 - iTerm2、WezTerm、Kitty、GNOME Terminal、foot、mlterm、VS Code のターミナル
 - macOS の Terminal.app（画像プロトコルがないので `half` になります）と、macOS の Quick Look のサムネイル
 - ビルド済みバイナリのうち、**macOS の Intel** と **Linux ARM64**: CI でビルドとテストは通っていますが、ダウンロードしたアーカイブを動かした人はまだいません。結果は歓迎します。お使いの環境、使ったアーカイブ、端末、`./gls --version` と画像のフォルダでの表示を、[issue](https://github.com/equinox79/gls/issues/new) で教えてください
+- 同じメーカーの、ほかの機種や設定（たとえば、Canon の CRAW や C-RAW の別機種、Fujifilm の X シリーズの RAF、Nikon の Z シリーズの NEF、Sony のほかの機種の ARW）と、スマートフォンや他のツールが作った DNG: 同じ構造を読むコードですが、試したのは上のファイルだけです。SR2・SRF・NRW・3FR・ERF・MEF は、まったく試していません
 - 動画と HEIC のサムネイル
 
 **既知の制限**
-- RAW 写真（CR2、NEF、ARW など）には対応していません。
+- RAW 写真: 埋め込まれた JPEG のプレビューだけを表示します（現像はしません）。Sigma の X3F、Canon の CRW、Minolta の MRW など、上に書いていない形式には対応していません。プレビューが入っていない RAW ファイルは、「(読み込み失敗)」と出ます。RAF と RW2 では、`-l` に、本来の大きさではなく、プレビューの大きさが出ることがあります。
 - 色のプロファイル（ICC）は見ていないので、広い色域の画像は、色が違って見えることがあります。
 - SVG の文字は描画しません。PDF は1ページ目だけです。アニメーション GIF は最初のコマだけです。
 - 画像プロトコルは、tmux や SSH 越しでは動かないことがあります。端末は環境変数から判定するので、外れたときは `--protocol` で指定してください。
@@ -513,6 +519,12 @@ cargo fmt --check
 cargo clippy --all-targets -- -D warnings
 ```
 
+自分の RAW ファイルで試すときは、リポジトリの外に置いて（`tests/local/` は git に無視されます）、次を実行します。
+
+```bash
+GLS_RAW_SAMPLES=tests/local cargo test real_raw_files -- --ignored --nocapture
+```
+
 ソースの構成:
 
 | ファイル | 内容 |
@@ -520,12 +532,13 @@ cargo clippy --all-targets -- -D warnings
 | `src/main.rs` | 引数、入力の展開、並び替え、一覧とカードの描画、ページャ |
 | `src/gfx.rs` | Sixel / Kitty / iTerm2 の出力と端末の判定 |
 | `src/ext.rs` | SVG・動画・PDF・HEIC の取得（OS のサムネイル、外部ツール） |
+| `src/raw.rs` | RAW 写真: 埋め込みの JPEG のプレビュー（TIFF 系、Canon の CR3、Fujifilm の RAF）を探し、カメラと撮影データを読む |
 | `src/info.rs` | `-v` / `-vv` / `-l` の画像情報 |
 | `src/json.rs` | `--json` の出力 |
 | `src/orient.rs`, `src/thumb.rs` | EXIF の向き、EXIF サムネイル |
 | `src/link.rs` | ファイル名のハイパーリンク（OSC 8） |
 | `src/i18n.rs`, `locales/*.txt` | 言語の選択とメッセージの辞書 |
-| `tests/cli.rs`, `tests/data/` | 小さな合成画像で、実際のバイナリを動かすテスト |
+| `tests/cli.rs`, `tests/data/`, `tests/raw/` | 小さな合成画像で、実際のバイナリを動かすテスト（`tests/raw/` には、ごく小さな合成の RAW ファイルがあります） |
 | `.github/workflows/` | `ci.yml`（整形・lint・3つの OS でのテスト）と `release.yml`（バイナリと GitHub のリリース） |
 | `scripts/package.sh` | リリースビルドをアーカイブにまとめる（`release.yml` が使う） |
 

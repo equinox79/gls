@@ -81,6 +81,9 @@ thumb.failed = Vorschaubild konnte nicht erstellt werden
 tool.video = Für Video-Vorschaubilder wird ffmpeg benötigt (installieren und zum PATH hinzufügen)
 tool.pdf = Für PDF-Vorschaubilder wird mutool (MuPDF), pdftoppm (poppler) oder ImageMagick benötigt
 tool.heif = Für HEIC/AVIF-Vorschaubilder wird ImageMagick (magick) oder ffmpeg benötigt
+raw.not_tiff = Keine TIFF-basierte RAW-Datei
+raw.no_preview = Diese RAW-Datei enthält keine eingebettete JPEG-Vorschau
+raw.bad_preview = Die eingebettete Vorschau konnte nicht dekodiert werden
 
 # ---- Spaltenüberschriften der langen Ausgabe (-l)
 long.size = Größe

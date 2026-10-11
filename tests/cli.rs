@@ -444,6 +444,117 @@ fn help_lists_thumbs_off_and_hides_the_old_thumbs() {
     );
 }
 
+fn raw_dir() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("tests")
+        .join("raw")
+}
+
+/// tests/raw の合成 RAW（ARW・DNG・CR3・RAF・RW2・NEF の入れ物の形。小さな JPEG のプレビューだけが入っている）
+#[test]
+fn raw_files_show_their_embedded_preview_and_info() {
+    let dir = raw_dir();
+
+    // -l（パイプなので表）: 形式は拡張子、大きさは EXIF（ARW 風）か本体の IFD（DNG 風）から
+    let o = gls(&["-l", dir.to_str().unwrap()]);
+    assert!(o.status.success(), "{}", String::from_utf8_lossy(&o.stderr));
+    let out = stdout(&o);
+    let lines: Vec<&str> = out.lines().collect();
+    assert_eq!(lines.len(), 6, "{out}");
+    let row = |ext: &str| -> String {
+        lines
+            .iter()
+            .find(|l| l.ends_with(&format!("synthetic.{ext}")))
+            .unwrap_or_else(|| panic!("{ext} の行がある:\n{out}"))
+            .to_string()
+    };
+    // 形式は拡張子。大きさ・カメラ・撮影設定は、入れ物ごとの読み方で取れている
+    for (ext, parts) in [
+        (
+            "arw",
+            &[
+                "120x80",
+                "ARW",
+                "SONY ILCE-6000",
+                "f/5.6 1/250s ISO400 50mm",
+            ][..],
+        ),
+        ("dng", &["160x96", "DNG"][..]),
+        (
+            "cr3",
+            &[
+                "5472x3648",
+                "CR3",
+                "Canon EOS R6",
+                "f/4 1/125s ISO100 35mm",
+                "2021-05-14 10:20:30",
+            ][..],
+        ),
+        ("raf", &["64x48", "RAF", "FUJIFILM FinePix S5000"][..]),
+        (
+            "rw2",
+            &[
+                "80x60",
+                "RW2",
+                "Panasonic DMC-LX7",
+                "f/5.6 1/250s ISO400 50mm",
+            ][..],
+        ),
+        ("nef", &["400x300", "NEF"][..]),
+    ] {
+        let r = row(ext);
+        for p in parts {
+            assert!(r.contains(p), "{ext}: {p} が行にある: {r}");
+        }
+    }
+
+    // --json: 種類は raw
+    let o = gls(&["--json", dir.join("synthetic.dng").to_str().unwrap()]);
+    let v: serde_json::Value = serde_json::from_slice(&o.stdout).expect("有効な JSON");
+    assert_eq!(v[0]["type"], "raw");
+    assert_eq!(v[0]["format"], "DNG");
+    assert_eq!(
+        (v[0]["width"].as_u64(), v[0]["height"].as_u64()),
+        (Some(160), Some(96))
+    );
+
+    // 一覧: プレビューが描かれる（読み込み失敗にならず、文字の絵が出る）
+    let o = gls(&[dir.to_str().unwrap(), "-s", "m"]);
+    let out = stdout(&o);
+    assert!(!out.contains("load failed"), "{out}");
+    for ext in ["arw", "dng", "cr3", "raf", "rw2", "nef"] {
+        assert!(out.contains(&format!("synthetic.{ext}")), "{ext}: {out}");
+    }
+    assert!(
+        out.lines()
+            .any(|l| l.contains([':', '-', '=', '+', '*', '#', '%', '@'])),
+        "{out}"
+    );
+}
+
+#[test]
+fn a_broken_raw_file_is_reported_and_does_not_stop_the_listing() {
+    let dir = std::env::temp_dir().join(format!("gls-cli-raw-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(&dir).unwrap();
+    std::fs::write(dir.join("broken.arw"), b"this is not a raw file").unwrap();
+    std::fs::copy(raw_dir().join("synthetic.dng"), dir.join("good.dng")).unwrap();
+    let o = gls(&[dir.to_str().unwrap(), "-s", "m"]);
+    assert!(o.status.success(), "{}", String::from_utf8_lossy(&o.stderr));
+    let out = stdout(&o);
+    assert!(
+        out.contains("good.dng") && out.contains("broken.arw"),
+        "{out}"
+    );
+    assert!(
+        out.contains("load failed"),
+        "壊れたほうは読み込み失敗と出る: {out}"
+    );
+    let err = String::from_utf8_lossy(&o.stderr).into_owned();
+    assert!(err.contains("Not a TIFF-based RAW file"), "{err}");
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
 #[test]
 fn missing_file_is_an_error() {
     let o = gls(&["no-such-file.png"]);

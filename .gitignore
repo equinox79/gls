@@ -1,1 +1,6 @@
 /target
+
+# Local RAW originals used to check RAW support: large, personal, and not ours to publish
+/tests/data/*.arw
+/tests/data/*.ARW
+/tests/local/

@@ -81,6 +81,9 @@ thumb.failed = 无法生成缩略图
 tool.video = 生成视频缩略图需要 ffmpeg（请安装并加入 PATH）
 tool.pdf = 生成 PDF 缩略图需要 mutool（MuPDF）、pdftoppm（poppler）或 ImageMagick
 tool.heif = 生成 HEIC/AVIF 缩略图需要 ImageMagick（magick）或 ffmpeg
+raw.not_tiff = 不是基于 TIFF 的 RAW 文件
+raw.no_preview = 此 RAW 文件没有内嵌的 JPEG 预览图
+raw.bad_preview = 无法解码内嵌的预览图
 
 # ---- 详细列表 (-l) 的列标题
 long.size = 大小

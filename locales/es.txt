@@ -81,6 +81,9 @@ thumb.failed = No se pudo crear una miniatura
 tool.video = Para crear miniaturas de vídeo se necesita ffmpeg (instálalo y añádelo al PATH)
 tool.pdf = Para crear miniaturas de PDF se necesita mutool (MuPDF), pdftoppm (poppler) o ImageMagick
 tool.heif = Para crear miniaturas de HEIC/AVIF se necesita ImageMagick (magick) o ffmpeg
+raw.not_tiff = No es un archivo RAW basado en TIFF
+raw.no_preview = Este archivo RAW no tiene una vista previa JPEG incrustada
+raw.bad_preview = No se pudo decodificar la vista previa incrustada
 
 # ---- títulos de las columnas del listado largo (-l)
 long.size = Tamaño

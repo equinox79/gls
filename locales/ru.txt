@@ -81,6 +81,9 @@ thumb.failed = Не удалось создать миниатюру
 tool.video = Для миниатюр видео нужен ffmpeg (установите его и добавьте в PATH)
 tool.pdf = Для миниатюр PDF нужен mutool (MuPDF), pdftoppm (poppler) или ImageMagick
 tool.heif = Для миниатюр HEIC/AVIF нужен ImageMagick (magick) или ffmpeg
+raw.not_tiff = Это не RAW-файл на основе TIFF
+raw.no_preview = В этом RAW-файле нет встроенного JPEG-превью
+raw.bad_preview = Не удалось декодировать встроенное превью
 
 # ---- заголовки столбцов подробного списка (-l)
 long.size = Размер

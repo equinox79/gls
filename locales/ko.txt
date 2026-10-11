@@ -81,6 +81,9 @@ thumb.failed = 썸네일을 만들 수 없습니다
 tool.video = 동영상 썸네일을 만들려면 ffmpeg가 필요합니다(설치한 뒤 PATH에 추가하세요)
 tool.pdf = PDF 썸네일을 만들려면 mutool(MuPDF), pdftoppm(poppler) 또는 ImageMagick이 필요합니다
 tool.heif = HEIC/AVIF 썸네일을 만들려면 ImageMagick(magick) 또는 ffmpeg가 필요합니다
+raw.not_tiff = TIFF 기반 RAW 파일이 아닙니다
+raw.no_preview = 이 RAW 파일에는 내장된 JPEG 미리보기가 없습니다
+raw.bad_preview = 내장된 미리보기를 디코딩할 수 없습니다
 
 # ---- 자세한 목록(-l)의 열 제목
 long.size = 크기

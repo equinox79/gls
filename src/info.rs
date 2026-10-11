@@ -90,6 +90,7 @@ pub fn gather(path: &Path, full: bool) -> Info {
     let kind = crate::ext::kind(path);
     i.dims = match kind {
         Some(crate::ext::Kind::Svg) => crate::ext::svg_size(path),
+        Some(crate::ext::Kind::Raw) => crate::raw::image_size(path),
         Some(_) => None,
         None => image::image_dimensions(path).ok(),
     };
@@ -100,7 +101,14 @@ pub fn gather(path: &Path, full: bool) -> Info {
     }
 
     if let Some(k) = kind {
-        i.format = Some(crate::ext::label(k).to_string());
+        i.format = Some(match k {
+            // RAW は、種類の名前（RAW）ではなく、拡張子（ARW・DNG など）を形式として出す
+            crate::ext::Kind::Raw => path
+                .extension()
+                .and_then(|e| e.to_str())
+                .map_or_else(|| crate::ext::label(k).to_string(), str::to_ascii_uppercase),
+            _ => crate::ext::label(k).to_string(),
+        });
         if k == crate::ext::Kind::Video {
             i.extra = crate::ext::video_info(path);
         }
@@ -227,8 +235,33 @@ pub fn exif_timestamp(path: &Path) -> Option<i64> {
         })
 }
 
-/// EXIF（カメラ・撮影設定・撮影日時など）を読む。読めなければ空
+/// EXIF（カメラ・撮影設定・撮影日時など）を読む。読めなければ空。
+/// 外部のクレートが読めない RAW（RAF・RW2・CR3・ORF など）は、`raw.rs` の読み取りで補う
 fn exif_info(path: &Path) -> Exif {
+    let e = exif_via_crate(path);
+    let blank = e.camera.is_none()
+        && e.aperture.is_none()
+        && e.exposure.is_none()
+        && e.iso.is_none()
+        && e.focal.is_none()
+        && e.taken.is_none();
+    if blank && matches!(crate::ext::kind(path), Some(crate::ext::Kind::Raw)) {
+        if let Some(m) = crate::raw::meta(path) {
+            return Exif {
+                camera: m.camera,
+                aperture: m.aperture,
+                exposure: m.exposure,
+                iso: m.iso,
+                focal: m.focal,
+                taken: m.taken,
+                gps: e.gps,
+            };
+        }
+    }
+    e
+}
+
+fn exif_via_crate(path: &Path) -> Exif {
     let Ok(file) = std::fs::File::open(path) else {
         return Exif::default();
     };

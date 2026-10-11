@@ -9,6 +9,7 @@ mod info;
 mod json;
 mod link;
 mod orient;
+mod raw;
 mod thumb;
 
 use std::hash::{Hash, Hasher};

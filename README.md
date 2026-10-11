@@ -24,7 +24,7 @@ gls -l               # a detailed list with a thumbnail on each line
 ## Features
 
 - **Real images in the terminal** through Sixel, Kitty or iTerm2 graphics. Terminals without them fall back automatically to **half-block** characters (TrueColor / 256 colors), then to **ASCII art**
-- **Many formats:** PNG, JPEG, GIF, WebP, TIFF, BMP, **SVG**, **video**, **PDF** and **HEIC**
+- **Many formats:** PNG, JPEG, GIF, WebP, TIFF, BMP, **SVG**, **video**, **PDF**, **HEIC** and **RAW photos** (ARW, CR3, DNG, NEF, RAF and more: the preview inside the file)
 - **Clickable file names:** `Ctrl+click` opens the file in your default app (OSC 8 hyperlinks)
 - **Built for the `ls` workflow:** regex filter, sorting, recursion, EXIF orientation, `-vv` details, `-l` long listing with thumbnails
 - **Scriptable:** `--json` for structured output, `-0` for `xargs -0`
@@ -367,7 +367,7 @@ Every object has the same keys, and `null` means "not available":
 | Key | Meaning |
 | --- | --- |
 | `path`, `name` | The path as gls found it, and the file name |
-| `type` | `image`, `svg`, `video`, `pdf` or `heif` |
+| `type` | `image`, `svg`, `video`, `pdf`, `heif` or `raw` |
 | `bytes`, `width`, `height`, `megapixels`, `aspect` | Numbers (`aspect` is a string such as `16:9`). `null` for video, PDF and HEIC, whose size is not read |
 | `format`, `color` | e.g. `JPEG`, `RGB 8bit` |
 | `modified` | Modified time in RFC 3339 |
@@ -447,6 +447,10 @@ If your terminal is not detected, choose a protocol with `--protocol sixel` and 
 
 - **Images:** PNG, JPEG, GIF, BMP, WebP, TIFF, ICO, TGA, QOI. EXIF orientation (JPEG and others) is applied. An animated GIF shows its first frame.
 - **SVG:** rendered directly (no external tools; white background; `<text>` is not rendered).
+- **RAW photos (ARW, SR2, SRF, DNG, CR2, CR3, NEF, NRW, PEF, ORF, RW2, RAF, 3FR, ERF, MEF):** the JPEG preview stored inside the file is shown. No external tools are needed, and even an 80 MB file is quick, because only the file's structure and the preview are read (about 10 to 25 ms for most files). RAW files are not developed: what you see is the preview made by the camera (or by the converter), with its orientation applied. `-l` and `--json` show the image size, the EXIF data and the shooting settings.
+  - Three kinds of containers are read: TIFF-based files (ARW, DNG, CR2, NEF, ORF, PEF, RW2 and others), Canon CR3 (the `PRVW` box) and Fujifilm RAF (the header). When the preview of an old NEF or ORF is hidden in the maker's own data, the start of the file is scanned for it.
+  - Tried with real files: Sony ARW, DNG (made by DxO), Canon CR2 and CR3, Nikon NEF, Fujifilm RAF, Panasonic RW2, Olympus ORF and Pentax PEF. SR2, SRF, NRW, 3FR, ERF and MEF are read like the TIFF-based ones but have not been tried.
+  - A RAW file without an embedded preview shows "(load failed)". For RAF and RW2, the size shown can be the preview's, because the real size is not stored where gls reads.
 - **Video (mp4, mov, mkv, webm, avi, m4v, wmv, flv, mpg, 3gp), PDF (first page), HEIC / HEIF / AVIF:** a way to make thumbnails is required. These are tried in order:
   1. **The OS thumbnail:** on Windows, the same as Explorer (video works out of the box; PDF only if a PDF thumbnail handler such as Adobe Acrobat or PDF-XChange is installed; for HEIC install "HEIF Image Extensions" from the Microsoft Store). See [the tools for video, PDF and HEIC](#optional-tools-for-video-pdf-and-heic); on macOS, Quick Look
   2. **External tools** (used if they are on `PATH`): `ffmpeg` for video; `mutool`, then `pdftoppm`, then ImageMagick for PDF; ImageMagick (`magick`), then `ffmpeg` for HEIC/AVIF
@@ -463,6 +467,7 @@ gls is young (version 0.1). Here is what has been checked, and what has not.
 - The v0.1.1 prebuilt binaries for **Windows x64** and **Linux x64** were downloaded from the release, matched `SHA256SUMS`, and ran (`--version`, a thumbnail list, `-l`, `--json`, `-0`, the Japanese messages; the Linux one on Ubuntu 24.04 in WSL).
 - The v0.1.1 prebuilt binary for **macOS Apple silicon** (`aarch64-apple-darwin`) was downloaded with `curl` and ran in **Ghostty**, where the thumbnail list displayed correctly as real images (Kitty graphics protocol). macOS did not block it or ask for confirmation.
 - `gls -l` (the thumbnail cards) in **Windows Terminal** with Sixel, on a folder of mixed images and PDFs: the thumbnails and the text line up, PDF thumbnails and Japanese file names are shown, and the names appear as links.
+- **RAW photos:** a Sony ARW (ILCE-6000, 24 MB) and a DNG made from the same shot by DxO (79 MB), and eight public-domain samples from raw.pixls.us (CC0): Canon CR2 (EOS 40D) and CR3 (EOS R6 and R6 Mark III), Nikon NEF (D2H), Fujifilm RAF (FinePix S5000), Panasonic RW2 (DMC-LX7), Olympus ORF (E-3) and Pentax PEF (K10D). The previews are shown in a thumbnail list, and `-l` and `--json` give the size, the format and the camera. Run on Windows; each preview took under 25 ms (80 ms for the DNG, whose preview is 6000x4000).
 - The continuous integration builds and runs the tests on Linux, macOS and Windows. The tests do not draw to a real terminal.
 
 **Not checked in a real terminal yet** (reports are very welcome, please [open an issue](https://github.com/equinox79/gls/issues))
@@ -470,10 +475,11 @@ gls is young (version 0.1). Here is what has been checked, and what has not.
 - iTerm2, WezTerm, Kitty, GNOME Terminal, foot, mlterm, the VS Code terminal
 - macOS Terminal.app (it has no image protocol, so `half` is used) and the macOS Quick Look thumbnails
 - The prebuilt binaries for **macOS Intel** and **Linux ARM64**: they build and pass the tests in CI, but nobody has run the downloaded archives yet. Results are welcome: please [open an issue](https://github.com/equinox79/gls/issues/new) with your system, the archive you used, the terminal, and what `./gls --version` and a folder of images showed
+- Other cameras and settings of the same makers (for example Canon CRAW or C-RAW from other models, Fujifilm X-series RAF, Nikon Z NEF, Sony ARW of other models) and DNGs from phones or other tools: the code reads the same structures, but only the files above were tried. SR2, SRF, NRW, 3FR, ERF and MEF were not tried at all
 - Video and HEIC thumbnails
 
 **Known limitations**
-- RAW photos (CR2, NEF, ARW and so on) are not supported.
+- RAW photos: only the embedded JPEG preview is shown (no developing). Sigma X3F, Canon CRW, Minolta MRW and other formats not listed above are not supported, and a RAW file without an embedded preview shows "(load failed)". For RAF and RW2, `-l` may show the preview's size instead of the real image size.
 - Color profiles (ICC) are ignored, so wide-gamut images may look different.
 - SVG text is not rendered. PDF shows the first page only. An animated GIF shows its first frame.
 - Image protocols may not work through tmux or SSH, and the terminal is detected from environment variables; use `--protocol` when it is wrong.
@@ -512,6 +518,12 @@ cargo fmt --check
 cargo clippy --all-targets -- -D warnings
 ```
 
+To try your own RAW files, keep them outside the repository (`tests/local/` is ignored by git) and run:
+
+```bash
+GLS_RAW_SAMPLES=tests/local cargo test real_raw_files -- --ignored --nocapture
+```
+
 Source layout:
 
 | File | Contents |
@@ -519,12 +531,13 @@ Source layout:
 | `src/main.rs` | Arguments, expanding inputs, sorting, drawing the list and the cards, the pager |
 | `src/gfx.rs` | Sixel / Kitty / iTerm2 output and terminal detection |
 | `src/ext.rs` | SVG, video, PDF and HEIC (OS thumbnails, external tools) |
+| `src/raw.rs` | RAW photos: finds the embedded JPEG preview (TIFF-based files, Canon CR3, Fujifilm RAF) and reads the camera and shooting data |
 | `src/info.rs` | Image info for `-v` / `-vv` / `-l` |
 | `src/json.rs` | `--json` output |
 | `src/orient.rs`, `src/thumb.rs` | EXIF orientation and EXIF thumbnails |
 | `src/link.rs` | File name hyperlinks (OSC 8) |
 | `src/i18n.rs`, `locales/*.txt` | Language selection and message catalogs |
-| `tests/cli.rs`, `tests/data/` | Tests that run the real binary on small synthetic images |
+| `tests/cli.rs`, `tests/data/`, `tests/raw/` | Tests that run the real binary on small synthetic images (`tests/raw/` holds tiny synthetic RAW files) |
 | `.github/workflows/` | `ci.yml` (format, lint, tests on 3 systems) and `release.yml` (binaries and GitHub releases) |
 | `scripts/package.sh` | Packs a release build into an archive (used by `release.yml`) |
 
