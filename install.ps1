@@ -46,16 +46,21 @@ try {
     $line = Get-Content "$tmp\SHA256SUMS" | Where-Object { $_ -match ('\s' + [regex]::Escape($name) + '\.zip$') } | Select-Object -First 1
     if (-not $line) { throw "$name.zip is not in SHA256SUMS" }
     $want = ($line -split '\s+')[0].ToLower()
-    $got = (Get-FileHash "$tmp\$name.zip" -Algorithm SHA256).Hash.ToLower()
+    # .NET instead of Get-FileHash / Expand-Archive: they are modules, which may fail to load when
+    # Windows PowerShell is started from a PowerShell 7 session.
+    $sha = [Security.Cryptography.SHA256]::Create()
+    $fs = [IO.File]::OpenRead("$tmp\$name.zip")
+    try { $got = ([BitConverter]::ToString($sha.ComputeHash($fs)) -replace '-', '').ToLower() } finally { $fs.Dispose() }
     if ($want -ne $got) { throw "Checksum mismatch (expected $want, got $got)" }
 
-    Expand-Archive "$tmp\$name.zip" -DestinationPath $tmp -Force
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    [IO.Compression.ZipFile]::ExtractToDirectory("$tmp\$name.zip", "$tmp\x")
     New-Item -ItemType Directory -Force -Path $dir | Out-Null
     # A running gls.exe cannot be overwritten, but it can be renamed: move it aside first.
     $old = "$exe.old"
     try { [IO.File]::Delete($old) } catch { }
     if (Test-Path $exe) { Move-Item $exe $old -Force }
-    Copy-Item "$tmp\$name\gls.exe" $exe -Force
+    Copy-Item "$tmp\x\$name\gls.exe" $exe -Force
     try { [IO.File]::Delete($old) } catch { }
 }
 finally {

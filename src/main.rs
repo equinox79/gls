@@ -2082,7 +2082,13 @@ fn self_update() {
     }
     let dir = exe.parent().unwrap_or_else(|| std::path::Path::new("."));
     let mut cmd = if cfg!(windows) {
-        let mut c = std::process::Command::new("powershell");
+        // Windows PowerShell by its full path, and without the module path that a PowerShell 7 parent
+        // passes down (Windows PowerShell 5.1 then fails to autoload Get-FileHash, Expand-Archive).
+        let root = std::env::var_os("SystemRoot").unwrap_or_else(|| "C:\\Windows".into());
+        let ps =
+            std::path::Path::new(&root).join(r"System32\WindowsPowerShell\v1.0\powershell.exe");
+        let mut c = std::process::Command::new(if ps.exists() { ps } else { "powershell".into() });
+        c.env_remove("PSModulePath");
         c.args([
             "-NoProfile",
             "-ExecutionPolicy",
