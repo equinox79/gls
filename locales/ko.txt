@@ -34,6 +34,7 @@ help.long = ls -l 같은 자세한 목록. 파일마다 크기·치수·형식·
 help.thumbs_off = -l에서 썸네일을 표시하지 않고 파일당 한 줄짜리 표만 출력(출력을 파이프로 넘길 때도 이 표가 나옴)
 help.json = 조건에 맞는 파일 정보를 JSON(파일당 객체 하나인 배열: 경로, 크기, 치수, 형식, 날짜, EXIF)으로 출력하고 종료. 스크립트용
 help.null = 조건에 맞는 파일 경로만 NUL 문자로 구분해 출력하고 종료(xargs -0용)
+help.man = 매뉴얼 페이지(roff)를 표준 출력으로 내보내고 종료한다. 설치: gls --man > ~/.local/share/man/man1/gls.1
 help.lang = 메시지 언어(예: en, ja). 생략하면 환경에서 판별
 
 # ---- 오류와 경고

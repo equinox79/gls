@@ -4,6 +4,7 @@
 # Options (environment variables):
 #   GLS_VERSION      version to install, for example 0.2.0 (default: the latest release)
 #   GLS_INSTALL_DIR  where to put gls (default: ~/.local/bin)
+#   GLS_NO_MAN       set to 1 to skip installing the manual page
 set -eu
 
 REPO="equinox79/gls"
@@ -61,6 +62,15 @@ chmod +x "$DIR/gls"
 
 say "Installed: $DIR/gls"
 "$DIR/gls" --version || true
+
+# The manual page (gls --man was added after 0.2.1; older versions are skipped). It is written in
+# your language when gls has it. Skip it with GLS_NO_MAN=1.
+if [ -z "${GLS_NO_MAN:-}" ]; then
+  MANDIR="${XDG_DATA_HOME:-$HOME/.local/share}/man/man1"
+  if "$DIR/gls" --man > "$TMP/gls.1" 2>/dev/null && [ -s "$TMP/gls.1" ]; then
+    mkdir -p "$MANDIR" && cp "$TMP/gls.1" "$MANDIR/gls.1" && say "Manual page: $MANDIR/gls.1  (try: man gls)"
+  fi
+fi
 case ":$PATH:" in
   *":$DIR:"*) ;;
   *) say "Note: $DIR is not on your PATH. See \"Put gls on your PATH\" in the README:"

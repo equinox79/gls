@@ -34,6 +34,7 @@ help.long = Liste détaillée, comme ls -l : pour chaque fichier, taille, dimens
 help.thumbs_off = Avec -l, n'affiche pas de miniatures : imprime seulement le tableau d'une ligne par fichier (c'est aussi ce que l'on obtient lorsque la sortie est redirigée par un tube)
 help.json = Affiche les fichiers correspondants en JSON (un tableau avec un objet par fichier : chemin, taille, dimensions, format, dates, EXIF), puis quitte. Pour les scripts
 help.null = Affiche uniquement les chemins des fichiers correspondants, séparés par des caractères NUL (pour xargs -0), puis quitte
+help.man = Affiche la page de manuel (roff) sur la sortie standard, puis quitte. Pour l'installer : gls --man > ~/.local/share/man/man1/gls.1
 help.lang = Langue des messages (p. ex. en, ja). Par défaut : détectée à partir de l'environnement
 
 # ---- erreurs et avertissements

@@ -34,6 +34,7 @@ help.long = Lange Ausgabe wie bei ls -l: je Datei Größe, Abmessungen, Format, 
 help.thumbs_off = Zeigt mit -l keine Vorschaubilder, sondern nur die Tabelle mit einer Zeile pro Datei (das gilt auch, wenn die Ausgabe in eine Pipe geleitet wird)
 help.json = Gibt die passenden Dateien als JSON aus (ein Array mit einem Objekt pro Datei: Pfad, Größe, Abmessungen, Format, Datum, EXIF) und beendet das Programm. Für Skripte
 help.null = Gibt nur die Pfade der passenden Dateien aus, getrennt durch NUL-Zeichen (für xargs -0), und beendet das Programm
+help.man = Gibt die Handbuchseite (roff) auf der Standardausgabe aus und beendet das Programm. Installieren: gls --man > ~/.local/share/man/man1/gls.1
 help.lang = Sprache der Meldungen (z. B. en, ja). Standard: aus der Umgebung erkannt
 
 # ---- Fehler und Warnungen

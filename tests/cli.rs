@@ -573,3 +573,13 @@ fn version_shows_the_package_version_and_build() {
         assert!(line.ends_with(')'), "{line}");
     }
 }
+
+#[test]
+fn man_prints_a_manual_page_in_the_chosen_language() {
+    let en = stdout(&gls(&["--man", "--lang", "en"]));
+    assert!(en.contains(".TH gls 1"), "{en}");
+    assert!(en.contains("gls \\- `ls`, with pictures."), "{en}");
+    assert!(en.contains("\\-\\-man"), "{en}");
+    let ja = stdout(&gls(&["--man", "--lang", "ja"]));
+    assert!(ja.contains("マニュアルページ"), "{ja}");
+}

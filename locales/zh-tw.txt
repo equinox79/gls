@@ -34,6 +34,7 @@ help.long = 類似 ls -l 的詳細清單。為每個檔案列出大小、尺寸�
 help.thumbs_off = 與 -l 搭配時不顯示縮圖，只輸出每個檔案一行的表格（輸出以管線傳給其他指令時也是這種表格）
 help.json = 以 JSON 輸出符合條件之檔案的資訊（每個檔案一個物件的陣列：路徑、大小、尺寸、格式、日期、EXIF）後結束。適合指令碼使用
 help.null = 只輸出符合條件之檔案的路徑，以 NUL 字元分隔（用於 xargs -0），然後結束
+help.man = 將手冊頁（roff 格式）輸出到標準輸出並結束。安裝方式：gls --man > ~/.local/share/man/man1/gls.1
 help.lang = 訊息語言（例如 en、ja）。省略時依環境判斷
 
 # ---- 錯誤與警告

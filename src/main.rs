@@ -327,6 +327,10 @@ struct Args {
     #[arg(long)]
     clear_cache: bool,
 
+    /// マニュアルページ（roff 形式）を標準出力に出して終了する
+    #[arg(long)]
+    man: bool,
+
     /// コントラスト（1.0 で変化なし、大きいほどメリハリが強く）
     #[arg(long, default_value_t = 1.0)]
     contrast: f32,
@@ -2044,6 +2048,23 @@ fn localized_command() -> clap::Command {
     cmd
 }
 
+/// --man: the manual page in roff, in the chosen language (put it in a man1 folder as gls.1).
+fn print_man() {
+    // NAME takes the one-line bout, DESCRIPTION the whole text.
+    let mut cmd = localized_command();
+    if let Some(full) = cmd.get_about().map(|s| s.to_string()) {
+        let first = full.lines().next().unwrap_or_default().to_string();
+        cmd = cmd.about(first).long_about(full);
+    }
+    let mut buf = Vec::new();
+    if let Err(e) = clap_mangen::Man::new(cmd).render(&mut buf) {
+        die(&t!("err.write", err = e));
+    }
+    if let Err(e) = std::io::stdout().write_all(&buf) {
+        die(&t!("err.write", err = e));
+    }
+}
+
 fn main() {
     let lang = lang_arg();
     i18n::init(lang.as_deref());
@@ -2059,6 +2080,11 @@ fn main() {
                 used = i18n::current()
             )
         ));
+    }
+
+    if args.man {
+        print_man();
+        return;
     }
 
     let _ = LIMIT_OPTS.set((args.cache_max_mb, args.cache_days));

@@ -34,6 +34,7 @@ help.long = 类似 ls -l 的详细列表。为每个文件列出大小、尺寸�
 help.thumbs_off = 与 -l 搭配时不显示缩略图，只输出每个文件一行的表格（输出被管道传给其他命令时也是这种表格）
 help.json = 以 JSON 输出匹配文件的信息（每个文件一个对象的数组：路径、大小、尺寸、格式、日期、EXIF）后退出。适合脚本使用
 help.null = 只输出匹配文件的路径，以 NUL 字符分隔（用于 xargs -0），然后退出
+help.man = 将手册页（roff 格式）输出到标准输出并退出。安装方法：gls --man > ~/.local/share/man/man1/gls.1
 help.lang = 消息语言（例如 en、ja）。省略时根据环境判断
 
 # ---- 错误和警告

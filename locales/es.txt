@@ -34,6 +34,7 @@ help.long = Listado largo, como ls -l: para cada archivo, tamaño, dimensiones, 
 help.thumbs_off = Con -l, no muestra miniaturas: imprime solo la tabla de una línea por archivo (es también lo que se obtiene cuando la salida se redirige por una tubería)
 help.json = Imprime los archivos coincidentes como JSON (una matriz con un objeto por archivo: ruta, tamaño, dimensiones, formato, fechas, EXIF) y termina. Para scripts
 help.null = Imprime solo las rutas de los archivos coincidentes, separadas por caracteres NUL (para xargs -0), y termina
+help.man = Imprime la página del manual (roff) en la salida estándar y termina. Para instalarla: gls --man > ~/.local/share/man/man1/gls.1
 help.lang = Idioma de los mensajes (p. ej. en, ja). Por defecto: se detecta a partir del entorno
 
 # ---- errores y avisos
