@@ -331,6 +331,10 @@ struct Args {
     #[arg(long)]
     man: bool,
 
+    /// gls を最新のリリースに更新して終了する
+    #[arg(long)]
+    update: bool,
+
     /// コントラスト（1.0 で変化なし、大きいほどメリハリが強く）
     #[arg(long, default_value_t = 1.0)]
     contrast: f32,
@@ -2065,6 +2069,46 @@ fn print_man() {
     }
 }
 
+/// `--update`: run the install script for this machine and replace this program with the newest
+/// release. The scripts do the work (look up the release, check the checksum, swap the file even
+/// while it runs), so gls itself needs no HTTP code.
+fn self_update() {
+    const BASE: &str = "https://raw.githubusercontent.com/equinox79/gls/main";
+    let exe = std::env::current_exe().unwrap_or_else(|e| die(&t!("update.failed", err = e)));
+    // A cargo install is better updated by cargo (a prebuilt binary would replace it silently).
+    if exe.components().any(|c| c.as_os_str() == ".cargo") {
+        println!("{}", t!("update.cargo", path = exe.display()));
+        return;
+    }
+    let dir = exe.parent().unwrap_or_else(|| std::path::Path::new("."));
+    let mut cmd = if cfg!(windows) {
+        let mut c = std::process::Command::new("powershell");
+        c.args([
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-Command",
+            &format!("irm {BASE}/install.ps1 | iex"),
+        ])
+        .env("GLS_NO_MODIFY_PATH", "1");
+        c
+    } else {
+        // Download first, so that a failed download is an error (a bare curl | sh would not be).
+        let script = format!(
+            "set -e; f=$(mktemp); trap 'rm -f \"$f\"' EXIT; curl -fsSL {BASE}/install.sh -o \"$f\"; sh \"$f\""
+        );
+        let mut c = std::process::Command::new("sh");
+        c.args(["-c", &script]);
+        c
+    };
+    cmd.env("GLS_INSTALL_DIR", dir);
+    match cmd.status() {
+        Ok(s) if s.success() => {}
+        Ok(s) => std::process::exit(s.code().unwrap_or(1)),
+        Err(e) => die(&t!("update.failed", err = e)),
+    }
+}
+
 fn main() {
     let lang = lang_arg();
     i18n::init(lang.as_deref());
@@ -2084,6 +2128,10 @@ fn main() {
 
     if args.man {
         print_man();
+        return;
+    }
+    if args.update {
+        self_update();
         return;
     }
 

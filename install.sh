@@ -5,6 +5,7 @@
 #   GLS_VERSION      version to install, for example 0.2.0 (default: the latest release)
 #   GLS_INSTALL_DIR  where to put gls (default: ~/.local/bin)
 #   GLS_NO_MAN       set to 1 to skip installing the manual page
+#   GLS_FORCE        set to 1 to install even when that version is already there
 set -eu
 
 REPO="equinox79/gls"
@@ -35,6 +36,15 @@ if [ -z "$VERSION" ]; then
 fi
 [ -n "$VERSION" ] || die "could not work out the version"
 
+# Already up to date? ("gls --update" runs this script.)
+if [ -z "${GLS_FORCE:-}" ] && [ -x "$DIR/gls" ]; then
+  case "$("$DIR/gls" --version 2>/dev/null || true)" in
+    "gls $VERSION"|"gls $VERSION "*)
+      say "gls $VERSION is already installed in $DIR (set GLS_FORCE=1 to install it again)"
+      exit 0 ;;
+  esac
+fi
+
 NAME="gls-v$VERSION-$TARGET"
 BASE="https://github.com/$REPO/releases/download/v$VERSION"
 TMP=$(mktemp -d)
@@ -57,8 +67,10 @@ fi
 
 tar xzf "$TMP/$NAME.tar.gz" -C "$TMP"
 mkdir -p "$DIR"
-cp "$TMP/$NAME/gls" "$DIR/gls"
-chmod +x "$DIR/gls"
+# Copy beside the old file and rename over it: writing into a running gls fails ("Text file busy").
+cp "$TMP/$NAME/gls" "$DIR/gls.new"
+chmod +x "$DIR/gls.new"
+mv -f "$DIR/gls.new" "$DIR/gls"
 
 say "Installed: $DIR/gls"
 "$DIR/gls" --version || true

@@ -35,6 +35,7 @@ help.thumbs_off = -l でサムネイルを出さず、1ファイル1行の表だ
 help.json = 条件に合うファイルの情報を JSON（1ファイル1オブジェクトの配列。パス・サイズ・縦横・形式・日時・EXIF）で出力して終了する。スクリプト向け
 help.null = 条件に合うファイルのパスだけを NUL 文字区切りで出力して終了する（xargs -0 向け）
 help.man = マニュアルページ（roff 形式）を標準出力に出して終了する。入れ方: gls --man > ~/.local/share/man/man1/gls.1
+help.update = gls を最新のリリースに更新して終了する（この環境向けのインストールスクリプトを実行する）
 help.lang = メッセージの言語（例: en, ja）。省略時は環境から判定
 
 # ---- エラーと警告
@@ -98,3 +99,7 @@ long.camera = カメラ
 long.details = 詳細
 long.gps = GPS
 long.name = 名前
+
+# ---- --update
+update.cargo = gls は cargo でインストールされています（{path}）。次のコマンドで更新してください: cargo install --git https://github.com/equinox79/gls --force
+update.failed = インストーラーを実行できませんでした: {err}

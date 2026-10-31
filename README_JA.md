@@ -238,6 +238,25 @@ cargo install --path .
 
 動画・PDF・HEIC のサムネイルを見るには、追加のツールが必要な場合があります。次の節[必要なら: 動画・PDF・HEIC 用のツール](#必要なら-動画pdfheic-用のツール)を参照してください。
 
+### アップデート
+
+`gls --update` を実行します。この環境向けのインストールスクリプト（上と同じもの）を実行して、最新のリリースを調べ、チェックサムを確かめて、プログラムを置き換えます。gls が動いている最中でも置き換えられます。すでに最新なら、何も変えません。`gls --update` は、0.2.2 より後のバージョンにあります。それより古い場合は、下のスクリプトを使ってください。
+
+インストールスクリプトをもう一度実行しても更新できます。新しいバージョンが、同じ場所に入ります（`GLS_INSTALL_DIR` を設定していた場合は、同じ値を付けます）。
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/equinox79/gls/main/install.sh | sh
+```
+
+```powershell
+irm https://raw.githubusercontent.com/equinox79/gls/main/install.ps1 | iex
+```
+
+- `cargo install` で入れた場合は、cargo で更新します: `cargo install --git https://github.com/equinox79/gls --force`（`gls --update` も、そう案内するだけで、何も変えません）。
+- アーカイブを手で展開した場合は、新しいアーカイブを展開して、`gls`（Windows は `gls.exe`）を置き換えます。
+- 特定のバージョンにする（戻す）には、`GLS_VERSION` を設定します。例: `GLS_VERSION=0.2.2 sh install.sh`。`GLS_FORCE=1` で、同じバージョンがすでにあっても入れ直します。
+- 結果は `gls --version` で確かめます。変更点は[リリース情報](#リリース情報)にあります。
+- スクリプトが置き換えるのは、プログラムとマニュアルページ（下を参照）です。キャッシュと設定には触りません。
 ### マニュアルページ（`man gls`）
 
 `gls --man` がマニュアルページを出力するので、macOS・Linux・WSL で `man gls` が使えます（Windows には `man` がありません）。**インストールスクリプトが、これも入れます**（`~/.local/share/man/man1/gls.1` に書きます。入れたくないときは `GLS_NO_MAN=1`）。手で入れるには:
@@ -449,6 +468,7 @@ gls -0 -R -e '\.png$' --sort date -n 20 | xargs -0 cp -t backup/
 | `--lang <コード>` | メッセージの言語（`en`、`ja`、`zh-cn`、`zh-tw`、`ko`、`es`、`fr`、`de`、`pt-br`、`ru`）。省略時は環境から判定。[言語](#言語)を参照 |
 | `-V`, `--version` | バージョンとビルドを表示（例: `gls 0.2.0 (cbc9ef9 2026-10-11)`。コミットのハッシュとその日付）。ハッシュの後ろの `-dirty` は、コミットしていない変更を含んでビルドしたことを表します。git がない環境（ソースのアーカイブからの `cargo install` など）では、バージョンだけが出ます。不具合を報告するときは、これも書いてください |
 | `--man` | マニュアルページ（roff 形式）を、選んだ言語で標準出力に出して終了。[マニュアルページ](#マニュアルページman-gls)を参照 |
+| `--update` | gls を最新のリリースに更新して終了（この環境向けのインストールスクリプトを実行）。[アップデート](#アップデート)を参照 |
 
 ### キャッシュ
 

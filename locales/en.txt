@@ -35,6 +35,7 @@ help.thumbs_off = With -l, do not show thumbnails: print the plain one-line-per-
 help.json = Print the matching files as JSON (an array with one object per file: path, size, dimensions, format, dates, EXIF) and exit. For scripts
 help.null = Print only the matching file paths, separated by NUL characters (for xargs -0), and exit
 help.man = Print the manual page (roff) to standard output and exit. To install it: gls --man > ~/.local/share/man/man1/gls.1
+help.update = Update gls to the newest release (runs the install script for this machine), then exit
 help.lang = Message language (e.g. en, ja). Default: detected from the environment
 
 # ---- errors and warnings
@@ -98,3 +99,7 @@ long.camera = Camera
 long.details = Details
 long.gps = GPS
 long.name = Name
+
+# ---- --update
+update.cargo = gls was installed with cargo ({path}). Update it with: cargo install --git https://github.com/equinox79/gls --force
+update.failed = Could not run the installer: {err}

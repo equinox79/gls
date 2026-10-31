@@ -35,6 +35,7 @@ help.thumbs_off = Con -l, no muestra miniaturas: imprime solo la tabla de una l�
 help.json = Imprime los archivos coincidentes como JSON (una matriz con un objeto por archivo: ruta, tamaño, dimensiones, formato, fechas, EXIF) y termina. Para scripts
 help.null = Imprime solo las rutas de los archivos coincidentes, separadas por caracteres NUL (para xargs -0), y termina
 help.man = Imprime la página del manual (roff) en la salida estándar y termina. Para instalarla: gls --man > ~/.local/share/man/man1/gls.1
+help.update = Actualiza gls a la versión más reciente (ejecuta el script de instalación para este equipo) y termina
 help.lang = Idioma de los mensajes (p. ej. en, ja). Por defecto: se detecta a partir del entorno
 
 # ---- errores y avisos
@@ -98,3 +99,7 @@ long.camera = Cámara
 long.details = Detalles
 long.gps = GPS
 long.name = Nombre
+
+# ---- --update
+update.cargo = gls se instaló con cargo ({path}). Actualízalo con: cargo install --git https://github.com/equinox79/gls --force
+update.failed = No se pudo ejecutar el instalador: {err}

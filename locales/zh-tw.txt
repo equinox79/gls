@@ -35,6 +35,7 @@ help.thumbs_off = 與 -l 搭配時不顯示縮圖，只輸出每個檔案一行�
 help.json = 以 JSON 輸出符合條件之檔案的資訊（每個檔案一個物件的陣列：路徑、大小、尺寸、格式、日期、EXIF）後結束。適合指令碼使用
 help.null = 只輸出符合條件之檔案的路徑，以 NUL 字元分隔（用於 xargs -0），然後結束
 help.man = 將手冊頁（roff 格式）輸出到標準輸出並結束。安裝方式：gls --man > ~/.local/share/man/man1/gls.1
+help.update = 將 gls 更新到最新版本（執行適用於本機的安裝腳本）並結束
 help.lang = 訊息語言（例如 en、ja）。省略時依環境判斷
 
 # ---- 錯誤與警告
@@ -98,3 +99,7 @@ long.camera = 相機
 long.details = 詳細資料
 long.gps = GPS
 long.name = 名稱
+
+# ---- --update
+update.cargo = gls 是用 cargo 安裝的（{path}）。請用以下指令更新：cargo install --git https://github.com/equinox79/gls --force
+update.failed = 無法執行安裝腳本：{err}

@@ -236,6 +236,25 @@ cargo install --path .
 
 To see video, PDF or HEIC thumbnails you may need a few extra tools: see the next section, [Optional: tools for video, PDF and HEIC](#optional-tools-for-video-pdf-and-heic).
 
+### Updating
+
+Run `gls --update`. It runs the install script for your machine (the same one as above), which looks up the newest release, checks the checksum and replaces the program, even while it is running. If you already have the newest version, nothing is changed. `gls --update` exists in the versions after 0.2.2; if yours is older, use the script below.
+
+Or run the install script again. It puts the new version in the same place (use the same `GLS_INSTALL_DIR` if you set one):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/equinox79/gls/main/install.sh | sh
+```
+
+```powershell
+irm https://raw.githubusercontent.com/equinox79/gls/main/install.ps1 | iex
+```
+
+- Installed with `cargo install`? Then update it with cargo: `cargo install --git https://github.com/equinox79/gls --force` (`gls --update` says so and changes nothing).
+- Unpacked an archive by hand? Unpack the new one and replace `gls` (`gls.exe` on Windows).
+- To go to a particular version (or back), set `GLS_VERSION`, for example `GLS_VERSION=0.2.2 sh install.sh`. `GLS_FORCE=1` installs even when that version is already there.
+- Check the result with `gls --version`. What changed is in [Releases](#releases).
+- The scripts replace the program and the manual page (see below) and do not touch your cache or settings.
 ### Manual page (`man gls`)
 
 `gls --man` prints the manual page, so `man gls` works on macOS, Linux and WSL (there is no `man` on Windows). **The install script does this for you** (it writes `~/.local/share/man/man1/gls.1`; set `GLS_NO_MAN=1` to skip it). By hand:
@@ -447,6 +466,7 @@ Warnings and errors go to standard error, so they never get mixed into this outp
 | `--lang <CODE>` | Language of messages (`en`, `ja`, `zh-cn`, `zh-tw`, `ko`, `es`, `fr`, `de`, `pt-br`, `ru`). Default: detected from the environment, see [Languages](#languages) |
 | `-V`, `--version` | Show the version and the build, for example `gls 0.2.0 (cbc9ef9 2026-10-11)`: the commit hash and its date. `-dirty` after the hash means it was built from uncommitted changes. Without git (for example `cargo install` from a source archive) only the version is shown. Please include it when you report a problem |
 | `--man` | Print the manual page (roff) to standard output and exit, in the chosen language. See [Manual page](#manual-page-man-gls) |
+| `--update` | Update gls to the newest release and exit (runs the install script for this machine). See [Updating](#updating) |
 
 ### Cache
 

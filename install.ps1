@@ -4,6 +4,7 @@
 #   GLS_VERSION         version to install, for example 0.2.0 (default: the latest release)
 #   GLS_INSTALL_DIR     where to put gls.exe (default: %LOCALAPPDATA%\Programs\gls)
 #   GLS_NO_MODIFY_PATH  set to 1 to leave your PATH alone
+#   GLS_FORCE           set to 1 to install even when that version is already there
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
@@ -23,6 +24,16 @@ if (-not $version) {
 }
 if (-not $version) { throw 'Could not work out the version.' }
 
+# Already up to date? ("gls --update" runs this script.)
+$exe = Join-Path $dir 'gls.exe'
+if (-not $env:GLS_FORCE -and (Test-Path $exe)) {
+    $have = (& $exe --version 2>$null) -join ''
+    if ($have -eq "gls $version" -or $have.StartsWith("gls $version ")) {
+        Write-Host "gls $version is already installed in $dir (set GLS_FORCE=1 to install it again)"
+        return
+    }
+}
+
 $name = "gls-v$version-$target"
 $base = "https://github.com/$repo/releases/download/v$version"
 $tmp = Join-Path ([IO.Path]::GetTempPath()) ('gls-install-' + [Guid]::NewGuid().ToString('N'))
@@ -40,7 +51,12 @@ try {
 
     Expand-Archive "$tmp\$name.zip" -DestinationPath $tmp -Force
     New-Item -ItemType Directory -Force -Path $dir | Out-Null
-    Copy-Item "$tmp\$name\gls.exe" (Join-Path $dir 'gls.exe') -Force
+    # A running gls.exe cannot be overwritten, but it can be renamed: move it aside first.
+    $old = "$exe.old"
+    try { [IO.File]::Delete($old) } catch { }
+    if (Test-Path $exe) { Move-Item $exe $old -Force }
+    Copy-Item "$tmp\$name\gls.exe" $exe -Force
+    try { [IO.File]::Delete($old) } catch { }
 }
 finally {
     try { [IO.Directory]::Delete($tmp, $true) } catch { }
