@@ -75,23 +75,23 @@ Windows (PowerShell; installs to `%LOCALAPPDATA%\Programs\gls` and adds that fol
 irm https://raw.githubusercontent.com/equinox79/gls/main/install.ps1 | iex
 ```
 
-To choose a version or a folder, set `GLS_VERSION` (for example `0.2.0`) or `GLS_INSTALL_DIR` first, for example `GLS_VERSION=0.2.2 sh install.sh`. On Windows, `GLS_NO_MODIFY_PATH=1` leaves your `PATH` alone. On Linux, check the notes under "Notes for Linux" below.
+To choose a version or a folder, set `GLS_VERSION` (for example `0.2.0`) or `GLS_INSTALL_DIR` first, for example `GLS_VERSION=0.2.3 sh install.sh`. On Windows, `GLS_NO_MODIFY_PATH=1` leaves your `PATH` alone. On Linux, check the notes under "Notes for Linux" below.
 
 Or do it by hand:
 Download the archive for your OS from the [Releases page](https://github.com/equinox79/gls/releases), unpack it, and put `gls` (`gls.exe` on Windows) in a folder on your `PATH`.
 
-| OS | File (for version `v0.2.2`) |
+| OS | File (for version `v0.2.3`) |
 | --- | --- |
-| Windows (x64) | `gls-v0.2.2-x86_64-pc-windows-msvc.zip` |
-| macOS (Apple silicon) | `gls-v0.2.2-aarch64-apple-darwin.tar.gz` |
-| macOS (Intel) | `gls-v0.2.2-x86_64-apple-darwin.tar.gz` |
-| Linux / WSL (x64) | `gls-v0.2.2-x86_64-unknown-linux-gnu.tar.gz` |
-| Linux (ARM64) | `gls-v0.2.2-aarch64-unknown-linux-gnu.tar.gz` |
+| Windows (x64) | `gls-v0.2.3-x86_64-pc-windows-msvc.zip` |
+| macOS (Apple silicon) | `gls-v0.2.3-aarch64-apple-darwin.tar.gz` |
+| macOS (Intel) | `gls-v0.2.3-x86_64-apple-darwin.tar.gz` |
+| Linux / WSL (x64) | `gls-v0.2.3-x86_64-unknown-linux-gnu.tar.gz` |
+| Linux (ARM64) | `gls-v0.2.3-aarch64-unknown-linux-gnu.tar.gz` |
 
 Copy and paste, for example on Linux (x64). Change `VERSION` and the target name for other platforms:
 
 ```bash
-VERSION=0.2.2
+VERSION=0.2.3
 TARGET=x86_64-unknown-linux-gnu
 curl -L -o gls.tar.gz "https://github.com/equinox79/gls/releases/download/v$VERSION/gls-v$VERSION-$TARGET.tar.gz"
 tar xzf gls.tar.gz
@@ -101,7 +101,7 @@ sudo install "gls-v$VERSION-$TARGET/gls" /usr/local/bin/
 On Windows (PowerShell):
 
 ```powershell
-$v = "0.2.2"
+$v = "0.2.3"
 $t = "x86_64-pc-windows-msvc"
 Invoke-WebRequest "https://github.com/equinox79/gls/releases/download/v$v/gls-v$v-$t.zip" -OutFile gls.zip
 Expand-Archive gls.zip -DestinationPath .
@@ -252,7 +252,7 @@ irm https://raw.githubusercontent.com/equinox79/gls/main/install.ps1 | iex
 
 - Installed with `cargo install`? Then update it with cargo: `cargo install --git https://github.com/equinox79/gls --force` (`gls --update` says so and changes nothing).
 - Unpacked an archive by hand? Unpack the new one and replace `gls` (`gls.exe` on Windows).
-- To go to a particular version (or back), set `GLS_VERSION`, for example `GLS_VERSION=0.2.2 sh install.sh`. `GLS_FORCE=1` installs even when that version is already there.
+- To go to a particular version (or back), set `GLS_VERSION`, for example `GLS_VERSION=0.2.3 sh install.sh`. `GLS_FORCE=1` installs even when that version is already there.
 - Check the result with `gls --version`. What changed is in [Releases](#releases).
 - The scripts replace the program and the manual page (see below) and do not touch your cache or settings.
 ### Manual page (`man gls`)
@@ -554,6 +554,11 @@ gls is young (version 0.1). Here is what has been checked, and what has not.
 
 The three newest releases. Archives and checksums are on the [Releases page](https://github.com/equinox79/gls/releases).
 
+### v0.2.3 (2026-10-31)
+
+- **`gls --update`** updates gls to the newest release (it runs the install script for your machine). See [Updating](#updating).
+- The install scripts now do nothing when you are already up to date, and can replace gls while it is running.
+
 ### v0.2.2 (2026-10-31)
 
 - **Manual page.** `gls --man` prints it, in the language gls is using, so `man gls` works on macOS, Linux and WSL. The install script puts it in place. See [Manual page](#manual-page-man-gls).
@@ -563,12 +568,6 @@ The three newest releases. Archives and checksums are on the [Releases page](htt
 - **Install scripts.** One command installs the newest release, with a checksum check: `install.sh` (Linux, macOS) and `install.ps1` (Windows). See [Install](#install).
 - Notes for Linux in the README: the CPU type, glibc 2.35, SSH.
 - The program itself is the same as v0.2.0.
-
-### v0.2.0 (2026-10-11)
-
-- **RAW photos.** gls shows the JPEG preview stored inside the file: ARW, DNG, CR2, CR3, NEF, ORF, PEF, RW2, RAF and more. `-l` and `--json` give the size, the camera and the shooting settings. No new dependencies. What was tried, and what was not, is in [Supported formats](#supported-formats) and [Status and known limitations](#status-and-known-limitations).
-- **`gls --version` shows the build**, for example `gls 0.2.0 (0906d44 2026-10-11)`: the commit hash and its date.
-- A landing page on GitHub Pages (English and Japanese): https://equinox79.github.io/gls/
 
 ## Performance and cache
 
