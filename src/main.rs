@@ -2094,7 +2094,8 @@ fn self_update() {
             "-ExecutionPolicy",
             "Bypass",
             "-Command",
-            &format!("irm {BASE}/install.ps1 | iex"),
+            // Stop on the first error, so that a failed install is a non-zero exit code.
+            &format!("$ErrorActionPreference = 'Stop'; irm {BASE}/install.ps1 | iex"),
         ])
         .env("GLS_NO_MODIFY_PATH", "1");
         c

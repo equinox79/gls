@@ -77,23 +77,23 @@ Windows（PowerShell。`%LOCALAPPDATA%\Programs\gls` に入り、そのフォル
 irm https://raw.githubusercontent.com/equinox79/gls/main/install.ps1 | iex
 ```
 
-バージョンやフォルダを選ぶには、先に `GLS_VERSION`（例: `0.2.0`）や `GLS_INSTALL_DIR` を設定します。たとえば `GLS_VERSION=0.2.3 sh install.sh` です。Windows では、`GLS_NO_MODIFY_PATH=1` で `PATH` を変えません。Linux では、下の「Linux での注意」も読んでください。
+バージョンやフォルダを選ぶには、先に `GLS_VERSION`（例: `0.2.0`）や `GLS_INSTALL_DIR` を設定します。たとえば `GLS_VERSION=0.2.4 sh install.sh` です。Windows では、`GLS_NO_MODIFY_PATH=1` で `PATH` を変えません。Linux では、下の「Linux での注意」も読んでください。
 
 手で入れる場合:
 [Releases のページ](https://github.com/equinox79/gls/releases)から、お使いの OS 用のアーカイブをダウンロードして展開し、`gls`（Windows は `gls.exe`）を `PATH` の通ったフォルダに置きます。
 
-| OS | ファイル（バージョン `v0.2.3` の場合） |
+| OS | ファイル（バージョン `v0.2.4` の場合） |
 | --- | --- |
-| Windows（x64） | `gls-v0.2.3-x86_64-pc-windows-msvc.zip` |
-| macOS（Apple シリコン） | `gls-v0.2.3-aarch64-apple-darwin.tar.gz` |
-| macOS（Intel） | `gls-v0.2.3-x86_64-apple-darwin.tar.gz` |
-| Linux / WSL（x64） | `gls-v0.2.3-x86_64-unknown-linux-gnu.tar.gz` |
-| Linux（ARM64） | `gls-v0.2.3-aarch64-unknown-linux-gnu.tar.gz` |
+| Windows（x64） | `gls-v0.2.4-x86_64-pc-windows-msvc.zip` |
+| macOS（Apple シリコン） | `gls-v0.2.4-aarch64-apple-darwin.tar.gz` |
+| macOS（Intel） | `gls-v0.2.4-x86_64-apple-darwin.tar.gz` |
+| Linux / WSL（x64） | `gls-v0.2.4-x86_64-unknown-linux-gnu.tar.gz` |
+| Linux（ARM64） | `gls-v0.2.4-aarch64-unknown-linux-gnu.tar.gz` |
 
 コピーして貼り付けられる例です（Linux の x64）。ほかの環境では、`VERSION` とターゲット名を変えてください。
 
 ```bash
-VERSION=0.2.3
+VERSION=0.2.4
 TARGET=x86_64-unknown-linux-gnu
 curl -L -o gls.tar.gz "https://github.com/equinox79/gls/releases/download/v$VERSION/gls-v$VERSION-$TARGET.tar.gz"
 tar xzf gls.tar.gz
@@ -103,7 +103,7 @@ sudo install "gls-v$VERSION-$TARGET/gls" /usr/local/bin/
 Windows（PowerShell）の場合:
 
 ```powershell
-$v = "0.2.3"
+$v = "0.2.4"
 $t = "x86_64-pc-windows-msvc"
 Invoke-WebRequest "https://github.com/equinox79/gls/releases/download/v$v/gls-v$v-$t.zip" -OutFile gls.zip
 Expand-Archive gls.zip -DestinationPath .
@@ -254,7 +254,7 @@ irm https://raw.githubusercontent.com/equinox79/gls/main/install.ps1 | iex
 
 - `cargo install` で入れた場合は、cargo で更新します: `cargo install --git https://github.com/equinox79/gls --force`（`gls --update` も、そう案内するだけで、何も変えません）。
 - アーカイブを手で展開した場合は、新しいアーカイブを展開して、`gls`（Windows は `gls.exe`）を置き換えます。
-- 特定のバージョンにする（戻す）には、`GLS_VERSION` を設定します。例: `GLS_VERSION=0.2.3 sh install.sh`。`GLS_FORCE=1` で、同じバージョンがすでにあっても入れ直します。
+- 特定のバージョンにする（戻す）には、`GLS_VERSION` を設定します。例: `GLS_VERSION=0.2.4 sh install.sh`。`GLS_FORCE=1` で、同じバージョンがすでにあっても入れ直します。
 - 結果は `gls --version` で確かめます。変更点は[リリース情報](#リリース情報)にあります。
 - スクリプトが置き換えるのは、プログラムとマニュアルページ（下を参照）です。キャッシュと設定には触りません。
 ### マニュアルページ（`man gls`）
@@ -556,6 +556,10 @@ gls はまだ若いツール（バージョン 0.1）です。確認できてい
 
 最新の3つのリリースです。アーカイブとチェックサムは [Releases のページ](https://github.com/equinox79/gls/releases)にあります。
 
+### v0.2.4（2026-10-31）
+
+- **Windows:** PowerShell 7 から起動したとき、`gls --update` が「Get-FileHash が認識されません」で失敗する不具合を直しました。更新に失敗したときは、終了コードが 0 以外になります。`install.ps1` は PowerShell のモジュールに依存しなくなったので、v0.2.3 の `gls --update` も、また使えます。
+
 ### v0.2.3（2026-10-31）
 
 - **`gls --update`** で、gls を最新のリリースに更新できます（この環境向けのインストールスクリプトを実行します）。[アップデート](#アップデート)を参照。
@@ -564,12 +568,6 @@ gls はまだ若いツール（バージョン 0.1）です。確認できてい
 ### v0.2.2（2026-10-31）
 
 - **マニュアルページ。** `gls --man` が、gls が使っている言語で出力するので、macOS・Linux・WSL で `man gls` が使えます。インストールスクリプトが置きます。[マニュアルページ](#マニュアルページman-gls)を参照。
-
-### v0.2.1（2026-10-12）
-
-- **インストールスクリプト。** 1つのコマンドで、最新のリリースを、チェックサムを確かめて入れます。`install.sh`（Linux、macOS）と `install.ps1`（Windows）です。[インストール](#インストール)を参照。
-- README に、Linux での注意（CPU の種類、glibc 2.35、SSH）を足しました。
-- プログラム自体は、v0.2.0 と同じです。
 
 ## 速さとキャッシュ
 
