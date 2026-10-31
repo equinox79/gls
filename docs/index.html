@@ -310,6 +310,12 @@ gls -0 -R -e '\.jpg$' | xargs -0 ls -l   # safe with spaces in file names</pre><
       <h2><span class="en">Releases</span><span class="ja">リリース情報</span></h2>
       <p class="sub"><span class="en">The three newest. Archives and checksums are on the <a href="https://github.com/equinox79/gls/releases">Releases page</a>.</span><span class="ja">最新の3つです。アーカイブとチェックサムは <a href="https://github.com/equinox79/gls/releases">Releases のページ</a>にあります。</span></p>
       <div class="block">
+        <h3>v0.2.2 <span style="color:var(--muted);font-weight:400">· 2026-10-31</span></h3>
+        <ul class="plain">
+          <li><span class="en"><strong>Manual page:</strong> <code>gls --man</code> prints it in your language, so <code>man gls</code> works on macOS, Linux and WSL; the install script puts it in place</span><span class="ja"><strong>マニュアルページ:</strong> <code>gls --man</code> が、使っている言語で出力するので、macOS・Linux・WSL で <code>man gls</code> が使える。インストールスクリプトが置く</span></li>
+        </ul>
+      </div>
+      <div class="block" style="margin-top:14px">
         <h3>v0.2.1 <span style="color:var(--muted);font-weight:400">· 2026-10-12</span></h3>
         <ul class="plain">
           <li><span class="en"><strong>Install scripts:</strong> one command installs the newest release, with a checksum check (<code>install.sh</code>, <code>install.ps1</code>)</span><span class="ja"><strong>インストールスクリプト:</strong> 1つのコマンドで、最新のリリースを、チェックサムを確かめて入れる（<code>install.sh</code>、<code>install.ps1</code>）</span></li>
@@ -322,13 +328,6 @@ gls -0 -R -e '\.jpg$' | xargs -0 ls -l   # safe with spaces in file names</pre><
           <li><span class="en"><strong>RAW photos:</strong> the embedded JPEG preview of ARW, DNG, CR2, CR3, NEF, ORF, PEF, RW2, RAF and more, with size, camera and settings in <code>-l</code> and <code>--json</code></span><span class="ja"><strong>RAW 写真:</strong> ARW・DNG・CR2・CR3・NEF・ORF・PEF・RW2・RAF などの、埋め込みの JPEG プレビュー。<code>-l</code> と <code>--json</code> に、大きさ、カメラ、撮影設定</span></li>
           <li><span class="en"><code>gls --version</code> shows the build (commit and date)</span><span class="ja"><code>gls --version</code> にビルド（コミットと日付）が出る</span></li>
           <li><span class="en">This page</span><span class="ja">この紹介ページ</span></li>
-        </ul>
-      </div>
-      <div class="block" style="margin-top:14px">
-        <h3>v0.1.1 <span style="color:var(--muted);font-weight:400">· 2026-10-10</span></h3>
-        <ul class="plain">
-          <li><span class="en"><code>-l</code> shows thumbnail cards by default; <code>--thumbs-off</code> gives the plain table</span><span class="ja"><code>-l</code> は標準でサムネイルのカードを表示。<code>--thumbs-off</code> で表だけ</span></li>
-          <li><span class="en">New tagline: "ls, with pictures."</span><span class="ja">キャッチコピーを「ls, with pictures.」に</span></li>
         </ul>
       </div>
     </div>
